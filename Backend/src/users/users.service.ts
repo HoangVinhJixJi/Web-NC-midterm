@@ -11,7 +11,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<UserInterface> {
     const newUser = {
       ...createUserDto,
-      ...{ fullName: '', age: 0, gender: '', avatar: '' },
+      ...{ fullName: '', gender: '', birthday: '', avatar: '' },
     };
     const createUser = new this.usersModel(newUser);
     return createUser.save();

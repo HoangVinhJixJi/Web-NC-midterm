@@ -1,5 +1,4 @@
 export default function configuration() {
-  console.log(process.env.JWT_SECRET);
   return {
     port: parseInt(process.env.SERVER_PORT, 10) || 3000,
     database: {
