@@ -89,24 +89,24 @@ const SignUp = () => {
       }
 
       // Make API call
-      const response = await axios.post('http://localhost:3001/auth/register', {
+      const response = await axios.post('http://localhost:3000/users/register', {
         username: username,
         password: password,
         email: email,
-        fullname: fullname,
-        dateOfBirth: dateOfBirth,
+        fullName: fullname,
+        birthday: dateOfBirth,
         gender: gender,
         avatar: avatar,
       });
 
       if (response.data) {
-        setMessage('Đăng ký thành công. Hãy đăng nhập ngay bây giờ.');
+        setMessage('Sign up success. Sign in now!');
         console.log(response.data);
         navigate('/signin');
       }
     } catch (error) {
-      setMessage('Đăng ký thất bại. Vui lòng thử lại.');
-      console.error('Đăng ký thất bại:', error);
+      setMessage('Sign up failed. Try again!');
+      console.error('Sign up failed:', error);
     }
   };
 

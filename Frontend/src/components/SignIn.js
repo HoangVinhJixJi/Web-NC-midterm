@@ -21,9 +21,9 @@ const SignIn = () => {
       }
 
       // Gọi API đăng nhập từ phía backend
-      const response = await axios.post('http://localhost:3001/auth/login', {
+      const response = await axios.post('http://localhost:3000/auth/login', {
         username: username,
-        password: password,
+        pass: password,
       });
 
       // Xử lý phản hồi từ API
@@ -40,8 +40,8 @@ const SignIn = () => {
         navigate('/home');
       }
     } catch (error) {
-      setMessage('Đăng nhập thất bại. Vui lòng thử lại.');
-      console.error('Đăng nhập thất bại:', error);
+      setMessage('Sign in failed. Try again!');
+      console.error('Sign in failed:', error);
     }
   };
 
