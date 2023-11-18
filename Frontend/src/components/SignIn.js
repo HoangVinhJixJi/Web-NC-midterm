@@ -1,10 +1,10 @@
-// SignIn.js
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Button, Container, TextField, Typography, Paper } from '@mui/material';
 import Cookies from 'js-cookie';
 
-function SignIn () {
+const SignIn = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi
@@ -12,18 +12,17 @@ function SignIn () {
 
   const handleSignIn = async (event) => {
     try {
-      
-      event.preventDefault(); 
-      console.log("handle Sign in");
-      console.log("username: ", username);
-      console.log("password: ", password);
+      event.preventDefault();
+      console.log('handle Sign in');
+      console.log('username: ', username);
+      console.log('password: ', password);
 
       // Gọi API đăng ký từ phía backend
-      const response = await axios.post('http://localhost:3001/auth/login', 
-      {
+      const response = await axios.post('http://localhost:3001/auth/login', {
         username: username,
         password: password,
       });
+
       // Xử lý phản hồi từ API
       if (response.data) {
         console.log(response.data);
@@ -37,30 +36,50 @@ function SignIn () {
         // Chuyển hướng sang trang home
         navigate('/home');
       }
-
     } catch (error) {
-      
-      setMessage('Đăng ký thất bại. Vui lòng thử lại.');
+      setMessage('Đăng nhập thất bại. Vui lòng thử lại.');
       console.error('Đăng nhập thất bại:', error);
     }
-  }
+  };
 
   return (
-    <div className="signin-container">
-      <h2>Sign In</h2>
-      <form>
-      <div className="form-group">
-          <label>Username</label>
-          <input type="text" onChange={(e)=>setUsername(e.target.value)} required/>
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input type="password"  onChange={(e)=>setPassword(e.target.value)} required/>
-        </div>
-        <button onClick={(e)=>handleSignIn(e)}>Sign In</button>
-      </form>
-      <h3>{message}</h3>
-    </div>
+    <Container maxWidth="xs">
+      <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h4" gutterBottom style={{ color: '#2196F3', fontWeight: 'bold' }}>
+          Sign In
+        </Typography>
+        <form>
+          <TextField
+            label="Username"
+            type="text"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            required
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            required
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ marginBottom: '20px' }}
+          />
+          <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignIn(e)}>
+            Sign In
+          </Button>
+        </form>
+        <Typography variant="body2" color="error" mt={2}>
+          {message}
+        </Typography>
+        <Typography variant="body2" mt={2}>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
+        </Typography>
+      </Paper>
+    </Container>
   );
 };
 

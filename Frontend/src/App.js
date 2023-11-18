@@ -1,40 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Typography, Container, Box } from '@mui/material';
 import Landing from './components/Landing';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import Home from './components/Home';
-import './App.css'
-function App() {
-  return (
-    <div className="app">
-      <nav className="  navbar navbar-expand-lg navbar-light bg-primary m-3 " >
-        <Link className="navbar-brand"  to="/home">
-          MANAGER LOGIN JWT
-        </Link>
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ml-auto">
-            <button className="nav-item btn-success m-3">
-              <Link className="nav-link" to="/signin">
-                Sign In
-              </Link>
-            </button>
-            <button className="nav-item btn-warning m-3">
-              <Link className="nav-link" to="/signup">
-                Sign Up
-              </Link>
-            </button>
-          </ul>
-        </div>
-      </nav>
+import Profile from './components/Profile';
+import './App.css';
 
-      <Routes>
-        <Route exact path="/" element={<Landing />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/home" element={<Home />} />
-      </Routes>
-    </div>
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  const handleSignOut = () => {
+    // Xử lý đăng xuất, có thể cần cập nhật trạng thái người dùng ở đây
+    setIsLoggedIn(false);
+  };
+
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static" color="primary">
+        <Container maxWidth="md">
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              <Button color="inherit" component={Link} to={isLoggedIn ? '/home' : '/'} sx={{ flexGrow: 1 }}>
+                Home
+              </Button>
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              {isLoggedIn ? (
+                <>
+                  <Button color="inherit" component={Link} to="/profile">
+                    Profile
+                  </Button>
+                  <Button color="inherit" onClick={handleSignOut}>
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button color="inherit" component={Link} to="/signin">
+                    Sign In
+                  </Button>
+                  <Button color="inherit" component={Link} to="/signup">
+                    Sign Up
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Toolbar>
+        </Container>
+      </AppBar>
+
+      <Container maxWidth="md" sx={{ marginTop: 4 }}>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </Container>
+    </Box>
   );
 }
 
