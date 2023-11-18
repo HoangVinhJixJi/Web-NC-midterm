@@ -29,9 +29,6 @@ export class UsersService {
     }
     return null;
   }
-  async deleteOneByUsername(username: string) {
-    return this.usersModel.deleteOne({ username }).exec();
-  }
   async findOneAndUpdate(
     username: string,
     newData: UpdateUserDto,
@@ -39,5 +36,12 @@ export class UsersService {
     return this.usersModel
       .findOneAndUpdate({ username: username }, newData, { new: true })
       .exec();
+  }
+  async updatePassword(username: string, newPassword: string): Promise<string> {
+    return this.usersModel.findOneAndUpdate(
+      { username: username },
+      { password: newPassword },
+      { new: true },
+    );
   }
 }
