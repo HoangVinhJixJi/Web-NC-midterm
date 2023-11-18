@@ -13,11 +13,14 @@ const SignIn = () => {
   const handleSignIn = async (event) => {
     try {
       event.preventDefault();
-      console.log('handle Sign in');
-      console.log('username: ', username);
-      console.log('password: ', password);
 
-      // Gọi API đăng ký từ phía backend
+      // Validate inputs
+      if (!username || !password) {
+        setMessage('Please enter both username and password.');
+        return;
+      }
+
+      // Gọi API đăng nhập từ phía backend
       const response = await axios.post('http://localhost:3001/auth/login', {
         username: username,
         password: password,

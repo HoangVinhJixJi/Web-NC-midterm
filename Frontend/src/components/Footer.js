@@ -8,7 +8,7 @@ const Footer = () => {
             <Container maxWidth="md">
                 <Toolbar>
                     <Typography variant="body2" color="inherit">
-                        © 2023 FIT-HCMUS. All rights reserved.
+                        © 2023 FIT - HCMUS. All rights reserved.
                     </Typography>
                 </Toolbar>
             </Container>
