@@ -69,9 +69,8 @@ const SignIn = () => {
             fullWidth
             required
             onChange={(e) => setPassword(e.target.value)}
-            style={{ marginBottom: '20px' }}
           />
-          <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignIn(e)}>
+          <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignIn(e)} style={{ marginTop: '20px' }}>
             Sign In
           </Button>
         </form>
