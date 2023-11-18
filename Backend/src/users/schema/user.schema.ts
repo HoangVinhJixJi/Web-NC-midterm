@@ -15,8 +15,6 @@ export class User {
   @Prop()
   fullName: string;
   @Prop()
-  age: number;
-  @Prop()
   gender: string;
   @Prop()
   birthday: string;

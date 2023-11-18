@@ -1,8 +1,10 @@
 export default function configuration() {
+  console.log(process.env.JWT_SECRET);
   return {
-    port: parseInt(process.env.PORT) || 3000,
+    port: parseInt(process.env.SERVER_PORT, 10) || 3000,
     database: {
-      db_connection_url: `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@cluster0.7yugkxi.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`,
+      db_connection_uri: process.env.DATABASE_URI,
     },
+    jwt_secret: process.env.JWT_SECRET,
   };
 }
