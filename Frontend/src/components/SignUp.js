@@ -68,6 +68,12 @@ const SignUp = () => {
       setMessage('Please select your gender.');
       return false;
     }
+    
+    // Validate Avatar
+    if (!avatar) {
+      setMessage('Please enter an avatar URL.');
+      return false;
+    }
 
     // All validations passed
     return true;
