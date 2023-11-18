@@ -10,7 +10,7 @@ const SignUp = () => {
   const [fullname, setFullname] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi
+  const [message, setMessage] = useState('');
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
   const navigate = useNavigate();
 
@@ -22,10 +22,68 @@ const SignUp = () => {
     setIsDateOfBirthFocused(false);
   };
 
+  const validateInputs = () => {
+    // Validate Full Name
+    if (!fullname) {
+      setMessage('Please enter your full name.');
+      return false;
+    }
+
+    // Validate Username
+    if (!username) {
+      setMessage('Please enter a username.');
+      return false;
+    }
+
+    // Validate Password (add more complex checks if needed)
+    if (!password) {
+      setMessage('Please enter a password.');
+      return false;
+    }
+
+    // Validate Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage('Please enter a valid email address.');
+      return false;
+    }
+
+    // Validate Date of Birth (you can add more specific checks based on your requirements)
+    if (!dateOfBirth && !isDateOfBirthFocused) {
+      setMessage('Please enter your date of birth.');
+      return false;
+    }
+
+    const currentDate = new Date();
+    const inputDate = new Date(dateOfBirth);
+
+    if (inputDate > currentDate) {
+      setMessage('Date of birth cannot be in the future.');
+      return false;
+    }
+
+    // Validate Phone Number (add more complex checks if needed)
+    const phoneRegex = /^\d{10}$/; // Assumes a 10-digit phone number
+    if (!phoneRegex.test(phoneNumber)) {
+      setMessage('Please enter a valid phone number.');
+      return false;
+    }
+
+    // All validations passed
+    return true;
+  };
+
+
   const handleSignUp = async (event) => {
     try {
       event.preventDefault();
-      // Gọi API đăng ký từ phía backend
+
+      // Validate inputs
+      if (!validateInputs()) {
+        return;
+      }
+
+      // Make API call
       const response = await axios.post('http://localhost:3001/auth/register', {
         username: username,
         password: password,
@@ -34,12 +92,10 @@ const SignUp = () => {
         dateOfBirth: dateOfBirth,
         phoneNumber: phoneNumber,
       });
-      // Xử lý phản hồi từ API
+
       if (response.data) {
-        // Nếu đăng ký thành công, hiển thị thông báo thành công
         setMessage('Đăng ký thành công. Hãy đăng nhập ngay bây giờ.');
         console.log(response.data);
-        // Chuyển hướng sang trang đăng nhập sau khi đăng ký thành công
         navigate('/signin');
       }
     } catch (error) {
@@ -49,7 +105,7 @@ const SignUp = () => {
   };
 
   useEffect(() => {
-    // Khi component được tải lại, bật trường nhập và nút
+    // Component did mount logic
   }, []);
 
   return (
