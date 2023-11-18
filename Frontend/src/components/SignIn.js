@@ -2,7 +2,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+
 
 function SignIn () {
   const [username, setUsername] = useState('');
@@ -19,20 +19,24 @@ function SignIn () {
       console.log("password: ", password);
 
       // Gọi API đăng ký từ phía backend
-      const response = await axios.post('http://localhost:3001/auth/login', 
+      const response = await axios.post('http://localhost:3333/auth/login', 
       {
         username: username,
         password: password,
+      }, 
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'http://localhost:3000', // Replace with your frontend origin
+        }
       });
       // Xử lý phản hồi từ API
       if (response.data) {
-        console.log(response.data);
-        const { user, accessToken, refreshToken } = response.data;
+        console.log("response.data: " ,response.data);
+        const { access_token } = response.data;
 
         // Lưu thông tin người dùng và token vào localStorage hoặc sessionStorage
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('accessToken', accessToken);
-        Cookies.set('refreshToken', refreshToken, { expires: 30 });
+        localStorage.setItem('accessToken', access_token);
 
         // Chuyển hướng sang trang home
         navigate('/home');
