@@ -39,7 +39,7 @@ export class AuthController {
   @Get('profile')
   async getProfile(@Request() req): Promise<UserDto> {
     const { username } = req.user;
-    const user = await this.usersService.findOne(username);
+    const user = await this.usersService.findOneByUsername(username);
     return {
       userId: user.userId,
       username: user.username,
