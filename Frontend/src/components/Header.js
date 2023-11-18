@@ -1,21 +1,14 @@
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
+import React, { useState } from 'react';
+import { AppBar, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
 
-const pages = ['home', 'about', 'services'];
+const pages = ['Home', 'About', 'Service'];
 
 function Header() {
-    const [anchorElNav, setAnchorElNav] = React.useState(null);
+    const [anchorElNav, setAnchorElNav] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -23,6 +16,11 @@ function Header() {
 
     const handleCloseNavMenu = () => {
         setAnchorElNav(null);
+    };
+
+    const handleSignOut = () => {
+        // Perform sign-out logic here
+        setIsLoggedIn(false);
     };
 
     return (
@@ -118,16 +116,31 @@ function Header() {
                     </Box>
 
                     <Box sx={{ flexGrow: 0 }}>
-                        <Button variant="outlined" color="inherit" sx={{ mx: 2 }}>
-                            <Link to={'/signin'} style={{ textDecoration: 'none', color: 'white' }}>
-                                Sign In
-                            </Link>
-                        </Button>
-                        <Button variant="outlined" color="inherit" sx={{ mx: 2 }}>
-                            <Link to={'/signup'} style={{ textDecoration: 'none', color: 'white' }}>
-                                Sign Up
-                            </Link>
-                        </Button>
+                        {isLoggedIn ? (
+                            <>
+                                <Button variant="outlined" color="inherit" sx={{ mx: 2 }}>
+                                    <Link to={'/profile'} style={{ textDecoration: 'none', color: 'white' }}>
+                                        Profile
+                                    </Link>
+                                </Button>
+                                <Button variant="outlined" color="inherit" sx={{ mx: 2 }} onClick={handleSignOut}>
+                                    Sign Out
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button variant="outlined" color="inherit" sx={{ mx: 2 }}>
+                                    <Link to={'/signin'} style={{ textDecoration: 'none', color: 'white' }}>
+                                        Sign In
+                                    </Link>
+                                </Button>
+                                <Button variant="outlined" color="inherit" sx={{ mx: 2 }}>
+                                    <Link to={'/signup'} style={{ textDecoration: 'none', color: 'white' }}>
+                                        Sign Up
+                                    </Link>
+                                </Button>
+                            </>
+                        )}
                     </Box>
                 </Toolbar>
             </Container>
