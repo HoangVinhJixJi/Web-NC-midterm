@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { Button, Container, TextField, Typography, Paper } from '@mui/material';
+import { Button, Container, TextField, Typography, Paper, MenuItem } from '@mui/material';
 
 const SignUp = () => {
   const [username, setUsername] = useState('');
@@ -9,7 +9,8 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [fullname, setFullname] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [gender, setGender] = useState('');
+  const [avatar, setAvatar] = useState('');
   const [message, setMessage] = useState('');
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
   const navigate = useNavigate();
@@ -62,17 +63,15 @@ const SignUp = () => {
       return false;
     }
 
-    // Validate Phone Number (add more complex checks if needed)
-    const phoneRegex = /^\d{10}$/; // Assumes a 10-digit phone number
-    if (!phoneRegex.test(phoneNumber)) {
-      setMessage('Please enter a valid phone number.');
+    // Validate Gender
+    if (!gender) {
+      setMessage('Please select your gender.');
       return false;
     }
 
     // All validations passed
     return true;
   };
-
 
   const handleSignUp = async (event) => {
     try {
@@ -90,7 +89,8 @@ const SignUp = () => {
         email: email,
         fullname: fullname,
         dateOfBirth: dateOfBirth,
-        phoneNumber: phoneNumber,
+        gender: gender,
+        avatar: avatar,
       });
 
       if (response.data) {
@@ -125,23 +125,19 @@ const SignUp = () => {
             required
           />
           <TextField
-            label="Username"
-            type="text"
+            select
+            label="Gender"
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
             variant="outlined"
             margin="normal"
             fullWidth
-            onChange={(e) => setUsername(e.target.value)}
             required
-          />
-          <TextField
-            label="Password"
-            type="password"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          >
+            <MenuItem value="Nam">Nam</MenuItem>
+            <MenuItem value="Nữ">Nữ</MenuItem>
+            <MenuItem value="Khác">Khác</MenuItem>
+          </TextField>
           <TextField
             label="Email"
             type="email"
@@ -174,16 +170,33 @@ const SignUp = () => {
             />
           )}
           <TextField
-            label="Phone Number"
-            type="tel"
+            label="Avatar URL"
+            type="text"
             variant="outlined"
             margin="normal"
             fullWidth
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            onChange={(e) => setAvatar(e.target.value)}
             required
-            style={{ marginBottom: '20px' }}
           />
-          <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignUp(e)}>
+          <TextField
+            label="Username"
+            type="text"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignUp(e)} style={{ marginTop: '20px' }}>
             Sign Up
           </Button>
         </form>
