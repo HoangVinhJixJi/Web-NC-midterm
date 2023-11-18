@@ -16,10 +16,10 @@ const Footer = () => {
                                 <ListItemButton href='/home'>
                                     <ListItemText primary="Home" />
                                 </ListItemButton>
-                                <ListItemButton href='/signin'>
+                                <ListItemButton href='/about'>
                                     <ListItemText primary="About" />
                                 </ListItemButton>
-                                <ListItemButton href='/signup'>
+                                <ListItemButton href='/services'>
                                     <ListItemText primary="Services" />
                                 </ListItemButton>
                                 {/* Thêm các mục khác theo cần thiết */}
