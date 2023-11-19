@@ -21,20 +21,31 @@ const SignIn = () => {
       }
 
       // Gọi API đăng nhập từ phía backend
-      const response = await axios.post('http://localhost:3000/auth/login', {
-        username: username,
-        pass: password,
-      });
+      const response = await axios.post('http://localhost:3001/auth/login',
+        {
+          username: username,
+          password: password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'http://localhost:3000', // Replace with your frontend origin
+          }
+        });
 
       // Xử lý phản hồi từ API
       if (response.data) {
         console.log(response.data);
-        const { user, accessToken, refreshToken } = response.data;
+        const { accessToken } = response.data;
+        
+        const user = {
+          username: username,
+          password: password,
+        }
 
         // Lưu thông tin người dùng và token vào localStorage hoặc sessionStorage
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('accessToken', accessToken);
-        Cookies.set('refreshToken', refreshToken, { expires: 30 });
 
         // Chuyển hướng sang trang home
         navigate('/home');
