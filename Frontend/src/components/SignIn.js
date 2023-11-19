@@ -8,7 +8,6 @@ const SignIn = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi
   const navigate = useNavigate();
-  const avatarURL = 'https://sm.ign.com/ign_nordic/cover/a/avatar-gen/avatar-generations_prsz.jpg';
 
   const handleSignIn = async (event) => {
     try {
