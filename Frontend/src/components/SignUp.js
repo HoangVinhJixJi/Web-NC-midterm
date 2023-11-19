@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button, Container, TextField, Typography, Paper, MenuItem } from '@mui/material';
 
 const SignUp = () => {
@@ -13,7 +13,6 @@ const SignUp = () => {
   const [avatar, setAvatar] = useState('');
   const [message, setMessage] = useState('');
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
-  const navigate = useNavigate();
 
   const handleDateOfBirthFocus = () => {
     setIsDateOfBirthFocused(true);
