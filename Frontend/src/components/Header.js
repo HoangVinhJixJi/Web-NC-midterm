@@ -23,13 +23,8 @@ function Header() {
 
 
     const navigate = useNavigate();
-    // const settings = [
-    //   {name: 'Profile', url: '/users/profile'}, 
-    //   {name: 'Logout', url: '/logout'}];
+
     const { isLoggedIn, user, logout } = useAuthContext();
-
-    // Thực hiện các hành động cập nhật dựa trên isLoggedIn và user
-
 
     console.log('Is logged in:', isLoggedIn);
     console.log('User:', user);
@@ -52,9 +47,10 @@ function Header() {
     };
 
     const handleLogout = () => {
+        setAnchorElUser(null);
         // Thực hiện đăng xuất khi người dùng click vào nút Logout
         logout();
-        navigate('/');
+        navigate('/home');
     };
 
     return (
@@ -154,12 +150,12 @@ function Header() {
                         {isLoggedIn ? (
                             <>
                                 <Tooltip title="Open settings">
+
                                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                        <Typography color={'white'} sx={{ marginRight: '8px' }}> {user.fullName} </Typography>
-                                        <Avatar alt={user.fullName} src={user.avatar} sx={{ marginLeft: '8px' }} />
+                                        <Typography color={'white'} px={2}> {user.fullName} </Typography>
+                                        <Avatar alt={user.fullName} src={user.avatar} />
                                     </IconButton>
                                 </Tooltip>
-
                                 <Menu
                                     sx={{ mt: '45px' }}
                                     id="menu-appbar"
@@ -176,15 +172,30 @@ function Header() {
                                     open={Boolean(anchorElUser)}
                                     onClose={handleCloseUserMenu}
                                 >
-
-                                    <MenuItem key='profile' onClick={handleCloseUserMenu}>
+                                    <Link style={{ textDecoration: 'none', color: 'black' }} to='/user/profile' >
+                                        <MenuItem key='profile' onClick={handleCloseUserMenu}>
+                                            <Typography textAlign="center" >
+                                                Profile
+                                            </Typography>
+                                        </MenuItem>
+                                    </Link>
+                                    <Link style={{ textDecoration: 'none', color: 'black' }} to='/user/edit' >
+                                        <MenuItem key='edit' onClick={handleCloseUserMenu}>
+                                            <Typography textAlign="center" >
+                                                Edit
+                                            </Typography>
+                                        </MenuItem>
+                                    </Link>
+                                    <Link style={{ textDecoration: 'none', color: 'black' }} to='/user/change-password' >
+                                        <MenuItem key='change-password' onClick={handleCloseUserMenu}>
+                                            <Typography textAlign="center" >
+                                                Change Password
+                                            </Typography>
+                                        </MenuItem>
+                                    </Link>
+                                    <MenuItem key='logout' onClick={handleLogout}>
                                         <Typography textAlign="center" >
-                                            <Link style={{ textDecoration: 'none', color: 'black' }} to='/users/profile' > My Profile </Link>
-                                        </Typography>
-                                    </MenuItem>
-                                    <MenuItem key='logout' onClick={handleCloseUserMenu}>
-                                        <Typography textAlign="center" onClick={handleLogout}>
-                                            Sign Out
+                                            Logout
                                         </Typography>
                                     </MenuItem>
 

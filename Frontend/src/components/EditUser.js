@@ -13,7 +13,8 @@ import {
   FormControlLabel,
   Radio,
   Input,
-  InputLabel
+  InputLabel,
+  FormHelperText 
 } from '@mui/material';
 
 
@@ -23,8 +24,7 @@ const EditUser = () => {
   const [user, setUser] = useState({
     username: '',
     fullName: '',
-    age: '',
-    gender: 'male',
+    gender: '',
     birthday: null,
     email: '',
     avatar: '',
@@ -48,6 +48,15 @@ const EditUser = () => {
     
     try {
       console.log(user);
+      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        navigate('/signin');
+      }
+      console.log("token fetchUserData: ", token);
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
       // Gửi yêu cầu POST đến endpoint của server
       const response = await api.post('/users/update', user);
       console.log("response.status: ", response.status);
@@ -74,7 +83,7 @@ const EditUser = () => {
         const token = localStorage.getItem('token');
         if(!token){
           console.error('Error fetching user data:', Error);
-          //navigate('/signin');
+          navigate('/signin');
         }
         console.log("token fetchUserData: ", token);
         // Đặt token cho mọi yêu cầu
@@ -101,7 +110,6 @@ const EditUser = () => {
 
     // Gọi hàm lấy dữ liệu người dùng
     fetchUserData();
-
   }, []); // Thêm dependencies cần thiết
   console.log(" => userData after from /users/profile : ", user);
   return (
@@ -115,7 +123,7 @@ const EditUser = () => {
           <InputLabel >Username</InputLabel>
           <Input
             fullWidth
-            value={user.username}
+            value={user.username || ''}
             onChange={(e) => handleChange('username', e.target.value)}
           />
           
@@ -126,8 +134,8 @@ const EditUser = () => {
           <Input
             
             fullWidth
-            value={user.fullName}
-            onChange={(e) => handleChange('fullName', e.target.value)}
+            value={user.fullName || ''}
+            onChange={(e) => handleChange('name', e.target.value)}
           />
           
         </Grid>
@@ -138,7 +146,7 @@ const EditUser = () => {
             <FormLabel component="legend">Gender</FormLabel>
             <RadioGroup
               row
-              value={user.gender}
+              value={user.gender || ''}
               onChange={(e) => handleChange('gender', e.target.value)}
             >
               <FormControlLabel value="male" control={<Radio />} label="Male" />
@@ -151,7 +159,7 @@ const EditUser = () => {
             label="Birth Date"
             fullWidth
             type="date"
-            value={user.birthday}
+            value={user.birthday || ''}
             onChange={(e) => handleChange('birthday', e.target.value)}
             InputLabelProps={{
               shrink: true,
@@ -164,23 +172,27 @@ const EditUser = () => {
             label="Email"
             fullWidth
             type="email"
-            value={user.email}
+            value={user.email || ''}
             onChange={(e) => handleChange('email', e.target.value)}
             error={emailError}
-            helperText={emailError ? 'Invalid email format' : ''}
           />
+          {emailError && (
+          <FormHelperText error>
+            Invalid email format
+          </FormHelperText>
+  )}
         </Grid>
         <Grid item xs={12}>
-          <InputLabel InputLabel >Avatar</InputLabel>
+          <InputLabel >Avatar</InputLabel>
           <Input
             label="Avatar URL"
             fullWidth
-            value={user.avatar}
+            value={user.avatar || ''}
             onChange={(e) => handleChange('avatar', e.target.value)}
           />
         </Grid>
         {saveStatus && <Grid item xs={12}>
-          <Typography color={'success'}>
+          <Typography color='primary'>
               {saveStatus}
           </Typography>
         </Grid>}

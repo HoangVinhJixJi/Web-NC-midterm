@@ -7,10 +7,12 @@ import Landing from './components/Landing';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import Home from './components/Home';
-import Profile from './components/Profile';
 import EditUser from './components/EditUser';
 import { AuthProvider } from './api/AuthContext';
 import './App.css';
+import ChangePassword from './components/ChangePassword';
+import Group from './components/Group';
+import Profile from './components/Profile';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,7 +34,10 @@ const App = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/users/profile" element={<EditUser />} />
+            <Route path="/user/edit" element={<EditUser />} />
+        <Route path="/user/change-password" element={<ChangePassword />} />
+        <Route path="/group" element={<Group/>} />
+        <Route path="/user/profile" element={<Profile />} />
           </Routes>
         </Container>
         <Footer />
