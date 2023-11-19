@@ -1,41 +1,35 @@
 import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
-import Landing from './components/Landing';
+import {Routes, Route} from 'react-router-dom'
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import Home from './components/Home';
-import './App.css'
-function App() {
-  return (
-    <div className="app">
-      <nav className="  navbar navbar-expand-lg navbar-light bg-primary m-3 " >
-        <Link className="navbar-brand"  to="/home">
-          MANAGER LOGIN JWT
-        </Link>
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ml-auto">
-            <button className="nav-item btn-success m-3">
-              <Link className="nav-link" to="/signin">
-                Sign In
-              </Link>
-            </button>
-            <button className="nav-item btn-warning m-3">
-              <Link className="nav-link" to="/signup">
-                Sign Up
-              </Link>
-            </button>
-          </ul>
-        </div>
-      </nav>
+import Footer from './components/Footer';
+import EditUser from './components/EditUser';
+import ResponsiveAppBar from './components/ResponsiveAppBar';
+import {AuthProvider} from './api/AuthContext';
 
+const App = () => {
+ 
+
+  return (
+    <div className='app'>
+    <AuthProvider >
+    <ResponsiveAppBar/>
+    <div className='content' >
       <Routes>
-        <Route exact path="/" element={<Landing />} />
+        <Route exact path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/users/profile" element={<EditUser />} />
       </Routes>
     </div>
+
+    <Footer/>
+    </AuthProvider>
+    </div>
+
   );
-}
+};
 
 export default App;
