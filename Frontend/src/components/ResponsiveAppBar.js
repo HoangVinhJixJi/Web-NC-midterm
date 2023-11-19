@@ -15,7 +15,7 @@ import Tooltip from '@mui/material/Tooltip';
 import {Link} from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import {useAuth as useAuthContext} from '../api/AuthContext';
-const pages = ['Home', 'users/profile', 'SignUp'];
+const pages = ['Home', 'SignUp', 'Group'];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -23,14 +23,9 @@ function ResponsiveAppBar() {
 
   
   const navigate = useNavigate();
-  // const settings = [
-  //   {name: 'Profile', url: '/users/profile'}, 
-  //   {name: 'Logout', url: '/logout'}];
+ 
   const { isLoggedIn, user, logout} = useAuthContext();  
   
-    // Thực hiện các hành động cập nhật dựa trên isLoggedIn và user
-
-    
     console.log('Is logged in:', isLoggedIn);
     console.log('User:', user);
 
@@ -52,6 +47,7 @@ function ResponsiveAppBar() {
   };
 
   const handleLogout = () => {
+    setAnchorElUser(null);
     // Thực hiện đăng xuất khi người dùng click vào nút Logout
     logout();
     navigate('/home');
@@ -156,7 +152,7 @@ function ResponsiveAppBar() {
                   <Tooltip title="Open settings">
 
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <Typography color={'white'}> {user.fullName} </Typography>
+                      <Typography color={'white'} px={2}> {user.fullName} </Typography>
                       <Avatar alt={user.fullName} src={user.avatar} />
                     </IconButton>
                   </Tooltip>
@@ -176,19 +172,29 @@ function ResponsiveAppBar() {
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                   >
-                    
+                    <Link style={{textDecoration: 'none', color: 'black'}} to='/user/profile' >
                     <MenuItem key='profile' onClick={handleCloseUserMenu}>
                         <Typography textAlign="center" >
-                          <Link style={{textDecoration: 'none', color: 'black'}} to='/users/profile' > Profile </Link>
+                           Profile 
                         </Typography>
                     </MenuItem>
+                    </Link>
+                    <Link style={{textDecoration: 'none', color: 'black'}} to='/user/edit' >
+                    <MenuItem key='edit' onClick={handleCloseUserMenu}>
+                        <Typography textAlign="center" >
+                          Edit 
+                        </Typography>
+                    </MenuItem>
+                    </Link>
+                    <Link style={{textDecoration: 'none', color: 'black'}} to='/user/change-password' >
                     <MenuItem key='change-password' onClick={handleCloseUserMenu}>
                         <Typography textAlign="center" >
-                          <Link style={{textDecoration: 'none', color: 'black'}} to='/users/change-password' > Change Password </Link>
+                          Change Password 
                         </Typography>
                     </MenuItem>
-                    <MenuItem key='logout' onClick={handleCloseUserMenu}>
-                        <Typography textAlign="center" onClick={handleLogout}>
+                    </Link>
+                    <MenuItem key='logout' onClick={handleLogout}>
+                        <Typography textAlign="center" >
                          Logout
                         </Typography>
                     </MenuItem>
