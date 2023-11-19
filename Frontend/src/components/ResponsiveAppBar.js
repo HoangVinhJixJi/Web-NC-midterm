@@ -10,20 +10,51 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
 import {Link} from 'react-router-dom';
-
-
-const pages = ['Home', 'Edituser', 'SignUp'];
+import { useNavigate } from 'react-router-dom';
+import {useAuth as useAuthContext} from '../api/AuthContext';
+const pages = ['Home', 'users/profile', 'SignUp'];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
 
+  
+  const navigate = useNavigate();
+  // const settings = [
+  //   {name: 'Profile', url: '/users/profile'}, 
+  //   {name: 'Logout', url: '/logout'}];
+  const { isLoggedIn, user, logout} = useAuthContext();  
+  
+    // Thực hiện các hành động cập nhật dựa trên isLoggedIn và user
+
+    
+    console.log('Is logged in:', isLoggedIn);
+    console.log('User:', user);
+
+  
+  
+  console.log("isLoggedIn, user: ", isLoggedIn, user);
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
+  };
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
+  const handleLogout = () => {
+    // Thực hiện đăng xuất khi người dùng click vào nút Logout
+    logout();
+    navigate('/home');
   };
 
   return (
@@ -120,12 +151,55 @@ function ResponsiveAppBar() {
           </Box>
 
           <Box sx={{ flexGrow: 0 }} >
+          {isLoggedIn ? (
+                <>
+                  <Tooltip title="Open settings">
+
+                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                      <Typography color={'white'}> {user.name} </Typography>
+                      <Avatar alt={user.name} src={user.avatar} />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    sx={{ mt: '45px' }}
+                    id="menu-appbar"
+                    anchorEl={anchorElUser}
+                    anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    open={Boolean(anchorElUser)}
+                    onClose={handleCloseUserMenu}
+                  >
+                    
+                    <MenuItem key='profile' onClick={handleCloseUserMenu}>
+                        <Typography textAlign="center" >
+                          <Link style={{textDecoration: 'none', color: 'black'}} to='/users/profile' > Profile </Link>
+                        </Typography>
+                    </MenuItem>
+                    <MenuItem key='logout' onClick={handleCloseUserMenu}>
+                        <Typography textAlign="center" onClick={handleLogout}>
+                         Logout
+                        </Typography>
+                    </MenuItem>
+                    
+                  </Menu>
+                </>
+              ) : (
+                <>
             <Button variant='outlined' color='inherit' sx={{mx: 2}} >
               <Link to={'/signin'} style={{textDecoration: 'none', color: 'white'}} >Sign In</Link>
             </Button>
             <Button variant='outlined' color='inherit' sx={{mx: 2}} >
               <Link to={'/signup'} style={{textDecoration: 'none', color: 'white'}} >Sign Up</Link>
             </Button>
+            </>
+            )}
           </Box>
         </Toolbar>
       </Container>

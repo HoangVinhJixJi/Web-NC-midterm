@@ -6,11 +6,14 @@ import Home from './components/Home';
 import Footer from './components/Footer';
 import EditUser from './components/EditUser';
 import ResponsiveAppBar from './components/ResponsiveAppBar';
+import {AuthProvider} from './api/AuthContext';
+
 const App = () => {
  
 
   return (
     <div className='app'>
+    <AuthProvider >
     <ResponsiveAppBar/>
     <div className='content' style={{minHeight: '60vh'}}>
       <Routes>
@@ -18,12 +21,12 @@ const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/edituser" element={<EditUser />} />
+        <Route path="/users/profile" element={<EditUser />} />
       </Routes>
     </div>
 
     <Footer/>
-    
+    </AuthProvider>
     </div>
 
   );
