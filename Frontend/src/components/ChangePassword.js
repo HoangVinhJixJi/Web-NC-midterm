@@ -8,8 +8,11 @@ import {
   TextField,
   Button,
   Grid,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 const ChangePassword = () => {
   const navigate = useNavigate();
@@ -19,6 +22,17 @@ const ChangePassword = () => {
     newPassword: '',
   });
   const [saveStatus, setSaveStatus] = useState('');
+
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
+  const handleClickShowPassword = (field) => {
+    if (field === 'oldPassword') {
+      setShowOldPassword(!showOldPassword);
+    } else if (field === 'newPassword') {
+      setShowNewPassword(!showNewPassword);
+    }
+  };
 
   const handleChange = (field, value) => {
     setPass({
@@ -73,10 +87,19 @@ const ChangePassword = () => {
           <TextField
             label="Your Old Password: "
             fullWidth
-            type="password"
+            type={showOldPassword ? 'text' : 'password'}
             onChange={(e) => handleChange('oldPassword', e.target.value)}
             InputLabelProps={{
               shrink: true,
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={()=>handleClickShowPassword('oldPassword')}>
+                    {showOldPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
             }}
           />
         </Grid>
@@ -84,10 +107,19 @@ const ChangePassword = () => {
           <TextField
             label="Your New Password: "
             fullWidth
-            type="password"
+            type={showNewPassword ? 'text' : 'password'}
             onChange={(e) => handleChange('newPassword', e.target.value)}
             InputLabelProps={{
               shrink: true,
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={()=>handleClickShowPassword('newPassword')}>
+                    {showNewPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
             }}
           />
         </Grid>
