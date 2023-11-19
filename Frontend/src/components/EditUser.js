@@ -69,7 +69,7 @@ const EditUser = () => {
         console.log("render fetchUserData ");
         
         // Lấy token từ localStorage hoặc nơi lưu trữ khác
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem('token');
         if(!token){
           console.error('Error fetching user data:', Error);
           //navigate('/signin');

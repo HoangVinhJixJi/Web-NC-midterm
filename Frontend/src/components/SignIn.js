@@ -2,17 +2,18 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
-
+import {useAuth as useAuthContext} from '../api/AuthContext';
 function SignIn () {
+  const { isLoggedIn, user, login } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi
   const navigate = useNavigate();
+  const avatarURL = 'https://sm.ign.com/ign_nordic/cover/a/avatar-gen/avatar-generations_prsz.jpg';
 
   const handleSignIn = async (event) => {
     try {
-      
+      console.error("==> object isLoggedIn, user: " , isLoggedIn, user);
       event.preventDefault(); 
       console.log("handle Sign in");
       console.log("username: ", username);
@@ -33,14 +34,18 @@ function SignIn () {
       // Xử lý phản hồi từ API
       if (response.data) {
         console.log("response.data: " ,response.data);
-        const { access_token } = response.data;
-
-        // Lưu thông tin người dùng và token vào localStorage hoặc sessionStorage
-        localStorage.setItem('accessToken', access_token);
-
+        const { access_token } = response.data; //user gồm "id, name, avatar" dùng để hiển thị
+        // Lưu thông tin người dùng và token vào localStorage
+        const fakeUser = {
+          name: "Nguyễn Hoàng Vinh",
+          avatar: avatarURL
+        }
+        login(access_token, fakeUser);
+        console.log("==> object isLoggedIn, user: " , isLoggedIn, user);
         // Chuyển hướng sang trang home
-        navigate('/home');
+        navigate('/home')
       }
+      
 
     } catch (error) {
       

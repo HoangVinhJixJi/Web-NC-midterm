@@ -6,11 +6,14 @@ import Home from './components/Home';
 import Footer from './components/Footer';
 import EditUser from './components/EditUser';
 import ResponsiveAppBar from './components/ResponsiveAppBar';
+import {AuthProvider} from './api/AuthContext';
+
 const App = () => {
  
 
   return (
     <div className='app'>
+    <AuthProvider >
     <ResponsiveAppBar/>
     <div className='content' style={{minHeight: '60vh'}}>
       <Routes>
@@ -23,7 +26,7 @@ const App = () => {
     </div>
 
     <Footer/>
-    
+    </AuthProvider>
     </div>
 
   );

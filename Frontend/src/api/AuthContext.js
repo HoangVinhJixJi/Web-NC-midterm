@@ -1,8 +1,9 @@
 // useAuth.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 
+const AuthContext = createContext();
 
-const useAuth = () => {
+export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
 
@@ -35,7 +36,13 @@ const useAuth = () => {
     localStorage.removeItem('user');
   };
 
-  return { isLoggedIn, user, login, logout };
+  return (
+    <AuthContext.Provider value={{ isLoggedIn,user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export default useAuth;
+export const useAuth = () => {
+    return useContext(AuthContext);
+};
