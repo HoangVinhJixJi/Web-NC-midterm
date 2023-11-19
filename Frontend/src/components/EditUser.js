@@ -127,7 +127,7 @@ const EditUser = () => {
             
             fullWidth
             value={user.fullName}
-            onChange={(e) => handleChange('name', e.target.value)}
+            onChange={(e) => handleChange('fullName', e.target.value)}
           />
           
         </Grid>

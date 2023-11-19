@@ -1,8 +1,16 @@
 import React from 'react';
 import { Typography, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link , useNavigate} from 'react-router-dom';
+
+import { useAuth as useAuthContext } from '../api/AuthContext';
 
 function Home() {
+  let { isLoggedIn } = useAuthContext();  
+  const nevigate = useNavigate();
+  if (!isLoggedIn) {
+    nevigate('/');
+  }
+  else  
   return (
     <div>
       <Typography variant="h3" gutterBottom>
@@ -36,7 +44,7 @@ function Home() {
           </Typography>
         </li>
       </ul>
-      <Button variant="contained" color="primary" component={Link} to="/profile" style={{ marginTop: '20px' }}>
+      <Button variant="contained" color="primary" component={Link} to="/users/profile" style={{ marginTop: '20px' }}>
         Update Profile
       </Button>
     </div>

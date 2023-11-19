@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Button, Container, TextField, Typography, Paper, MenuItem } from '@mui/material';
+
+import api from '../api/api';
 
 const SignUp = () => {
   const [username, setUsername] = useState('');
@@ -87,16 +88,16 @@ const SignUp = () => {
         return;
       }
 
-      const user = {
+      const u = {
         username: username,
         password: password,
         email: email,
       }
 
-      console.log(user);
+      console.log(u);
 
       // Make API call
-      const response = await axios.post('http://localhost:5000/users/register', user);
+      const response = await api.post('/users/register', u);
 
       if (response.data) {
         setMessage('Sign up success. Sign in now!');

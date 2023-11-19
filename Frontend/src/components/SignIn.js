@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button, Container, TextField, Typography, Paper } from '@mui/material';
 
+import api from '../api/api';
+import { useAuth as useAuthContext } from '../api/AuthContext';
+
 const SignIn = () => {
+  const { isLoggedIn, user, login } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi
@@ -19,30 +22,23 @@ const SignIn = () => {
         return;
       }
 
-      const user = {
+      const u = {
         username: username,
         password: password,
       }
       
-      console.log(user);
+      console.log(u);
 
       // Gọi API đăng nhập từ phía backend
-      const response = await axios.post('http://localhost:5000/auth/login', user,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': 'http://localhost:3000', // Replace with your frontend origin
-          }
-        });
+      const response = await api.post('/auth/login', u);
 
       // Xử lý phản hồi từ API
       if (response.data) {
         console.log(response.data);
-        const { accessToken } = response.data;
+        const { userData, access_token } = response.data;
 
         // Lưu thông tin người dùng và token vào localStorage hoặc sessionStorage
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('accessToken', accessToken);
+        login(access_token, userData);
 
         // Chuyển hướng sang trang home
         navigate('/home')
