@@ -102,7 +102,6 @@ const SignUp = () => {
       if (response.data) {
         setMessage('Sign up success. Sign in now!');
         console.log(response.data);
-        navigate('/signin');
       }
     } catch (error) {
       setMessage('Sign up failed. Try again!');
