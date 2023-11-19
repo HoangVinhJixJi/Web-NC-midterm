@@ -15,7 +15,7 @@ const App = () => {
     <div className='app'>
     <AuthProvider >
     <ResponsiveAppBar/>
-    <div className='content' style={{minHeight: '60vh'}}>
+    <div className='content' >
       <Routes>
         <Route exact path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />

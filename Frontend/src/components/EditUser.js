@@ -18,7 +18,10 @@ import {
 
 
 const EditUser = () => {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState({
+    username: '',
     fullName: '',
     age: '',
     gender: 'male',
@@ -45,11 +48,11 @@ const EditUser = () => {
     
     try {
       console.log(user);
-      // Gửi yêu cầu PUT đến endpoint của server
-      const response = await api.put('/users/update', user);
-  
+      // Gửi yêu cầu POST đến endpoint của server
+      const response = await api.post('/users/update', user);
+      console.log("response.status: ", response.status);
       // Xử lý kết quả từ server
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         setSaveStatus('Update successful!');
       } else {
         setSaveStatus('Update failed.');
@@ -62,7 +65,6 @@ const EditUser = () => {
   };
 
   
-  const navigate = useNavigate();
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -79,7 +81,7 @@ const EditUser = () => {
         setAuthToken(token);
 
         // Gọi API để lấy dữ liệu người dùng
-        const response = await api.get('/users/profile');
+        const response = await api.get('/auth/profile');
         console.log("res data : ", response.data);
         // Lưu thông tin người dùng vào state
         console.log("userData before: ", user);
@@ -110,11 +112,21 @@ const EditUser = () => {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           
+          <InputLabel >Username</InputLabel>
+          <Input
+            fullWidth
+            value={user.username}
+            onChange={(e) => handleChange('username', e.target.value)}
+          />
+          
+        </Grid>
+        <Grid item xs={12}>
+          
           <InputLabel >Name</InputLabel>
           <Input
             
             fullWidth
-            value={user.name}
+            value={user.fullName}
             onChange={(e) => handleChange('name', e.target.value)}
           />
           
@@ -139,7 +151,7 @@ const EditUser = () => {
             label="Birth Date"
             fullWidth
             type="date"
-            value={user.birthDate}
+            value={user.birthday}
             onChange={(e) => handleChange('birthday', e.target.value)}
             InputLabelProps={{
               shrink: true,

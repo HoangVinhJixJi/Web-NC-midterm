@@ -4,7 +4,7 @@ import { Container, Typography, Grid, List, ListItemButton, ListItemText } from 
 
 const Footer = () => {
   return (
-    <div className='footer' style={{backgroundColor: '#3333'}}>
+    <div className='footer' style={{ marginTop: '20px', backgroundColor: '#3333'}}>
       <Container >
         <Grid container spacing={2}>
           {/* Cột 1: Danh sách các mục trên navbar */}

@@ -20,7 +20,7 @@ function SignIn () {
       console.log("password: ", password);
 
       // Gọi API đăng ký từ phía backend
-      const response = await axios.post('http://localhost:3333/auth/login', 
+      const response = await axios.post('http://localhost:5000/auth/login', 
       {
         username: username,
         password: password,
@@ -34,14 +34,14 @@ function SignIn () {
       // Xử lý phản hồi từ API
       if (response.data) {
         console.log("response.data: " ,response.data);
-        const { access_token } = response.data; //user gồm "id, name, avatar" dùng để hiển thị
+        const { userData, access_token } = response.data; //user gồm "id, name, avatar" dùng để hiển thị
         // Lưu thông tin người dùng và token vào localStorage
         const fakeUser = {
           name: "Nguyễn Hoàng Vinh",
           avatar: avatarURL
         }
-        login(access_token, fakeUser);
-        console.log("==> object isLoggedIn, user: " , isLoggedIn, user);
+        login(access_token, userData);
+       
         // Chuyển hướng sang trang home
         navigate('/home')
       }
