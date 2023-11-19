@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button, Container, TextField, Typography, Paper } from '@mui/material';
-import Cookies from 'js-cookie';
 
 const SignIn = () => {
   const [username, setUsername] = useState('');
@@ -37,7 +36,7 @@ const SignIn = () => {
       if (response.data) {
         console.log(response.data);
         const { accessToken } = response.data;
-        
+
         const user = {
           username: username,
           password: password,
