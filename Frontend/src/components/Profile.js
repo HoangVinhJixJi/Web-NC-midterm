@@ -26,7 +26,7 @@ const Profile= () => {
   }); 
   const displayBirthday= (day)=>{
     if (!day) {
-      return ""; // Trả về chuỗi rỗng nếu birthday là null
+      return ""; 
     }
     const [year, month, date] = day.split('-');
     return `${date}/${month}/${year}`;
@@ -34,22 +34,18 @@ const Profile= () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        console.log("render fetchUserData ");
-        
         // Lấy token từ localStorage hoặc nơi lưu trữ khác
         const token = localStorage.getItem('token');
         if(!token){
           console.error('Error fetching user data:', Error);
           navigate('/signin');
         }
-        console.log("token fetchUserData: ", token);
+        
         // Đặt token cho mọi yêu cầu
         setAuthToken(token);
         // Gọi API để lấy dữ liệu người dùng
         const response = await api.get('/auth/profile');
-        console.log("res data : ", response.data);
         // Lưu thông tin người dùng vào state
-        console.log("userData before: ", user);
         setUser(response.data);
         
       } catch (error) {
@@ -66,8 +62,7 @@ const Profile= () => {
     // Gọi hàm lấy dữ liệu người dùng
     fetchUserData();
 
-  }, []); // Thêm dependencies cần thiết
-  console.log(" => userData after from /users/profile : ", user);
+  }, []); 
   return (
     <Container>
       <Typography variant="h4" align="center" gutterBottom mt={4}>

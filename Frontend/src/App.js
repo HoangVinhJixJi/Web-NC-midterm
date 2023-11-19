@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Container, CssBaseline, Box } from '@mui/material';
-import Header from './components/Header'; // Update import path
-import Footer from './components/Footer'; // Update import path
+import { AuthProvider } from './api/AuthContext';
+import Header from './components/Header'; 
+import Footer from './components/Footer'; 
 import Landing from './components/Landing';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import Home from './components/Home';
 import EditUser from './components/EditUser';
-import { AuthProvider } from './api/AuthContext';
-import './App.css';
 import ChangePassword from './components/ChangePassword';
 import Group from './components/Group';
 import Profile from './components/Profile';
+import './App.css';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -35,9 +35,9 @@ const App = () => {
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/user/edit" element={<EditUser />} />
-        <Route path="/user/change-password" element={<ChangePassword />} />
-        <Route path="/group" element={<Group/>} />
-        <Route path="/user/profile" element={<Profile />} />
+            <Route path="/user/change-password" element={<ChangePassword />} />
+            <Route path="/about" element={<Group/>} />
+            <Route path="/user/profile" element={<Profile />} />
           </Routes>
         </Container>
         <Footer />

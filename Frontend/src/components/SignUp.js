@@ -139,9 +139,8 @@ const SignUp = () => {
             fullWidth
             required
           >
-            <MenuItem value="Nam">Male</MenuItem>
-            <MenuItem value="Nữ">Female</MenuItem>
-            <MenuItem value="Khác">Other</MenuItem>
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">Female</MenuItem>
           </TextField>
           <TextField
             label="Email"

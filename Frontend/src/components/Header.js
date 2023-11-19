@@ -15,37 +15,25 @@ import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth as useAuthContext } from '../api/AuthContext';
-const pages = ['home', 'about', 'services'];
+const pages = ['home', 'about'];
 
 function Header() {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-
     const navigate = useNavigate();
-
     const { isLoggedIn, user, logout } = useAuthContext();
-
-    console.log('Is logged in:', isLoggedIn);
-    console.log('User:', user);
-
-
-
-    console.log("isLoggedIn, user: ", isLoggedIn, user);
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
     };
-
     const handleCloseNavMenu = () => {
         setAnchorElNav(null);
     };
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
-
     const handleLogout = () => {
         setAnchorElUser(null);
         // Thực hiện đăng xuất khi người dùng click vào nút Logout

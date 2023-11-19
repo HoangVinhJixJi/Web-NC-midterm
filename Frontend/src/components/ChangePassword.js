@@ -22,7 +22,6 @@ const ChangePassword = () => {
     newPassword: '',
   });
   const [saveStatus, setSaveStatus] = useState('');
-
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
 
@@ -43,27 +42,23 @@ const ChangePassword = () => {
 
   const handleSave = async () => {
     try {
-      console.log(pass);
-      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      // Lấy token từ localStorage 
       const token = localStorage.getItem('token');
       if(!token){
         console.error('Error fetching user data:', Error);
         navigate('/signin');
       }
-      console.log("token fetchUserData: ", token);
       // Đặt token cho mọi yêu cầu
       setAuthToken(token);
       // Gửi yêu cầu POST đến endpoint của server
       const response = await api.post('/users/update-password', pass);
-      console.log("response: ", response);
-
       // Xử lý kết quả từ server
       if (response.status === 200) {
         setSaveStatus(`${response.data.message}!!!  Please Sign In again with New Password`);
         setTimeout(()=>{
           logout();
           navigate('/signin');
-        }, 3000)
+        }, 5000)
       } else {
         setSaveStatus(response.data.message);
       }
@@ -73,10 +68,6 @@ const ChangePassword = () => {
       setSaveStatus('Update failed. Please try again.');
     }
   };
-
-  
-  
-  console.log(" => PASSWORD after from /users/update-password : ", pass);
   return (
     <Container>
       <Typography variant="h4" align="center" gutterBottom mt={4}>
