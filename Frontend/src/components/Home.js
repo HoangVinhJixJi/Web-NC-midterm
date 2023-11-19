@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Button,
@@ -19,6 +19,14 @@ import { useAuth as useAuthContext } from '../api/AuthContext';
 function Home() {
   const { isLoggedIn } = useAuthContext();
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Nếu isLoggedIn là false, chuyển hướng đến trang đăng nhập
+    if (!isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn, navigate]);
+
 
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState({ title: '', content: '', color: '#ffffff' });

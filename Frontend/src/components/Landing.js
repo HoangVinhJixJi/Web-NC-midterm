@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Typography, Button, Container, Paper, Grid } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -8,11 +8,13 @@ const Landing = () => {
   const { isLoggedIn } = useAuthContext();
   const navigate = useNavigate();
 
-  // Nếu đã đăng nhập, điều hướng về trang Home
-  if (isLoggedIn) {
-    navigate('/home');
-    return null; // Tránh hiển thị nội dung của trang Landing nếu đã đăng nhập
-  }
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập
+    if (isLoggedIn) {
+      // Nếu đã đăng nhập, điều hướng về trang Home
+      navigate('/home');
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <Container maxWidth="lg">
