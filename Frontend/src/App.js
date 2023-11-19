@@ -8,6 +8,7 @@ import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import Home from './components/Home';
 import Profile from './components/Profile';
+import EditUser from './components/EditUser'
 import './App.css';
 
 const App = () => {
@@ -29,6 +30,7 @@ const App = () => {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/users/profile" element={<EditUser />} />
         </Routes>
       </Container>
       <Footer />
