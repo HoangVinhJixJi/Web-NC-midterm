@@ -6,7 +6,7 @@ import api from '../api/api';
 import { useAuth as useAuthContext } from '../api/AuthContext';
 
 const SignIn = () => {
-  const { isLoggedIn, user, login } = useAuthContext();
+  const { login } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi

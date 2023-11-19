@@ -1,8 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Typography, Container, Button, Paper } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Typography, Button, Container, Paper } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { useAuth as useAuthContext } from '../api/AuthContext';
 
 const Landing = () => {
+  const { isLoggedIn } = useAuthContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập
+    if (isLoggedIn) {
+      // Nếu đã đăng nhập, điều hướng về trang Home
+      navigate('/home');
+    }
+  }, [isLoggedIn, navigate]);
+
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

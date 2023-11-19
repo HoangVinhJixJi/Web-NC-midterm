@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Typography, Button } from '@mui/material';
-import { Link , useNavigate} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth as useAuthContext } from '../api/AuthContext';
 
 function Home() {
-  let { isLoggedIn } = useAuthContext();  
-  const nevigate = useNavigate();
-  if (!isLoggedIn) {
-    nevigate('/');
-  }
-  else  
+  const { isLoggedIn } = useAuthContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập
+    if (!isLoggedIn) {
+      // Nếu chưa đăng nhập, điều hướng về trang Landing
+      navigate('/');
+    }
+  }, [isLoggedIn, navigate]);
+
   return (
     <div>
       <Typography variant="h3" gutterBottom>
