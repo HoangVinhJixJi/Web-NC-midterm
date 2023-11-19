@@ -3,9 +3,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 @Schema({ collection: 'user' })
-export class User {
-  @Prop()
-  userId: mongoose.Schema.Types.ObjectId;
+export class User extends mongoose.Document {
   @Prop()
   username: string;
   @Prop()

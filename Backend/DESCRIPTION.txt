@@ -1,0 +1,181 @@
+INSTALLED PACKAGES
+------------------------------------------------------------------------------------------
+npm i --save @nestjs/config
+npm i @nestjs/mongoose mongoose
+npm i --save class-validator class-transformer
+npm i bcrypt
+npm i -D @types/bcrypt
+npm install --save @nestjs/jwt
+
+
+API DESCRIPTIONS
+------------------------------------------------------------------------------------------
+1. Đăng ký
+url: <BaseURL>/users/register
+method: POST
+headers:
+{
+    "Content-Type": "application/json"
+}
+body:
+{
+    "username": string,
+    "password": string,
+    "email": string
+}
+data return:
+{
+    "userId": string,
+    "username": string,
+    "email": string,
+    "fullName": string,
+    "gender": string,
+    "birthday": string,
+    "avatar": string,
+}
+exeptions:
+Đăng ký username đã tồn tại:
+{
+    "statusCode": 400,
+    "message": "Username already exists"
+}
+Dùng 1 email đã đăng ký cho tài khoản khác:
+{
+    "statusCode": 400,
+    "message": "Email has been registered to another account"
+}
+------------------------------------------------------------------------------------------
+2. Đăng nhập
+url: <BaseURL>/auth/login
+method: POST
+headers:
+{
+    "Content-Type": "application/json"
+}
+body:
+{
+    "username": string,
+    "password": string
+}
+data return:
+{
+    "access_token": string
+}
+exceptions:
+Username không tồn tại:
+{
+    "statusCode": 400,
+    "message": "Username not found"
+}
+Sai mật khẩu:
+{
+    "statusCode": 400,
+    "message": "Wrong password"
+}
+------------------------------------------------------------------------------------------
+3. Cập nhật thông tin cá nhân
+url: <BaseURL>/users/update
+method: POST
+headers:
+{
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${access_token}`
+}
+body:
+{
+    "username": string,
+    "email": string,
+    "fullName": string,
+    "gender": string,
+    "birthday": string,
+    "avatar": string
+}
+data return:
+{
+    "userId": string,
+    "username": string,
+    "email": string,
+    "fullName": string,
+    "gender": string,
+    "birthday": string,
+    "avatar": string,
+}
+exceptions:
+Username đã tồn tại:
+{
+    "statusCode": 400,
+    "message": "Username already exists"
+}
+Email đã đăng ký cho 1 tài khoản khác:
+{
+    "statusCode": 400,
+    "message": "Email has been registered to another account"
+}
+------------------------------------------------------------------------------------------
+4. Cập nhật mật khẩu
+url: <BaseURL>/users/update-password
+method: POST
+headers:
+{
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${access_token}`
+}
+body:
+{
+    "oldPassword": string,
+    "newPassword": string
+}
+exceptions:
+Thành công:
+{
+    "status": 200,
+    "message": "Update password successfully"
+}
+Thất bại:
+{
+    "status": 400,
+    "message": "Invalid password"
+}
+------------------------------------------------------------------------------------------
+5. Truy cập trang thông tin cá nhân
+url: <BaseURL>/auth/profile
+method: GET
+headers:
+{
+    "Authorization": `Bearer ${access_token}`
+}
+data return:
+{
+    "username": string,
+    "email": string,
+    "fullName": string,
+    "gender": string,
+    "birthday": string,
+    "avatar": string
+}
+------------------------------------------------------------------------------------------
+6. Truy cập trang login (đã login => điều hướng về trang home)
+url: <BaseURL>/auth/login
+method: GET
+headers:
+{
+    "Authorization": `Bearer ${access_token}`
+}
+data return:
+{
+    "username": string,
+    "email": string
+}
+------------------------------------------------------------------------------------------
+7. Truy cập trang sign up (đã login => điều hướng về trang home)
+url: <BaseURL>/auth/register
+method: GET
+headers:
+{
+    "Authorization": `Bearer ${access_token}`
+}
+data return:
+{
+    "username": string,
+    "email": string
+}
