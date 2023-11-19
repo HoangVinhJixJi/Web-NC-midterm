@@ -6,6 +6,7 @@ import {
   Post,
   Request,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -19,7 +20,9 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Post('register')
-  async signUp(@Body() userData: CreateUserDto): Promise<UserDto> {
+  async signUp(
+    @Body(new ValidationPipe({ transform: true })) userData: CreateUserDto,
+  ): Promise<UserDto> {
     const { password, ...otherData } = userData;
     // Kiểm tra có user theo username và email
     const isExisted = await this.usersService.isExistedUser(
@@ -36,7 +39,7 @@ export class UsersController {
       ...{ fullName: '', gender: '', birthday: '', avatar: '' },
     });
     return {
-      userId: newUser.userId,
+      userId: newUser._id.toString(),
       username: newUser.username,
       email: newUser.email,
       fullName: newUser.fullName,
@@ -87,7 +90,7 @@ export class UsersController {
       userData,
     );
     return {
-      userId: updatedUser.userId,
+      userId: updatedUser._id.toString(),
       username: updatedUser.username,
       email: updatedUser.email,
       fullName: updatedUser.fullName,
@@ -98,7 +101,10 @@ export class UsersController {
   }
   @UseGuards(AuthGuard)
   @Post('update-password')
-  async updatePassword(@Request() req, @Body() userData: UpdatePasswordDto) {
+  async updatePassword(
+    @Request() req,
+    @Body(new ValidationPipe({ transform: true })) userData: UpdatePasswordDto,
+  ) {
     const { username } = req.user;
     const user = await this.usersService.findOneByUsername(username);
     const { password } = user;

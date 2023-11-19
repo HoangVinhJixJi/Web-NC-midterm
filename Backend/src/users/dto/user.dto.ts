@@ -2,7 +2,8 @@ import { IsEmail, IsString } from 'class-validator';
 import mongoose from 'mongoose';
 
 export class UserDto {
-  userId: mongoose.Schema.Types.ObjectId;
+  @IsString()
+  userId: string;
 
   @IsString()
   username: string;

@@ -7,6 +7,7 @@ import {
   Post,
   Request,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
@@ -22,7 +23,7 @@ export class AuthController {
   ) {}
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInData: SignInDto) {
+  signIn(@Body(new ValidationPipe({ transform: true })) signInData: SignInDto) {
     return this.authService.signIn(signInData.username, signInData.password);
   }
   @UseGuards(AuthGuard)
@@ -41,7 +42,7 @@ export class AuthController {
     const { username } = req.user;
     const user = await this.usersService.findOneByUsername(username);
     return {
-      userId: user.userId,
+      userId: user._id.toString(),
       username: user.username,
       email: user.email,
       fullName: user.fullName,
