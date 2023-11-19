@@ -92,22 +92,12 @@ const SignUp = () => {
         username: username,
         password: password,
         email: email,
-        fullName: fullname,
-        birthday: dateOfBirth,
-        gender: gender,
-        avatar: avatar,
       }
 
       console.log(user);
 
       // Make API call
-      const response = await axios.post('http://localhost:3456/users/register', user,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': 'http://localhost:3000', // Replace with your frontend origin
-          }
-        });
+      const response = await axios.post('http://localhost:5000/users/register', user);
 
       if (response.data) {
         setMessage('Sign up success. Sign in now!');

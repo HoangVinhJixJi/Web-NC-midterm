@@ -27,7 +27,7 @@ const SignIn = () => {
       console.log(user);
 
       // Gọi API đăng nhập từ phía backend
-      const response = await axios.post('http://localhost:3456/auth/login', user,
+      const response = await axios.post('http://localhost:5000/auth/login', user,
         {
           headers: {
             'Content-Type': 'application/json',
