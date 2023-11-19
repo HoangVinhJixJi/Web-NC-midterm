@@ -68,7 +68,7 @@ const SignUp = () => {
       setMessage('Please select your gender.');
       return false;
     }
-    
+
     // Validate Avatar
     if (!avatar) {
       setMessage('Please enter an avatar URL.');
@@ -88,8 +88,7 @@ const SignUp = () => {
         return;
       }
 
-      // Make API call
-      const response = await axios.post('http://localhost:3000/users/register', {
+      const user = {
         username: username,
         password: password,
         email: email,
@@ -97,7 +96,18 @@ const SignUp = () => {
         birthday: dateOfBirth,
         gender: gender,
         avatar: avatar,
-      });
+      }
+
+      console.log(user);
+
+      // Make API call
+      const response = await axios.post('http://localhost:3456/users/register', user,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'http://localhost:3000', // Replace with your frontend origin
+          }
+        });
 
       if (response.data) {
         setMessage('Sign up success. Sign in now!');

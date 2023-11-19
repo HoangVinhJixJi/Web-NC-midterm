@@ -19,12 +19,15 @@ const SignIn = () => {
         return;
       }
 
+      const user = {
+        username: username,
+        password: password,
+      }
+      
+      console.log(user);
+
       // Gọi API đăng nhập từ phía backend
-      const response = await axios.post('http://localhost:3001/auth/login',
-        {
-          username: username,
-          password: password,
-        },
+      const response = await axios.post('http://localhost:3456/auth/login', user,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -36,11 +39,6 @@ const SignIn = () => {
       if (response.data) {
         console.log(response.data);
         const { accessToken } = response.data;
-
-        const user = {
-          username: username,
-          password: password,
-        }
 
         // Lưu thông tin người dùng và token vào localStorage hoặc sessionStorage
         localStorage.setItem('user', JSON.stringify(user));
