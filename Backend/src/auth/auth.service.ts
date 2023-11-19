@@ -23,6 +23,10 @@ export class AuthService {
         email: user.email,
       };
       return {
+        userData: {
+          fullName: user.fullName,
+          avatar: user.avatar,
+        },
         access_token: await this.jwtService.signAsync(payload),
       };
     } else {
