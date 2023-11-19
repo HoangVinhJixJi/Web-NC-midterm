@@ -141,7 +141,6 @@ const SignUp = () => {
           >
             <MenuItem value="Nam">Male</MenuItem>
             <MenuItem value="Nữ">Female</MenuItem>
-            <MenuItem value="Khác">Other</MenuItem>
           </TextField>
           <TextField
             label="Email"
