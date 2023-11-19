@@ -182,6 +182,11 @@ function ResponsiveAppBar() {
                           <Link style={{textDecoration: 'none', color: 'black'}} to='/users/profile' > Profile </Link>
                         </Typography>
                     </MenuItem>
+                    <MenuItem key='change-password' onClick={handleCloseUserMenu}>
+                        <Typography textAlign="center" >
+                          <Link style={{textDecoration: 'none', color: 'black'}} to='/users/change-password' > Change Password </Link>
+                        </Typography>
+                    </MenuItem>
                     <MenuItem key='logout' onClick={handleCloseUserMenu}>
                         <Typography textAlign="center" onClick={handleLogout}>
                          Logout

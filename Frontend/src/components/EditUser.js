@@ -48,6 +48,15 @@ const EditUser = () => {
     
     try {
       console.log(user);
+      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        navigate('/signin');
+      }
+      console.log("token fetchUserData: ", token);
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
       // Gửi yêu cầu POST đến endpoint của server
       const response = await api.post('/users/update', user);
       console.log("response.status: ", response.status);
@@ -74,7 +83,7 @@ const EditUser = () => {
         const token = localStorage.getItem('token');
         if(!token){
           console.error('Error fetching user data:', Error);
-          //navigate('/signin');
+          navigate('/signin');
         }
         console.log("token fetchUserData: ", token);
         // Đặt token cho mọi yêu cầu
@@ -180,7 +189,7 @@ const EditUser = () => {
           />
         </Grid>
         {saveStatus && <Grid item xs={12}>
-          <Typography color={'success'}>
+          <Typography color='primary'>
               {saveStatus}
           </Typography>
         </Grid>}

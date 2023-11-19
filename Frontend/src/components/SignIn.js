@@ -1,6 +1,6 @@
 // SignIn.js
 import React, {useState} from 'react';
-import axios from 'axios';
+import api from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import {useAuth as useAuthContext} from '../api/AuthContext';
 function SignIn () {
@@ -9,7 +9,6 @@ function SignIn () {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi
   const navigate = useNavigate();
-  const avatarURL = 'https://sm.ign.com/ign_nordic/cover/a/avatar-gen/avatar-generations_prsz.jpg';
 
   const handleSignIn = async (event) => {
     try {
@@ -20,28 +19,17 @@ function SignIn () {
       console.log("password: ", password);
 
       // Gọi API đăng ký từ phía backend
-      const response = await axios.post('http://localhost:5000/auth/login', 
+      const response = await api.post('/auth/login', 
       {
         username: username,
         password: password,
-      }, 
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'http://localhost:3000', // Replace with your frontend origin
-        }
       });
       // Xử lý phản hồi từ API
       if (response.data) {
         console.log("response.data: " ,response.data);
-        const { userData, access_token } = response.data; //user gồm "id, name, avatar" dùng để hiển thị
+        const { userData, access_token } = response.data; //user gồm "fullName, avatar" dùng để hiển thị
         // Lưu thông tin người dùng và token vào localStorage
-        const fakeUser = {
-          name: "Nguyễn Hoàng Vinh",
-          avatar: avatarURL
-        }
         login(access_token, userData);
-       
         // Chuyển hướng sang trang home
         navigate('/home')
       }

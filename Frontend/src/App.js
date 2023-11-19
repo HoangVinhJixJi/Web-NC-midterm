@@ -1,12 +1,13 @@
 import React from 'react';
 import {Routes, Route} from 'react-router-dom'
+import {AuthProvider} from './api/AuthContext';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import Home from './components/Home';
 import Footer from './components/Footer';
 import EditUser from './components/EditUser';
 import ResponsiveAppBar from './components/ResponsiveAppBar';
-import {AuthProvider} from './api/AuthContext';
+import ChangePassword from './components/ChangePassword';
 
 const App = () => {
  
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/home" element={<Home />} />
         <Route path="/users/profile" element={<EditUser />} />
+        <Route path="/users/change-password" element={<ChangePassword />} />
       </Routes>
     </div>
 
