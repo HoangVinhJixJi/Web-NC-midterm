@@ -7,12 +7,13 @@ import {
   Post,
   Request,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
-import { UserInterface } from '../users/interface/user.interface';
 import { UsersService } from '../users/users.service';
+import { UserDto } from '../users/dto/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -22,13 +23,32 @@ export class AuthController {
   ) {}
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInData: SignInDto) {
+  signIn(@Body(new ValidationPipe({ transform: true })) signInData: SignInDto) {
     return this.authService.signIn(signInData.username, signInData.password);
   }
   @UseGuards(AuthGuard)
+  @Get('login')
+  getLoginPage(@Request() req) {
+    return req.user;
+  }
+  @UseGuards(AuthGuard)
+  @Get('register')
+  getRegisterPage(@Request() req) {
+    return req.user;
+  }
+  @UseGuards(AuthGuard)
   @Get('profile')
-  async getProfile(@Request() req): Promise<UserInterface> {
+  async getProfile(@Request() req): Promise<UserDto> {
     const { username } = req.user;
-    return await this.usersService.findOne(username);
+    const user = await this.usersService.findOneByUsername(username);
+    return {
+      userId: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      gender: user.gender,
+      birthday: user.birthday,
+      avatar: user.avatar,
+    };
   }
 }
