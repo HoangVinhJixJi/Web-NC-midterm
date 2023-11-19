@@ -106,7 +106,7 @@ function Home() {
           </Typography>
         </li>
       </ul>
-      <Button variant="contained" color="primary" component={Link} to="/users/profile" style={{ marginTop: '20px' }}>
+      <Button variant="contained" color="primary" component={Link} to="/user/edit" style={{ marginTop: '20px' }}>
         Update Profile
       </Button>
 
