@@ -1,71 +1,222 @@
-// SignUp.js
-import React, {useState, useEffect} from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Button, Container, TextField, Typography, Paper, MenuItem } from '@mui/material';
 
+import api from '../api/api';
 
-function SignUp() {
+const SignUp = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi
-  const [disableInputs, setDisableInputs] = useState(false); // Vô hiệu hóa trường nhập và nút
+  const [fullname, setFullname] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [gender, setGender] = useState('');
+  const [avatar, setAvatar] = useState('');
+  const [message, setMessage] = useState('');
+  const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
 
+  const handleDateOfBirthFocus = () => {
+    setIsDateOfBirthFocused(true);
+  };
 
+  const handleDateOfBirthBlur = () => {
+    setIsDateOfBirthFocused(false);
+  };
+
+  const validateInputs = () => {
+    // Validate Full Name
+    if (!fullname) {
+      setMessage('Please enter your full name.');
+      return false;
+    }
+
+    // Validate Username
+    if (!username) {
+      setMessage('Please enter a username.');
+      return false;
+    }
+
+    // Validate Password (add more complex checks if needed)
+    if (!password) {
+      setMessage('Please enter a password.');
+      return false;
+    }
+
+    // Validate Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage('Please enter a valid email address.');
+      return false;
+    }
+
+    // Validate Date of Birth (you can add more specific checks based on your requirements)
+    if (!dateOfBirth && !isDateOfBirthFocused) {
+      setMessage('Please enter your date of birth.');
+      return false;
+    }
+
+    const currentDate = new Date();
+    const inputDate = new Date(dateOfBirth);
+
+    if (inputDate > currentDate) {
+      setMessage('Date of birth cannot be in the future.');
+      return false;
+    }
+
+    // Validate Gender
+    if (!gender) {
+      setMessage('Please select your gender.');
+      return false;
+    }
+
+    // Validate Avatar
+    if (!avatar) {
+      setMessage('Please enter an avatar URL.');
+      return false;
+    }
+
+    // All validations passed
+    return true;
+  };
 
   const handleSignUp = async (event) => {
     try {
-      // Vô hiệu hóa trường nhập và nút
-      setDisableInputs(true);
-      event.preventDefault(); 
-      // Gọi API đăng ký từ phía backend
-      const response = await axios.post('http://localhost:3001/auth/register', 
-      {
+      event.preventDefault();
+
+      // Validate inputs
+      if (!validateInputs()) {
+        return;
+      }
+
+      const u = {
         username: username,
         password: password,
         email: email,
-       
-      });
-      // Xử lý phản hồi từ API
-      if (response.data) {
-        // Nếu đăng ký thành công, hiển thị thông báo thành công
-        setMessage('Đăng ký thành công. Hãy đăng nhập ngay bây giờ.');
-        console.log(response.data);
-        
       }
 
+      console.log(u);
+
+      // Make API call
+      const response = await api.post('/users/register', u);
+
+      if (response.data) {
+        setMessage('Sign up success. Sign in now!');
+        console.log(response.data);
+      }
     } catch (error) {
-      
-      setMessage('Đăng ký thất bại. Vui lòng thử lại.');
-      console.error('Đăng ký thất bại:', error);
+      setMessage('Sign up failed. Try again!');
+      console.error('Sign up failed:', error);
     }
-  }
+  };
 
   useEffect(() => {
-    // Khi component được tải lại, bật trường nhập và nút
-    setDisableInputs(false);
+    // Component did mount logic
   }, []);
+
   return (
-    <div className="signup-container">
-      <h2>Sign Up</h2>
-      <form>
-        <div className="form-group">
-          <label>Username</label>
-          <input type="text" disabled={disableInputs} onChange={(e)=>setUsername(e.target.value)} required/>
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input type="password" disabled={disableInputs} onChange={(e)=>setPassword(e.target.value)} required/>
-        </div>
-      
-        <div className="form-group">
-          <label>Email</label>
-          <input type="email" disabled={disableInputs} onChange={(e)=>setEmail(e.target.value)} required/>
-        </div>
-        
-        <button disabled={disableInputs} onClick={(e)=>handleSignUp(e)}>Sign Up</button>
-      </form>
-      <h3>{message}</h3>
-    </div>
+    <Container maxWidth="xs">
+      <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h4" gutterBottom style={{ color: '#2196F3', fontWeight: 'bold' }}>
+          Sign Up
+        </Typography>
+        <form>
+          <TextField
+            label="Full Name"
+            type="text"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={(e) => setFullname(e.target.value)}
+            required
+          />
+          <TextField
+            select
+            label="Gender"
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            required
+          >
+<<<<<<< HEAD
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">Female</MenuItem>
+=======
+            <MenuItem value="Nam">Male</MenuItem>
+            <MenuItem value="Nữ">Female</MenuItem>
+>>>>>>> 7845a02e32e83cc75b3ae2b45ba8f0f3c9da2079
+          </TextField>
+          <TextField
+            label="Email"
+            type="email"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          {isDateOfBirthFocused ? (
+            <TextField
+              label="Date of Birth"
+              type="date"
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              onBlur={handleDateOfBirthBlur}
+              required
+            />
+          ) : (
+            <TextField
+              label="Date of Birth"
+              type="text"
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              onFocus={handleDateOfBirthFocus}
+              required
+            />
+          )}
+          <TextField
+            label="Avatar URL"
+            type="text"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={(e) => setAvatar(e.target.value)}
+            required
+          />
+          <TextField
+            label="Username"
+            type="text"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignUp(e)} style={{ marginTop: '20px' }}>
+            Sign Up
+          </Button>
+        </form>
+        <Typography variant="body2" color="error" mt={2}>
+          {message}
+        </Typography>
+        <Typography variant="body2" mt={2}>
+          Already have an account? <Link to="/signin">Sign In</Link>
+        </Typography>
+      </Paper>
+    </Container>
   );
 };
 

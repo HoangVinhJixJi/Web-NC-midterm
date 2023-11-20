@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, {setAuthToken} from '../api/api';
+import {useAuth as useAuthContext} from '../api/AuthContext';
 import {
   Container,
   Typography,
@@ -13,25 +14,24 @@ import {
   FormControlLabel,
   Radio,
   Input,
-  InputLabel
+  InputLabel,
+  FormHelperText 
 } from '@mui/material';
-
 
 const EditUser = () => {
   const navigate = useNavigate();
-
+  const { logout} = useAuthContext(); 
   const [user, setUser] = useState({
     username: '',
     fullName: '',
-    age: '',
-    gender: 'male',
+    gender: '',
     birthday: null,
     email: '',
     avatar: '',
   });
   const [emailError, setEmailError] = useState(false);
-  // Sử dụng useState để theo dõi trạng thái sau khi gửi yêu cầu
   const [saveStatus, setSaveStatus] = useState('');
+  const [curUsername, setCurUsername] = useState('');
   const handleChange = (field, value) => {
     setUser({
       ...user,
@@ -45,15 +45,30 @@ const EditUser = () => {
   };
 
   const handleSave = async () => {
-    
     try {
-      console.log(user);
-      // Gửi yêu cầu POST đến endpoint của server
+      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      const token = localStorage.getItem('token');
+      
+      
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        navigate('/signin');
+      }
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
+      // Gửi yêu cầu POST đến endpoint của server để update user
       const response = await api.post('/users/update', user);
-      console.log("response.status: ", response.status);
       // Xử lý kết quả từ server
       if (response.status === 200 || response.status === 201) {
         setSaveStatus('Update successful!');
+        //Nếu thay đổi username thì yêu cầu đăng nhập lại
+        if(user.username !== curUsername){
+          setSaveStatus('Update successful!!! Please Sign In again with New username ' );
+          setTimeout(()=>{
+            logout();
+            navigate('/signin');
+          }, 3000)
+        }
       } else {
         setSaveStatus('Update failed.');
       }
@@ -66,27 +81,23 @@ const EditUser = () => {
 
   
   useEffect(() => {
+    //Lấy thông tin user
     const fetchUserData = async () => {
       try {
-        console.log("render fetchUserData ");
-        
         // Lấy token từ localStorage hoặc nơi lưu trữ khác
         const token = localStorage.getItem('token');
         if(!token){
           console.error('Error fetching user data:', Error);
-          //navigate('/signin');
+          navigate('/signin');
         }
-        console.log("token fetchUserData: ", token);
         // Đặt token cho mọi yêu cầu
         setAuthToken(token);
 
         // Gọi API để lấy dữ liệu người dùng
         const response = await api.get('/auth/profile');
-        console.log("res data : ", response.data);
         // Lưu thông tin người dùng vào state
-        console.log("userData before: ", user);
         setUser(response.data);
-        
+        setCurUsername(response.data.username);
 
       } catch (error) {
         // Xử lý lỗi
@@ -101,9 +112,7 @@ const EditUser = () => {
 
     // Gọi hàm lấy dữ liệu người dùng
     fetchUserData();
-
-  }, []); // Thêm dependencies cần thiết
-  console.log(" => userData after from /users/profile : ", user);
+  }, []); 
   return (
     <Container>
       <Typography variant="h4" align="center" gutterBottom mt={4}>
@@ -111,38 +120,31 @@ const EditUser = () => {
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          
           <InputLabel >Username</InputLabel>
           <Input
             fullWidth
-            value={user.username}
+            value={user.username || ''}
             onChange={(e) => handleChange('username', e.target.value)}
           />
-          
         </Grid>
         <Grid item xs={12}>
-          
-          <InputLabel >Name</InputLabel>
+          <InputLabel >Full Name</InputLabel>
           <Input
-            
             fullWidth
-            value={user.fullName}
-            onChange={(e) => handleChange('name', e.target.value)}
+            value={user.fullName || ''}
+            onChange={(e) => handleChange('fullName', e.target.value)}
           />
-          
         </Grid>
-        
-        
         <Grid item xs={12} sm={6}>
           <FormControl component="fieldset">
             <FormLabel component="legend">Gender</FormLabel>
             <RadioGroup
               row
-              value={user.gender}
+              value={user.gender || ''}
               onChange={(e) => handleChange('gender', e.target.value)}
             >
-              <FormControlLabel value="male" control={<Radio />} label="Male" />
-              <FormControlLabel value="female" control={<Radio />} label="Female" />
+              <FormControlLabel value="Male" control={<Radio />} label="Male" />
+              <FormControlLabel value="Female" control={<Radio />} label="Female" />
             </RadioGroup>
           </FormControl>
         </Grid>
@@ -151,7 +153,7 @@ const EditUser = () => {
             label="Birth Date"
             fullWidth
             type="date"
-            value={user.birthday}
+            value={user.birthday || ''}
             onChange={(e) => handleChange('birthday', e.target.value)}
             InputLabelProps={{
               shrink: true,
@@ -164,23 +166,27 @@ const EditUser = () => {
             label="Email"
             fullWidth
             type="email"
-            value={user.email}
+            value={user.email || ''}
             onChange={(e) => handleChange('email', e.target.value)}
             error={emailError}
-            helperText={emailError ? 'Invalid email format' : ''}
           />
+          {emailError && (
+          <FormHelperText error>
+            Invalid email format
+          </FormHelperText>
+  )}
         </Grid>
         <Grid item xs={12}>
-          <InputLabel InputLabel >Avatar</InputLabel>
+          <InputLabel >Avatar</InputLabel>
           <Input
             label="Avatar URL"
             fullWidth
-            value={user.avatar}
+            value={user.avatar || ''}
             onChange={(e) => handleChange('avatar', e.target.value)}
           />
         </Grid>
         {saveStatus && <Grid item xs={12}>
-          <Typography color={'success'}>
+          <Typography color='primary'>
               {saveStatus}
           </Typography>
         </Grid>}

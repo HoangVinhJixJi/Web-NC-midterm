@@ -124,7 +124,7 @@ export class UsersController {
         );
       }
     }
-    throw new HttpException('Invalid password', HttpStatus.OK);
+    throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
   }
   private async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
