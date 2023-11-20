@@ -92,6 +92,10 @@ const SignUp = () => {
         username: username,
         password: password,
         email: email,
+        fullName: fullname,
+        gender: gender,
+        birthday: dateOfBirth,
+        avatar: avatar,
       }
 
       console.log(u);
@@ -139,13 +143,8 @@ const SignUp = () => {
             fullWidth
             required
           >
-<<<<<<< HEAD
             <MenuItem value="Male">Male</MenuItem>
             <MenuItem value="Female">Female</MenuItem>
-=======
-            <MenuItem value="Nam">Male</MenuItem>
-            <MenuItem value="Nữ">Female</MenuItem>
->>>>>>> 7845a02e32e83cc75b3ae2b45ba8f0f3c9da2079
           </TextField>
           <TextField
             label="Email"
