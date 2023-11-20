@@ -36,7 +36,6 @@ export class UsersController {
     const newUser = await this.usersService.create({
       password: hashedPassword,
       ...otherData,
-      ...{ fullName: '', gender: '', birthday: '', avatar: '' },
     });
     return {
       userId: newUser._id.toString(),

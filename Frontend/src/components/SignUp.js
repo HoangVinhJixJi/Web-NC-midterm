@@ -92,6 +92,10 @@ const SignUp = () => {
         username: username,
         password: password,
         email: email,
+        fullName: fullname,
+        gender: gender,
+        birthday: dateOfBirth,
+        avatar: avatar,
       }
 
       console.log(u);
