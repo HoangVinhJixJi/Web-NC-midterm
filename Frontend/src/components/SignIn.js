@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Button, Container, TextField, Typography, Paper } from '@mui/material';
+import { Button, Container, TextField, Typography, Paper, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material'; // Import icons
 
 import api from '../api/api';
 import { useAuth as useAuthContext } from '../api/AuthContext';
@@ -9,7 +10,8 @@ const SignIn = () => {
   const { login } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState(''); // Thông báo thành công hoặc lỗi
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSignIn = async (event) => {
@@ -25,23 +27,23 @@ const SignIn = () => {
       const u = {
         username: username,
         password: password,
-      }
-      
+      };
+
       console.log(u);
 
-      // Gọi API đăng nhập từ phía backend
+      // Call the login API from the backend
       const response = await api.post('/auth/login', u);
 
-      // Xử lý phản hồi từ API
+      // Handle API response
       if (response.data) {
         console.log(response.data);
         const { userData, access_token } = response.data;
 
-        // Lưu thông tin người dùng và token vào localStorage hoặc sessionStorage
+        // Save user information and token to localStorage or sessionStorage
         login(access_token, userData);
 
-        // Chuyển hướng sang trang home
-        navigate('/home')
+        // Redirect to the home page
+        navigate('/home');
       }
     } catch (error) {
       setMessage('Sign in failed. Try again!');
@@ -67,12 +69,21 @@ const SignIn = () => {
           />
           <TextField
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'} // Toggle visibility based on showPassword state
             variant="outlined"
             margin="normal"
             fullWidth
             required
             onChange={(e) => setPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignIn(e)} style={{ marginTop: '20px' }}>
             Sign In

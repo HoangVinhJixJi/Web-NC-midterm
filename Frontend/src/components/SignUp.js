@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Container, TextField, Typography, Paper, MenuItem } from '@mui/material';
+import { Button, Container, TextField, Typography, Paper, MenuItem, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import api from '../api/api';
 
@@ -14,6 +15,7 @@ const SignUp = () => {
   const [avatar, setAvatar] = useState('');
   const [message, setMessage] = useState('');
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleDateOfBirthFocus = () => {
     setIsDateOfBirthFocused(true);
@@ -96,7 +98,7 @@ const SignUp = () => {
         gender: gender,
         birthday: dateOfBirth,
         avatar: avatar,
-      }
+      };
 
       console.log(u);
 
@@ -197,12 +199,21 @@ const SignUp = () => {
           />
           <TextField
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'} // Toggle visibility based on showPassword state
             variant="outlined"
             margin="normal"
             fullWidth
             onChange={(e) => setPassword(e.target.value)}
             required
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignUp(e)} style={{ marginTop: '20px' }}>
             Sign Up
