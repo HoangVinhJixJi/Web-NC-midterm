@@ -5,17 +5,17 @@ const members = [
   {
     name: 'Nguyễn Minh Trí',
     description: 'Anh đẹp trai thứ 2 thì bất kỳ Ai cũng là số 1  !!! 😝😝😜',
-    avatar: 'https://demoda.vn/wp-content/uploads/2022/03/avatar-nam-cute.jpg', // Hình ảnh thành viên 1
+    avatar: 'https://demoda.vn/wp-content/uploads/2022/03/avatar-nam-cute.jpg', 
   },
   {
     name: 'Nguyễn Hữu Trực',
     description: 'Tài năng, tiền bạc, ngoại hình những gì bạn cần đều ở con người này đây!!! 💥💥💥',
-    avatar: 'https://cdn.alongwalk.info/info/wp-content/uploads/2022/11/16190614/image-99-hinh-avatar-cute-ngau-ca-tinh-de-thuong-nhat-cho-nam-nu-88637bea6eb35f9057b02b079946426f.jpg', // Hình ảnh thành viên 2
+    avatar: 'https://cdn.alongwalk.info/info/wp-content/uploads/2022/11/16190614/image-99-hinh-avatar-cute-ngau-ca-tinh-de-thuong-nhat-cho-nam-nu-88637bea6eb35f9057b02b079946426f.jpg',
   },
   {
     name: 'Nguyễn Hoàng Vinh',
     description: `Đây là người rất rất tốt.     Ý tui nói 2 người kế bên 👈👈👈`,
-    avatar: 'https://img.hoidap247.com/picture/question/20200212/large_1581495593499.PNG', // Hình ảnh thành viên 3
+    avatar: 'https://img.hoidap247.com/picture/question/20200212/large_1581495593499.PNG', 
   },
 ];
 
