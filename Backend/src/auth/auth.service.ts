@@ -33,4 +33,78 @@ export class AuthService {
       throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
     }
   }
+  //Handle profile user Facebook
+  handleUserFacebook(fbUser: any) {
+    console.log('Facebook user: ', fbUser);
+    const user = fbUser;
+    user['username'] = fbUser.fullName;
+    console.log('Facebook user after : ', user);
+    return user;
+  }
+  //Sign In  Facebook
+  async signInFacebook(user: any) {
+    //Kiểm tra trong database có tài khoản trùng hay không?
+    const existingUser = await this.usersService.findByFacebookIdOrEmail(
+      user.facebookId,
+      user.email,
+    );
+    if (!existingUser) {
+      //Tạo mới 1 user
+      console.log('tạo mới 1 user: ', user);
+      const fbUser = this.handleUserFacebook(user);
+      const newUser = await this.usersService.createFacebookUser(fbUser);
+      console.log('new User Facebook: ', newUser);
+      const payload = {
+        sub: newUser['_id'].toString(),
+        username: newUser['username'],
+        email: newUser['email'],
+      };
+      console.log('payload(newUser) in sigInFacebook auth-service: ', payload);
+      return {
+        userData: {
+          fullName: newUser.fullName,
+          avatar: newUser.avatar,
+        },
+        access_token: this.jwtService.sign(payload, {
+          secret: process.env.JWT_ACCESS_KEY, // Provide a default secret key
+        }),
+      };
+    }
+    console.log('Đã tồn tại user Facebook: ', existingUser);
+    // Nếu người dùng đã tồn tại, cập nhật thông tin (nếu có sự thay đổi) (avatar, name)
+    if (
+      existingUser.fullName !== user.fullName ||
+      existingUser.avatar !== user.avatar
+    ) {
+      const updatedFields = {
+        fullName: user.fullName,
+        avatar: user.avatar,
+      };
+      console.log('user after update by fields: ');
+      const updatedUser = await this.usersService.updateUserByField(
+        existingUser['_id'],
+        updatedFields,
+      );
+      console.log('user after update: ', updatedUser);
+    }
+    const curUser = await this.usersService.findByFacebookIdOrEmail(
+      existingUser['facebookId'],
+      existingUser['email'],
+    );
+    const payload = {
+      sub: curUser['_id'].toString(),
+      username: curUser['username'],
+      email: curUser['email'],
+    };
+    console.log('payload in sigInFacebook auth-service: ', payload);
+    return {
+      userData: {
+        fullName: curUser.fullName,
+        avatar: curUser.avatar,
+      },
+      access_token: this.jwtService.sign(payload, {
+        secret: process.env.JWT_ACCESS_KEY, // Provide a default secret key
+      }),
+    };
+  }
 }

@@ -44,4 +44,53 @@ export class UsersService {
       { new: true },
     );
   }
+  //Handle Facebook User
+
+  async findByFacebookIdOrEmail(
+    facebookId: string,
+    email: string,
+  ): Promise<User | null> {
+    try {
+      const existingUser = await this.usersModel
+        .findOne({ $or: [{ facebookId }, { email }] })
+        .exec();
+      return existingUser;
+    } catch (error) {
+      console.log('Error finding by facebookId or email: ', error);
+      throw error;
+    }
+  }
+
+  async updateUserByField(
+    userId: string,
+    updatedFields: Record<string, any>,
+  ): Promise<User> {
+    try {
+      const user = await this.usersModel.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      // Cập nhật các trường mới nếu có
+      Object.keys(updatedFields).forEach((key) => {
+        user[key] = updatedFields[key];
+      });
+      await user.save();
+      return user;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  }
+
+  async createFacebookUser(createFbUserDto: any): Promise<User> {
+    try {
+      console.log('user FB data: ', createFbUserDto);
+      const newUser = new this.usersModel(createFbUserDto);
+      console.log('create FB User: ', newUser);
+      return await newUser.save();
+    } catch (error) {
+      console.error('Error creating Facebook user:', error);
+      throw error;
+    }
+  }
 }
