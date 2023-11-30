@@ -11,7 +11,8 @@ import {
 } from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
+import { LocalAuthGuard } from './local-auth.guard';
+import { JwtAuthGuard } from './jwt-auth.guard'; // Thêm import JwtAuthGuard
 import { UsersService } from '../users/users.service';
 import { UserDto } from '../users/dto/user.dto';
 
@@ -21,22 +22,27 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
   ) {}
+
   @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard) // Sử dụng LocalAuthGuard cho đăng nhập local
   @Post('login')
   signIn(@Body(new ValidationPipe({ transform: true })) signInData: SignInDto) {
     return this.authService.signIn(signInData.username, signInData.password);
   }
-  @UseGuards(AuthGuard)
+
+  @UseGuards(JwtAuthGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
   @Get('login')
   getLoginPage(@Request() req) {
     return req.user;
   }
-  @UseGuards(AuthGuard)
+
+  @UseGuards(JwtAuthGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
   @Get('register')
   getRegisterPage(@Request() req) {
     return req.user;
   }
-  @UseGuards(AuthGuard)
+
+  @UseGuards(JwtAuthGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
   @Get('profile')
   async getProfile(@Request() req): Promise<UserDto> {
     const { username } = req.user;
