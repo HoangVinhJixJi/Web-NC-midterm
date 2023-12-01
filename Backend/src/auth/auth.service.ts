@@ -68,8 +68,8 @@ export class AuthService {
       const updatedUser = await this.usersService.updateUserByField(
         systemUser['_id'],
         {
-          fullName: user.fullName,
-          avatar: user.avatar,
+          fullName: ggUser.fullName,
+          avatar: ggUser.avatar,
         },
       );
       console.log('Updated User: ', updatedUser);
