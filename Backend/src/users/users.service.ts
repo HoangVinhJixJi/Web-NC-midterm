@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from './schema/user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserInterface } from './interface/user.interface';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -37,11 +38,25 @@ export class UsersService {
       .findOneAndUpdate({ username: username }, newData, { new: true })
       .exec();
   }
+  async findByActivationToken(token: string): Promise<User> {
+    return this.usersModel.findOne({ activationToken: token }).exec();
+  }
   async updatePassword(username: string, newPassword: string): Promise<string> {
     return this.usersModel.findOneAndUpdate(
       { username: username },
       { password: newPassword },
       { new: true },
     );
+  }
+  async updateActivatedUser(user: User) {
+    await this.usersModel.findOneAndUpdate(
+      { username: user.username },
+      { isActivated: user.isActivated, activationToken: user.activationToken },
+      { new: true },
+    );
+  }
+  async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
   }
 }

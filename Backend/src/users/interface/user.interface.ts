@@ -6,4 +6,6 @@ export interface UserInterface {
   gender: string;
   birthday: string;
   avatar: string;
+  isActivated: boolean;
+  activationToken: string;
 }
