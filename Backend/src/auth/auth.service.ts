@@ -33,4 +33,61 @@ export class AuthService {
       throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
     }
   }
+  async signInWithGoogle(req: any) {
+    const user = req.user;
+    const ggUser = {
+      username: user.googleId,
+      fullName: user.firstName + ' ' + user.lastName,
+      avatar: user.picture,
+      email: user.email,
+    };
+    const systemUser = await this.usersService.findOneByEmail(user.email);
+    console.log('gguser: ', ggUser);
+    console.log('systemUser: ', systemUser);
+    if (!systemUser) {
+      const newUser = await this.usersService.createUserFromGoogleUser(ggUser);
+      const payload = {
+        sub: newUser['_id'].toString(),
+        username: newUser.username,
+        email: newUser.email,
+      };
+      return {
+        userData: {
+          fullName: newUser.fullName,
+          avatar: newUser.avatar,
+        },
+        access_token: this.jwtService.sign(payload, {
+          secret: process.env.JWT_SECRET,
+        }),
+      };
+    }
+    if (
+      systemUser.fullName !== ggUser.fullName ||
+      systemUser.avatar !== ggUser.avatar
+    ) {
+      const updatedUser = await this.usersService.updateUserByField(
+        systemUser['_id'],
+        {
+          fullName: user.fullName,
+          avatar: user.avatar,
+        },
+      );
+      console.log('Updated User: ', updatedUser);
+    }
+    const curUser = await this.usersService.findOneByEmail(systemUser.email);
+    const payload = {
+      sub: curUser['_id'].toString(),
+      username: curUser.username,
+      email: curUser.email,
+    };
+    return {
+      userData: {
+        fullName: curUser.fullName,
+        avatar: curUser.avatar,
+      },
+      access_token: this.jwtService.sign(payload, {
+        secret: process.env.JWT_SECRET,
+      }),
+    };
+  }
 }

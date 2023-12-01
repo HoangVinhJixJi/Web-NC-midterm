@@ -44,4 +44,32 @@ export class UsersService {
       { new: true },
     );
   }
+  async updateUserByField(
+    userId: string,
+    updatedFields: Record<string, any>,
+  ): Promise<User> {
+    try {
+      const user = await this.usersModel.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      Object.keys(updatedFields).forEach((key) => {
+        user[key] = updatedFields[key];
+      });
+      await user.save();
+      return user;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  }
+  async createUserFromGoogleUser(ggUser: any): Promise<User> {
+    try {
+      const user = new this.usersModel(ggUser);
+      return await user.save();
+    } catch (error) {
+      console.error('Error creating google user:', error);
+      throw error;
+    }
+  }
 }

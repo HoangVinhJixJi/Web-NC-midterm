@@ -13,6 +13,7 @@ import { SignInDto } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard'; // Thêm import JwtAuthGuard
+import { GoogleOAuthGuard } from './google-oauth.guard';
 import { UsersService } from '../users/users.service';
 import { UserDto } from '../users/dto/user.dto';
 
@@ -56,5 +57,15 @@ export class AuthController {
       birthday: user.birthday,
       avatar: user.avatar,
     };
+  }
+
+  @Get('google')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuth() {}
+
+  @Get('google-redirect')
+  @UseGuards(GoogleOAuthGuard)
+  googleAuthRedirect(@Request() req) {
+    return this.authService.signInWithGoogle(req);
   }
 }
