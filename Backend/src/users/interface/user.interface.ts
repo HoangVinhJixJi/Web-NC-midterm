@@ -8,4 +8,5 @@ export interface UserInterface {
   avatar: string;
   isActivated: boolean;
   activationToken: string;
+  resetPasswordToken: string;
 }

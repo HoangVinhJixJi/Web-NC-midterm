@@ -5,7 +5,10 @@ export default function configuration() {
     database: {
       db_connection_uri: process.env.DATABASE_URI,
     },
-    jwt_secret: process.env.JWT_SECRET,
+    jwt: {
+      secret: process.env.JWT_SECRET,
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    },
     mail: {
       user: process.env.MJ_APIKEY_PUBLIC,
       pass: process.env.MJ_APIKEY_PRIVATE,

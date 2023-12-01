@@ -18,9 +18,11 @@ export class User extends mongoose.Document {
   birthday: string;
   @Prop()
   avatar: string;
-  @Prop()
+  @Prop({ default: false })
   isActivated: boolean;
-  @Prop()
+  @Prop({ default: null })
   activationToken: string;
+  @Prop({ default: null })
+  resetPasswordToken: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
