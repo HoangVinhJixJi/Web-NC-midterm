@@ -12,7 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthGuard } from '../auth/auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UserDto } from './dto/user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 
@@ -47,7 +47,7 @@ export class UsersController {
       avatar: newUser.avatar,
     };
   }
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('update')
   async updateProfile(
     @Request() req,
@@ -98,7 +98,7 @@ export class UsersController {
       avatar: updatedUser.avatar,
     };
   }
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('update-password')
   async updatePassword(
     @Request() req,
