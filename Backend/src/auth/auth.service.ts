@@ -47,7 +47,7 @@ export class AuthService {
     if (!systemUser) {
       const newUser = await this.usersService.createUserFromGoogleUser(ggUser);
       const payload = {
-        sub: newUser['_id'].toString(),
+        sub: newUser._id.toString(),
         username: newUser.username,
         email: newUser.email,
       };
@@ -76,7 +76,7 @@ export class AuthService {
     }
     const curUser = await this.usersService.findOneByEmail(systemUser.email);
     const payload = {
-      sub: curUser['_id'].toString(),
+      sub: curUser._id.toString(),
       username: curUser.username,
       email: curUser.email,
     };
