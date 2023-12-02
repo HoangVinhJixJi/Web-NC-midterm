@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Request,
+  Res,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -59,10 +60,25 @@ export class AuthController {
   async facebookLogin() {
     console.log('Facebook Passport strategy will handle the login.');
   }
+  //facebook/callback
   @Get('facebook/callback')
   @UseGuards(FacebookAuthGuard)
-  facebookLoginCallback(@Request() req) {
+  async facebookLoginCallback(@Request() req, @Res() res) {
     console.log('Handles the Facebook OAuth callback', req.user);
-    return this.authService.signInFacebook(req.user);
+    // Xử lý đăng nhập và lấy token
+    const token = await this.authService.signInFacebook(req.user);
+    console.log('token: ', token);
+    // Tạo URL chứa token và redirect_url
+    const redirectUrl = 'https://frontend-test-vert.vercel.app/signin';
+    const redirectWithToken = `${redirectUrl}?token=${token['access_token']}`;
+    // Chuyển hướng người dùng đến URL mới
+    res.redirect(redirectWithToken);
+  }
+
+  //test facebook create User
+  @Post('/test/fb')
+  testFacebookLogin(@Body() user: any) {
+    console.log('Handles the Facebook OAuth callback', user);
+    return this.authService.signInFacebook(user);
   }
 }

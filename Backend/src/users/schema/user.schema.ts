@@ -18,5 +18,7 @@ export class User extends mongoose.Document {
   birthday: string;
   @Prop()
   avatar: string;
+  @Prop()
+  facebookId: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);

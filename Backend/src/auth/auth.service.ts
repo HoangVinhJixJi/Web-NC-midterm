@@ -52,6 +52,7 @@ export class AuthService {
       //Tạo mới 1 user
       console.log('tạo mới 1 user: ', user);
       const fbUser = this.handleUserFacebook(user);
+      console.log('===> user được thêm vào username:  ', fbUser);
       const newUser = await this.usersService.createFacebookUser(fbUser);
       console.log('new User Facebook: ', newUser);
       const payload = {
@@ -65,24 +66,18 @@ export class AuthService {
           fullName: newUser.fullName,
           avatar: newUser.avatar,
         },
-        access_token: this.jwtService.sign(payload, {
-          secret: process.env.JWT_ACCESS_KEY, // Provide a default secret key
-        }),
+        access_token: await this.jwtService.signAsync(payload),
       };
     }
     console.log('Đã tồn tại user Facebook: ', existingUser);
     // Nếu người dùng đã tồn tại, cập nhật thông tin (nếu có sự thay đổi) (avatar, name)
-    if (
-      existingUser.fullName !== user.fullName ||
-      existingUser.avatar !== user.avatar
-    ) {
+    if (existingUser.fullName !== user.fullName) {
       const updatedFields = {
         fullName: user.fullName,
-        avatar: user.avatar,
       };
       console.log('user after update by fields: ');
       const updatedUser = await this.usersService.updateUserByField(
-        existingUser['_id'],
+        existingUser['_id'].toString(),
         updatedFields,
       );
       console.log('user after update: ', updatedUser);
@@ -102,9 +97,7 @@ export class AuthService {
         fullName: curUser.fullName,
         avatar: curUser.avatar,
       },
-      access_token: this.jwtService.sign(payload, {
-        secret: process.env.JWT_ACCESS_KEY, // Provide a default secret key
-      }),
+      access_token: await this.jwtService.signAsync(payload),
     };
   }
 }

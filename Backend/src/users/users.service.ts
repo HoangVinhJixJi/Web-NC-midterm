@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from './schema/user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserInterface } from './interface/user.interface';
+import { CreateFbUserDto } from './dto/create-fb-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -81,8 +82,14 @@ export class UsersService {
       throw error;
     }
   }
+  async addFacebookId(userId: string, facebookId: string): Promise<any> {
+    return this.usersModel.updateOne(
+      { _id: userId },
+      { $set: { facebookId: facebookId } },
+    );
+  }
 
-  async createFacebookUser(createFbUserDto: any): Promise<User> {
+  async createFacebookUser(createFbUserDto: CreateFbUserDto): Promise<User> {
     try {
       console.log('user FB data: ', createFbUserDto);
       const newUser = new this.usersModel(createFbUserDto);
