@@ -51,6 +51,9 @@ export class UsersService {
       { new: true },
     );
   }
+  async findByResetPasswordToken(resetToken: string) {
+    return this.usersModel.findOne({ resetPasswordToken: resetToken }).exec();
+  }
   async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password, salt);

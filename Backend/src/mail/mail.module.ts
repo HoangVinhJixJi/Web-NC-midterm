@@ -19,7 +19,9 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
           },
         },
         defaults: {
-          from: `"No Reply" <${configService.get<string>('mail.from')}>`,
+          from: `"The Classroom Team" <${configService.get<string>(
+            'mail.from',
+          )}>`,
         },
         template: {
           dir: join(__dirname, 'templates'),

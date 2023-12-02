@@ -101,10 +101,14 @@ export class AuthService {
         sub: user._id.toString(),
         username: user.username,
       };
+      const reset_password_token = await this.jwtService.signAsync(payload);
+      await this.usersService.findOneAndUpdate(payload.username, {
+        resetPasswordToken: reset_password_token,
+      });
       return {
         username: user.username,
         user_email: user.email,
-        reset_password_token: await this.jwtService.signAsync(payload),
+        reset_password_token,
       };
     } else {
       throw new HttpException('Account not found', HttpStatus.NOT_FOUND);
@@ -133,13 +137,15 @@ export class AuthService {
     const newHashedPassword = await this.usersService.hashPassword(newPassword);
     const result = await this.usersService.findOneAndUpdate(username, {
       password: newHashedPassword,
+      resetPasswordToken: null,
     });
     return !!result;
   }
   async sendResetPasswordSuccessfullyMail(contextData: {
-    clientIP: any;
+    os: any;
     resetDateTime: string;
-    userAgent: string;
+    browser: any;
+    clientIP: any;
     username: string;
   }) {
     const { email } = await this.usersService.findOneByUsername(
@@ -153,22 +159,25 @@ export class AuthService {
         username: contextData.username,
         resetDateTime: contextData.resetDateTime,
         clientIP: contextData.clientIP,
-        userAgent: contextData.userAgent,
+        browser: contextData.browser,
+        os: contextData.os,
       },
     };
     await this.mailService.sendEmail(mailData);
   }
   async extractToken(resetToken: string) {
-    const jwt_secret = this.configService.get<string>('jwt.secret');
-    try {
-      return await this.jwtService.verifyAsync(resetToken, {
-        secret: jwt_secret,
-      });
-    } catch {
-      throw new HttpException(
-        'Liên kết đã hết hiệu lực',
-        HttpStatus.UNAUTHORIZED,
-      );
+    const user = await this.usersService.findByResetPasswordToken(resetToken);
+    if (user) {
+      const jwt_secret = this.configService.get<string>('jwt.secret');
+      try {
+        return await this.jwtService.verifyAsync(resetToken, {
+          secret: jwt_secret,
+        });
+      } catch {
+        return null;
+      }
+    } else {
+      return null;
     }
   }
 }

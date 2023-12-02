@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
   Ip,
   Param,
@@ -11,6 +10,7 @@ import {
   Render,
   Req,
   Request,
+  Res,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -40,13 +40,20 @@ export class AuthController {
     return 'Đăng ký thành công. Vui lòng kiểm tra email để kích hoạt tài khoản.';
   }
   @Get('active/:token')
-  async activateAccount(@Param('token') token: string): Promise<string> {
+  @Render('activate')
+  async activateAccount(@Param('token') token: string) {
     const user_email = await this.authService.activateAccount(token);
     if (user_email) {
       await this.authService.sendWelcomeEmail(user_email);
-      return 'Tài khoản đã được kích hoạt';
+      return {
+        state: 'Successfully',
+        message: 'Your account has been successfully activated',
+      };
     } else {
-      return 'Lỗi kích hoạt tài khoản';
+      return {
+        state: 'Error',
+        message: 'Account activation error',
+      };
     }
   }
   @Post('forgot-password')
@@ -58,10 +65,16 @@ export class AuthController {
     return userInfo;
   }
   @Get('reset-password/:resetToken')
-  @Render('reset-password')
-  async goToResetPasswordPage(@Param('resetToken') resetToken: string) {
+  async goToResetPasswordPage(
+    @Param('resetToken') resetToken: string,
+    @Res() res: any,
+  ) {
     const userInfo = await this.authService.extractToken(resetToken);
-    return { username: userInfo.username };
+    if (userInfo) {
+      res.render('reset-password', { username: userInfo.username });
+    } else {
+      res.render('reset-password-expired');
+    }
   }
   @Post('reset-password/:username')
   async resetPassword(
@@ -85,17 +98,26 @@ export class AuthController {
         timeZoneName: 'short',
       };
       const dateTime = new Date().toLocaleString('vi-VN', options);
-      const agent = JSON.stringify(useragent.parse(req.headers['user-agent']));
+      const { browser, os } = JSON.parse(
+        JSON.stringify(useragent.parse(req.headers['user-agent'])),
+      );
       const contextData = {
         username,
         resetDateTime: dateTime,
-        userAgent: agent,
+        browser,
+        os,
         clientIP: ip,
       };
       await this.authService.sendResetPasswordSuccessfullyMail(contextData);
-      throw new HttpException('Reset password successfully', HttpStatus.OK);
+      return {
+        status: 'Successfully',
+        message: 'Reset password successfully',
+      };
     }
-    throw new HttpException('Reset password fail', HttpStatus.BAD_REQUEST);
+    return {
+      status: 'Error',
+      message: 'Reset password fail',
+    };
   }
   @HttpCode(HttpStatus.OK)
   @Post('login')
