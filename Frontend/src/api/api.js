@@ -2,10 +2,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://auth-server-khaki.vercel.app',
+  baseURL: 'https://ptudwnc-final-project.vercel.app',
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': 'http://localhost:3000', // Replace with your frontend 
+    'Access-Control-Allow-Origin': 'https://ptudwnc-final-project-client-site.vercel.app', // Replace with your frontend 
   },
 });
 

@@ -128,7 +128,7 @@ const SignIn = () => {
           </Button>
           <Grid container spacing={1} style={{ marginTop: '10px' }}>
             <Grid item xs={6}>
-            <Link to="#">
+              <Link to="https://ptudwnc-final-project.vercel.app/auth/google">
               <Button variant="outlined"  fullWidth sx={{  color: '#DB4437'}}>
                 <Google/> Google
               </Button>
