@@ -10,9 +10,15 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, 'public'));
   app.setBaseViewsDir(join(__dirname, 'views'));
   app.setViewEngine('hbs');
-  hbs.registerHelper('eq', (a, b) => a === b);
-  app.enableCors();
   const configService = app.get(ConfigService);
+  hbs.registerHelper('eq', (a, b) => a === b);
+  app.enableCors({
+    origin: configService.get<string>('client_url'),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+    allowedHeaders: 'Content-Type, Accept',
+  });
   await app.listen(configService.get<number>('port'));
   console.log(`Application is running on: ${await app.getUrl()}`);
 }

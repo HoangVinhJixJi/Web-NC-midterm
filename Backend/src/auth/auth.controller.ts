@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Ip,
   Param,
@@ -54,6 +55,19 @@ export class AuthController {
         state: 'Error',
         message: 'Account activation error',
       };
+    }
+  }
+  @Post('activate/resend-mail')
+  async resendMail(
+    @Body(new ValidationPipe({ transform: true }))
+    userData: Record<string, any>,
+  ) {
+    const user = await this.usersService.findOneByEmail(userData.email);
+    if (user) {
+      await this.authService.sendActivationEmail(user);
+      return 'Resend email successfully';
+    } else {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
   }
   @Post('forgot-password')
