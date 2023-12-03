@@ -22,12 +22,13 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import * as useragent from 'express-useragent';
-
+import { ConfigService } from '@nestjs/config';
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
+    private configService: ConfigService,
   ) {}
 
   @Post('register')
@@ -200,9 +201,11 @@ export class AuthController {
     console.log('Handles the Facebook OAuth callback', req.user);
     // Xử lý đăng nhập và lấy token
     const token = await this.authService.signInFacebook(req.user);
-    console.log('token: ', token);
+    //console.log('token: ', token);
     // Tạo URL chứa token và redirect_url
-    const redirectUrl = 'https://frontend-test-vert.vercel.app/signin';
+    const redirectUrl = `${this.configService.get<string>(
+      'frontend_url',
+    )}/signin`;
     const redirectWithToken = `${redirectUrl}?token=${token['access_token']}`;
     // Chuyển hướng người dùng đến URL mới
     res.redirect(redirectWithToken);

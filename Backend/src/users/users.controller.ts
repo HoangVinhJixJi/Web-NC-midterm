@@ -25,6 +25,8 @@ export class UsersController {
     @Body() userData: UpdateUserDto,
   ): Promise<UserDto> {
     const { username, email } = req.user;
+    console.log('user from frontend: ', userData);
+    console.log('user from AuthGaurd: ', req.user);
     if (username !== userData.username && email !== userData.email) {
       // Kiểm tra có user theo username và email
       const isExisted = await this.usersService.isExistedUser(
@@ -32,6 +34,7 @@ export class UsersController {
         userData.email,
       );
       if (isExisted) {
+        console.log('User already exists');
         throw new HttpException(isExisted, HttpStatus.BAD_REQUEST);
       }
     } else if (username !== userData.username) {
@@ -39,6 +42,7 @@ export class UsersController {
         userData.username,
       );
       if (existingUserByUsername) {
+        console.log('Username already exists');
         throw new HttpException(
           'Username already exists',
           HttpStatus.BAD_REQUEST,
@@ -49,6 +53,7 @@ export class UsersController {
         userData.email,
       );
       if (existingUserByEmail) {
+        console.log('email already exists');
         throw new HttpException(
           'Email has been registered to another account',
           HttpStatus.BAD_REQUEST,
@@ -59,6 +64,7 @@ export class UsersController {
       username,
       userData,
     );
+    console.log('updateUser: ', updatedUser);
     return {
       userId: updatedUser._id.toString(),
       username: updatedUser.username,

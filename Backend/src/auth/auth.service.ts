@@ -50,62 +50,68 @@ export class AuthService {
   }
   //Sign In  Facebook
   async signInFacebook(user: any) {
-    //Kiểm tra trong database có tài khoản trùng hay không?
-    const existingUser = await this.usersService.findByFacebookIdOrEmail(
-      user.facebookId,
-      user.email,
-    );
-    if (!existingUser) {
-      //Tạo mới 1 user
-      console.log('tạo mới 1 user: ', user);
-      const fbUser = this.handleUserFacebook(user);
-      console.log('===> user được thêm vào username:  ', fbUser);
-      const newUser = await this.usersService.createFacebookUser(fbUser);
-      console.log('new User Facebook: ', newUser);
+    try {
+      //Kiểm tra trong database có tài khoản trùng hay không?
+      const existingUser = await this.usersService.findByFacebookIdOrEmail(
+        user.facebookId,
+        user.email,
+      );
+      console.log('user before : ', user);
+      console.log('Đã tồn tại user Facebook: ', existingUser);
+      if (!existingUser) {
+        //Tạo mới 1 user
+        const fbUser = this.handleUserFacebook(user);
+        console.log('===> user Mới được thêm vào username:  ', fbUser);
+        const newUser = await this.usersService.createFacebookUser(fbUser);
+        console.log('new User Facebook: ', newUser);
+        const payload = {
+          sub: newUser['_id'].toString(),
+          username: newUser['username'],
+          email: newUser['email'],
+        };
+        console.log('payload(newUser) in sigInFacebook auth-service:', payload);
+        return {
+          userData: {
+            fullName: newUser.fullName,
+            avatar: newUser.avatar,
+          },
+          access_token: await this.jwtService.signAsync(payload),
+        };
+      }
+      // Nếu người dùng đã tồn tại, cập nhật thông tin (nếu có sự thay đổi) (avatar, name)
+      if (existingUser.fullName !== user.fullName) {
+        const updatedFields = {
+          fullName: user.fullName,
+          facebookId: user.facebookId,
+        };
+        console.log('user after update by fields: ');
+        const updatedUser = await this.usersService.updateUserByField(
+          existingUser['_id'].toString(),
+          updatedFields,
+        );
+        console.log('user after update: ', updatedUser);
+      }
+      const curUser = await this.usersService.findByFacebookIdOrEmail(
+        user.facebookId,
+        user.email,
+      );
       const payload = {
-        sub: newUser['_id'].toString(),
-        username: newUser['username'],
-        email: newUser['email'],
+        sub: curUser['_id'].toString(),
+        username: curUser['username'],
+        email: curUser['email'],
       };
-      console.log('payload(newUser) in sigInFacebook auth-service: ', payload);
+      //console.log('payload in sigInFacebook auth-service: ', payload);
       return {
         userData: {
-          fullName: newUser.fullName,
-          avatar: newUser.avatar,
+          fullName: curUser.fullName,
+          avatar: curUser.avatar,
         },
         access_token: await this.jwtService.signAsync(payload),
       };
+    } catch (error) {
+      console.error('Error when create user signinFacebook: ', error);
+      return null;
     }
-    console.log('Đã tồn tại user Facebook: ', existingUser);
-    // Nếu người dùng đã tồn tại, cập nhật thông tin (nếu có sự thay đổi) (avatar, name)
-    if (existingUser.fullName !== user.fullName) {
-      const updatedFields = {
-        fullName: user.fullName,
-      };
-      console.log('user after update by fields: ');
-      const updatedUser = await this.usersService.updateUserByField(
-        existingUser['_id'].toString(),
-        updatedFields,
-      );
-      console.log('user after update: ', updatedUser);
-    }
-    const curUser = await this.usersService.findByFacebookIdOrEmail(
-      existingUser['facebookId'],
-      existingUser['email'],
-    );
-    const payload = {
-      sub: curUser['_id'].toString(),
-      username: curUser['username'],
-      email: curUser['email'],
-    };
-    console.log('payload in sigInFacebook auth-service: ', payload);
-    return {
-      userData: {
-        fullName: curUser.fullName,
-        avatar: curUser.avatar,
-      },
-      access_token: await this.jwtService.signAsync(payload),
-    };
   }
   async signUp(userData: CreateUserDto) {
     const { password, ...otherData } = userData;
