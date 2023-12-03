@@ -32,6 +32,7 @@ const EditUser = () => {
   const [emailError, setEmailError] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
   const [curUsername, setCurUsername] = useState('');
+  const [curEmail, setCurEmail] = useState('');
   const handleChange = (field, value) => {
     setUser({
       ...user,
@@ -62,13 +63,14 @@ const EditUser = () => {
       if (response.status === 200 || response.status === 201) {
         setSaveStatus('Update successful!');
         //Nếu thay đổi username thì yêu cầu đăng nhập lại
-        if(user.username !== curUsername){
-          setSaveStatus('Update successful!!! Please Sign In again with New username ' );
+        if(user.username !== curUsername || user.email !== curEmail ){
+          setSaveStatus('Update successful!!! Please Sign In again' );
           setTimeout(()=>{
             logout();
             navigate('/signin');
           }, 3000)
         }
+        
       } else {
         setSaveStatus('Update failed.');
       }
@@ -98,6 +100,7 @@ const EditUser = () => {
         // Lưu thông tin người dùng vào state
         setUser(response.data);
         setCurUsername(response.data.username);
+        setCurEmail(response.data.email);
 
       } catch (error) {
         // Xử lý lỗi
