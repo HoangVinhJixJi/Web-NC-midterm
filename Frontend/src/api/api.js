@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://webnc-ga01.vercel.app',
+  baseURL: 'https://auth-server-khaki.vercel.app',
   headers: {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': 'http://localhost:3000', // Replace with your frontend 

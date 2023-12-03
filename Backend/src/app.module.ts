@@ -7,7 +7,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
+<<<<<<< HEAD
 import { PassportModule } from '@nestjs/passport';
+=======
+import { MailModule } from './mail/mail.module';
+>>>>>>> Backend
 
 @Module({
   imports: [
@@ -27,7 +31,11 @@ import { PassportModule } from '@nestjs/passport';
     }),
     UsersModule,
     AuthModule,
+<<<<<<< HEAD
     PassportModule,
+=======
+    MailModule,
+>>>>>>> Backend
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],
