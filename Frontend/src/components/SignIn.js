@@ -85,6 +85,9 @@ const SignIn = () => {
               ),
             }}
           />
+          <Typography variant="body2" mt={2}>
+            <Link to="/forgot-password">Forgot Password?</Link>
+          </Typography>
           <Button variant="contained" color="primary" fullWidth onClick={(e) => handleSignIn(e)} style={{ marginTop: '20px' }}>
             Sign In
           </Button>
