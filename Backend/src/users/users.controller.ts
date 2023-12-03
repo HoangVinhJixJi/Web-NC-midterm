@@ -8,7 +8,6 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -19,34 +18,6 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  @Post('register')
-  async signUp(
-    @Body(new ValidationPipe({ transform: true })) userData: CreateUserDto,
-  ): Promise<UserDto> {
-    const { password, ...otherData } = userData;
-    // Kiểm tra có user theo username và email
-    const isExisted = await this.usersService.isExistedUser(
-      otherData.username,
-      otherData.email,
-    );
-    if (isExisted) {
-      throw new HttpException(isExisted, HttpStatus.BAD_REQUEST);
-    }
-    const hashedPassword = await this.hashPassword(password);
-    const newUser = await this.usersService.create({
-      password: hashedPassword,
-      ...otherData,
-    });
-    return {
-      userId: newUser._id.toString(),
-      username: newUser.username,
-      email: newUser.email,
-      fullName: newUser.fullName,
-      gender: newUser.gender,
-      birthday: newUser.birthday,
-      avatar: newUser.avatar,
-    };
-  }
   @UseGuards(AuthGuard)
   @Post('update')
   async updateProfile(
@@ -109,7 +80,9 @@ export class UsersController {
     const { password } = user;
     const isMatch = await bcrypt.compare(userData.oldPassword, password);
     if (isMatch) {
-      const newHashedPassword = await this.hashPassword(userData.newPassword);
+      const newHashedPassword = await this.usersService.hashPassword(
+        userData.newPassword,
+      );
       const updateRes = await this.usersService.updatePassword(
         username,
         newHashedPassword,
@@ -124,9 +97,5 @@ export class UsersController {
       }
     }
     throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
-  }
-  private async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(password, salt);
   }
 }
