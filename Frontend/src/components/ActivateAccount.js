@@ -21,7 +21,7 @@ export default function ActivateAccount() {
   return (
     <Container maxWidth="lg">
       <Paper elevation={3} sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar src="/images/activate-account.png" alt="Activation Image" sx={{ width: '15rem', height: '10rem', borderRadius: '0px', marginBottom: 2 }} />
+        <Avatar src="/images/activate-account.png" alt="Activation Image" sx={{ width: '20rem', height: '15rem', borderRadius: '0px', marginBottom: 2 }} />
         <Typography variant="body" gutterBottom style={{ fontWeight: 'bold' }}>
           { notice }
         </Typography>

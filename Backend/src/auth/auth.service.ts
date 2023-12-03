@@ -97,22 +97,25 @@ export class AuthService {
   async forgotPassword(userEmail: string) {
     const user = await this.usersService.findOneByEmail(userEmail);
     if (user) {
-      const payload = {
-        sub: user._id.toString(),
-        username: user.username,
-      };
-      const reset_password_token = await this.jwtService.signAsync(payload);
-      await this.usersService.findOneAndUpdate(payload.username, {
-        resetPasswordToken: reset_password_token,
-      });
-      return {
-        username: user.username,
-        user_email: user.email,
-        reset_password_token,
-      };
+      return await this.createResetPasswordData(user);
     } else {
       throw new HttpException('Account not found', HttpStatus.NOT_FOUND);
     }
+  }
+  async createResetPasswordData(user: User) {
+    const payload = {
+      sub: user._id.toString(),
+      username: user.username,
+    };
+    const reset_password_token = await this.jwtService.signAsync(payload);
+    await this.usersService.findOneAndUpdate(payload.username, {
+      resetPasswordToken: reset_password_token,
+    });
+    return {
+      username: user.username,
+      user_email: user.email,
+      reset_password_token,
+    };
   }
   async sendForgotPasswordEmail(userInfo: {
     username: string;

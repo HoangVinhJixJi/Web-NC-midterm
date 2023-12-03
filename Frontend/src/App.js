@@ -14,6 +14,7 @@ import Group from './components/Group';
 import Profile from './components/Profile';
 import './App.css';
 import ActivateAccount from "./components/ActivateAccount";
+import ForgotPassword from "./components/ForgotPassword";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,6 +35,7 @@ const App = () => {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/account/activate" element={<ActivateAccount />} />
             <Route path="/signin" element={<SignIn />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/user/edit" element={<EditUser />} />

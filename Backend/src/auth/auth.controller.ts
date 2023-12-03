@@ -2,9 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpException,
-  HttpStatus,
   Ip,
   Param,
   Post,
@@ -58,7 +55,7 @@ export class AuthController {
     }
   }
   @Post('activate/resend-mail')
-  async resendMail(
+  async resendActivationEmail(
     @Body(new ValidationPipe({ transform: true }))
     userData: Record<string, any>,
   ) {
@@ -76,7 +73,43 @@ export class AuthController {
   ) {
     const userInfo = await this.authService.forgotPassword(userData.userEmail);
     await this.authService.sendForgotPasswordEmail(userInfo);
-    return userInfo;
+    return userInfo.username;
+  }
+  @Post('forgot-password/resend-mail')
+  async resendForgotPasswordEmail(
+    @Body(new ValidationPipe({ transform: true }))
+    userData: Record<string, any>,
+  ) {
+    const user = await this.usersService.findOneByEmail(userData.email);
+    let userInfo: {
+      user_email: string;
+      reset_password_token: string;
+      username: string;
+    };
+    // Nếu token còn trong DB, thì thực hiện kiểm tra hạn của token
+    if (user.resetPasswordToken) {
+      const userPayload = await this.authService.extractToken(
+        user.resetPasswordToken,
+      );
+      // Nếu token còn hạn, thì gửi mail với link được tạo từ token trong DB
+      if (userPayload) {
+        userInfo = {
+          username: user.username,
+          user_email: userData.email,
+          reset_password_token: user.resetPasswordToken,
+        };
+      }
+      // Nếu token hết hạn, thì tạo token mới và gửi lại
+      else {
+        userInfo = await this.authService.createResetPasswordData(user);
+      }
+    }
+    // Nếu user đã reset password và muốn gửi lại link, thì tạo link mới và gửi lại
+    else {
+      userInfo = await this.authService.createResetPasswordData(user);
+    }
+    await this.authService.sendForgotPasswordEmail(userInfo);
+    return user.username;
   }
   @Get('reset-password/:resetToken')
   async goToResetPasswordPage(
