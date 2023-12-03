@@ -3,12 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schema/user.schema';
 import { UserInterface } from './interface/user.interface';
-<<<<<<< HEAD
-import { CreateFbUserDto } from './dto/create-fb-user.dto';
-=======
 import * as bcrypt from 'bcrypt';
->>>>>>> Backend
-
+import { CreateFbUserDto } from './dto/create-fb-user.dto';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private usersModel: Model<User>) {}
@@ -21,17 +17,6 @@ export class UsersService {
   }
   async findOneByEmail(email: string): Promise<User> {
     return this.usersModel.findOne({ email }).exec();
-  }
-  async isExistedUser(username: string, email: string): Promise<string | null> {
-    const existingUserByUsername = await this.findOneByUsername(username);
-    if (existingUserByUsername) {
-      return 'Username already exists';
-    }
-    const existingUserByEmail = await this.findOneByEmail(email);
-    if (existingUserByEmail) {
-      return 'Email has been registered to another account';
-    }
-    return null;
   }
   async findOneAndUpdate(username: string, newData: any): Promise<User> {
     return this.usersModel
@@ -48,9 +33,32 @@ export class UsersService {
       { new: true },
     );
   }
-<<<<<<< HEAD
+  async updateActivatedUser(user: User) {
+    await this.usersModel.findOneAndUpdate(
+      { username: user.username },
+      { isActivated: user.isActivated, activationToken: user.activationToken },
+      { new: true },
+    );
+  }
+  async findByResetPasswordToken(resetToken: string) {
+    return this.usersModel.findOne({ resetPasswordToken: resetToken }).exec();
+  }
+  async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+  }
   //Handle Facebook User
-
+  async isExistedUser(username: string, email: string): Promise<string | null> {
+    const existingUserByUsername = await this.findOneByUsername(username);
+    if (existingUserByUsername) {
+      return 'Username already exists';
+    }
+    const existingUserByEmail = await this.findOneByEmail(email);
+    if (existingUserByEmail) {
+      return 'Email has been registered to another account';
+    }
+    return null;
+  }
   async findByFacebookIdOrEmail(
     facebookId: string,
     email: string,
@@ -103,20 +111,5 @@ export class UsersService {
       console.error('Error creating Facebook user:', error);
       throw error;
     }
-=======
-  async updateActivatedUser(user: User) {
-    await this.usersModel.findOneAndUpdate(
-      { username: user.username },
-      { isActivated: user.isActivated, activationToken: user.activationToken },
-      { new: true },
-    );
-  }
-  async findByResetPasswordToken(resetToken: string) {
-    return this.usersModel.findOne({ resetPasswordToken: resetToken }).exec();
-  }
-  async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(password, salt);
->>>>>>> Backend
   }
 }

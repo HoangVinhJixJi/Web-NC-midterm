@@ -17,14 +17,11 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { UsersService } from '../users/users.service';
 import { UserDto } from '../users/dto/user.dto';
-<<<<<<< HEAD
 import { FacebookAuthGuard } from './facebook-auth.guard';
-=======
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import * as useragent from 'express-useragent';
->>>>>>> Backend
 
 @Controller('auth')
 export class AuthController {

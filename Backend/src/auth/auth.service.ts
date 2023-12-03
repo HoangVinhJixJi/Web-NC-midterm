@@ -40,7 +40,6 @@ export class AuthService {
       throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
     }
   }
-<<<<<<< HEAD
   //Handle profile user Facebook
   handleUserFacebook(fbUser: any) {
     console.log('Facebook user: ', fbUser);
@@ -107,7 +106,7 @@ export class AuthService {
       },
       access_token: await this.jwtService.signAsync(payload),
     };
-=======
+  }
   async signUp(userData: CreateUserDto) {
     const { password, ...otherData } = userData;
     const isExisted = await this.usersService.isExistedUser(
@@ -250,6 +249,5 @@ export class AuthService {
     } else {
       return null;
     }
->>>>>>> Backend
   }
 }

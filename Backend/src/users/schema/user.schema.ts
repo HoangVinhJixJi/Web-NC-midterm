@@ -18,16 +18,13 @@ export class User extends mongoose.Document {
   birthday: string;
   @Prop()
   avatar: string;
-<<<<<<< HEAD
   @Prop()
   facebookId: string;
-=======
   @Prop({ default: false })
   isActivated: boolean;
   @Prop({ default: null })
   activationToken: string;
   @Prop({ default: null })
   resetPasswordToken: string;
->>>>>>> Backend
 }
 export const UserSchema = SchemaFactory.createForClass(User);
