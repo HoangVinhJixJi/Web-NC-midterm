@@ -18,6 +18,8 @@ export class User extends mongoose.Document {
   birthday: string;
   @Prop()
   avatar: string;
+  @Prop()
+  facebookId: string;
   @Prop({ default: false })
   isActivated: boolean;
   @Prop({ default: null })

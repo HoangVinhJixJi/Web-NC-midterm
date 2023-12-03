@@ -1,5 +1,4 @@
 import { IsEmail, IsString } from 'class-validator';
-import mongoose from 'mongoose';
 
 export class UserDto {
   @IsString()

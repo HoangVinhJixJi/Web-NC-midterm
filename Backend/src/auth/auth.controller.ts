@@ -19,6 +19,7 @@ import { JwtAuthGuard } from './jwt-auth.guard'; // Thêm import JwtAuthGuard
 import { GoogleOAuthGuard } from './google-oauth.guard';
 import { UsersService } from '../users/users.service';
 import { UserDto } from '../users/dto/user.dto';
+import { FacebookAuthGuard } from './facebook-auth.guard';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -205,17 +206,51 @@ export class AuthController {
     };
   }
 
+  //facebook
+  @Get('facebook')
+  @UseGuards(FacebookAuthGuard)
+  async facebookLogin() {
+    console.log('Facebook Passport strategy will handle the login.');
+  }
+  //facebook/callback
+  @Get('facebook/callback')
+  @UseGuards(FacebookAuthGuard)
+  async facebookLoginCallback(@Request() req, @Res() res) {
+    console.log('Handles the Facebook OAuth callback', req.user);
+    // Xử lý đăng nhập và lấy token
+    const token = await this.authService.signInFacebook(req.user);
+    console.log('token: ', token);
+    // Tạo URL chứa token và redirect_url
+    const redirectUrl = 'https://frontend-test-vert.vercel.app/signin';
+    const redirectWithToken = `${redirectUrl}?token=${token['access_token']}`;
+    // Chuyển hướng người dùng đến URL mới
+    res.redirect(redirectWithToken);
+  }
+
+  //test facebook create User
+  @Post('/test/fb')
+  testFacebookLogin(@Body() user: any) {
+    console.log('Handles the Facebook OAuth callback', user);
+    return this.authService.signInFacebook(user);
+  }
+
   @Get('google')
   @UseGuards(GoogleOAuthGuard)
   async googleAuth() {}
 
+  // @Get('google-redirect')
+  // @UseGuards(GoogleOAuthGuard)
+  // async googleAuthRedirect(@Request() req) {
+  //   return this.authService.signInWithGoogle(req);
+  // }
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
-  async googleAuthRedirect(@Request() req) {
-    // const token = await this.authService.signInWithGoogle(req);
-    // const redirectUrl = this.configService.get<string>('fronend_url');
-    // const redirectWithToken = `${redirectUrl}?token=${token.access_token}`;
-    // res.redirect(redirectWithToken);
-    return this.authService.signInWithGoogle(req);
+  async googleAuthRedirect(@Request() req, @Res() res) {
+    const token = await this.authService.signInWithGoogle(req);
+    const redirectUrl = `${this.configService.get<string>(
+      'client_url',
+    )}/signin`;
+    const redirectWithToken = `${redirectUrl}?token=${token.access_token}`;
+    res.redirect(redirectWithToken);
   }
 }

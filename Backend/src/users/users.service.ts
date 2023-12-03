@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { User } from './schema/user.schema';
 import { UserInterface } from './interface/user.interface';
 import * as bcrypt from 'bcrypt';
-
+import { CreateFbUserDto } from './dto/create-fb-user.dto';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private usersModel: Model<User>) {}
@@ -17,17 +17,6 @@ export class UsersService {
   }
   async findOneByEmail(email: string): Promise<User> {
     return this.usersModel.findOne({ email }).exec();
-  }
-  async isExistedUser(username: string, email: string): Promise<string | null> {
-    const existingUserByUsername = await this.findOneByUsername(username);
-    if (existingUserByUsername) {
-      return 'Username already exists';
-    }
-    const existingUserByEmail = await this.findOneByEmail(email);
-    if (existingUserByEmail) {
-      return 'Email has been registered to another account';
-    }
-    return null;
   }
   async findOneAndUpdate(username: string, newData: any): Promise<User> {
     return this.usersModel
@@ -58,6 +47,33 @@ export class UsersService {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password, salt);
   }
+  //Handle Facebook User
+  async isExistedUser(username: string, email: string): Promise<string | null> {
+    const existingUserByUsername = await this.findOneByUsername(username);
+    if (existingUserByUsername) {
+      return 'Username already exists';
+    }
+    const existingUserByEmail = await this.findOneByEmail(email);
+    if (existingUserByEmail) {
+      return 'Email has been registered to another account';
+    }
+    return null;
+  }
+  async findByFacebookIdOrEmail(
+    facebookId: string,
+    email: string,
+  ): Promise<User | null> {
+    try {
+      const existingUser = await this.usersModel
+        .findOne({ $or: [{ facebookId }, { email }] })
+        .exec();
+      return existingUser;
+    } catch (error) {
+      console.log('Error finding by facebookId or email: ', error);
+      throw error;
+    }
+  }
+
   async updateUserByField(
     userId: string,
     updatedFields: Record<string, any>,
@@ -67,6 +83,7 @@ export class UsersService {
       if (!user) {
         throw new Error('User not found');
       }
+      // Cập nhật các trường mới nếu có
       Object.keys(updatedFields).forEach((key) => {
         user[key] = updatedFields[key];
       });
@@ -74,6 +91,24 @@ export class UsersService {
       return user;
     } catch (error) {
       console.error('Error updating user:', error);
+      throw error;
+    }
+  }
+  async addFacebookId(userId: string, facebookId: string): Promise<any> {
+    return this.usersModel.updateOne(
+      { _id: userId },
+      { $set: { facebookId: facebookId } },
+    );
+  }
+
+  async createFacebookUser(createFbUserDto: CreateFbUserDto): Promise<User> {
+    try {
+      console.log('user FB data: ', createFbUserDto);
+      const newUser = new this.usersModel(createFbUserDto);
+      console.log('create FB User: ', newUser);
+      return await newUser.save();
+    } catch (error) {
+      console.error('Error creating Facebook user:', error);
       throw error;
     }
   }

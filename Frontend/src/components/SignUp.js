@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-import {Link, useNavigate} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, Container, TextField, Typography, Paper, MenuItem, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
@@ -18,8 +17,8 @@ const SignUp = () => {
   const [avatar, setAvatar] = useState('');
   const [message, setMessage] = useState('');
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleDateOfBirthFocus = () => {
     setIsDateOfBirthFocused(true);
