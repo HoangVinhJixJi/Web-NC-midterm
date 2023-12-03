@@ -12,13 +12,7 @@ async function bootstrap() {
   app.setViewEngine('hbs');
   const configService = app.get(ConfigService);
   hbs.registerHelper('eq', (a, b) => a === b);
-  app.enableCors({
-    origin: configService.get<string>('client_url'),
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-    optionsSuccessStatus: 204,
-    allowedHeaders: 'Content-Type, Accept',
-  });
+  app.enableCors();
   await app.listen(configService.get<number>('port'));
   console.log(`Application is running on: ${await app.getUrl()}`);
 }

@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [emailRegistration, setEmailRegistration] = useState('');
 
   useEffect(() => {
     // Lấy thông tin đăng nhập từ localStorage 
@@ -17,6 +18,10 @@ export const AuthProvider = ({ children }) => {
       setUser(JSON.parse(storedUser));
     }
   }, []);
+
+  const register = (email) => {
+    setEmailRegistration(email);
+  }
 
   const login = (token, userData) => {
     setIsLoggedIn(true);
@@ -37,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn,user, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn,user,emailRegistration, register,login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -31,14 +31,14 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
   ) {}
-  @HttpCode(HttpStatus.OK)
+
   @Post('register')
   async signUp(
     @Body(new ValidationPipe({ transform: true })) userData: CreateUserDto,
   ): Promise<string> {
     const newUser = await this.authService.signUp(userData);
     await this.authService.sendActivationEmail(newUser);
-    return 'Đăng ký thành công. Vui lòng kiểm tra email để kích hoạt tài khoản.';
+    return 'Sign Up Success. Please check your email to activate your account.';
   }
   @Get('active/:token')
   @Render('activate')
@@ -63,11 +63,11 @@ export class AuthController {
     userData: Record<string, any>,
   ) {
     const user = await this.usersService.findOneByEmail(userData.email);
-    if (user) {
+    if (user.activationToken) {
       await this.authService.sendActivationEmail(user);
-      return 'Resend email successfully';
+      return 'The mail has been sent back to you, please check your email and activate your account.';
     } else {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+      return 'No request to activate your account or your account is already activated.';
     }
   }
   @Post('forgot-password')
@@ -133,7 +133,6 @@ export class AuthController {
       message: 'Reset password fail',
     };
   }
-  @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body(new ValidationPipe({ transform: true })) signInData: SignInDto) {
     return this.authService.signIn(signInData.username, signInData.password);

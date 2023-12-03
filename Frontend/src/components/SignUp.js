@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { Button, Container, TextField, Typography, Paper, MenuItem } from '@mui/material';
 
 import api from '../api/api';
+import { useAuth as useAuthContext } from '../api/AuthContext';
 
 const SignUp = () => {
+  const { register } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -14,6 +16,7 @@ const SignUp = () => {
   const [avatar, setAvatar] = useState('');
   const [message, setMessage] = useState('');
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
+  const navigate = useNavigate();
 
   const handleDateOfBirthFocus = () => {
     setIsDateOfBirthFocused(true);
@@ -101,11 +104,13 @@ const SignUp = () => {
       console.log(u);
 
       // Make API call
-      const response = await api.post('/users/register', u);
+      const response = await api.post('/auth/register', u);
 
       if (response.data) {
         setMessage('Sign up success. Sign in now!');
         console.log(response.data);
+        register(email);
+        navigate('/account/activate');
       }
     } catch (error) {
       setMessage('Sign up failed. Try again!');
