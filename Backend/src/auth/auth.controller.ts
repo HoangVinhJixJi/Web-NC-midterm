@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Request,
+  Res,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,12 +17,14 @@ import { JwtAuthGuard } from './jwt-auth.guard'; // Thêm import JwtAuthGuard
 import { GoogleOAuthGuard } from './google-oauth.guard';
 import { UsersService } from '../users/users.service';
 import { UserDto } from '../users/dto/user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -65,7 +68,11 @@ export class AuthController {
 
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
-  googleAuthRedirect(@Request() req) {
-    return this.authService.signInWithGoogle(req);
+  async googleAuthRedirect(@Request() req, @Res() res) {
+    const token = await this.authService.signInWithGoogle(req);
+    const redirectUrl = this.configService.get<string>('FRONTEND_URL');
+    const redirectWithToken = `${redirectUrl}?token=${token.access_token}`;
+    res.redirect(redirectWithToken);
+    // return this.authService.signInWithGoogle(req);
   }
 }

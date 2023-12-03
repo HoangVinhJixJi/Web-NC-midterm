@@ -2,12 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
   async signIn(username, pass) {
     const user = await this.usersService.findOneByUsername(username);
@@ -57,7 +59,7 @@ export class AuthService {
           avatar: newUser.avatar,
         },
         access_token: this.jwtService.sign(payload, {
-          secret: process.env.JWT_SECRET,
+          secret: this.configService.get<string>('JWT_SECRET'),
         }),
       };
     }
@@ -66,7 +68,7 @@ export class AuthService {
       systemUser.avatar !== ggUser.avatar
     ) {
       const updatedUser = await this.usersService.updateUserByField(
-        systemUser['_id'],
+        systemUser._id,
         {
           fullName: ggUser.fullName,
           avatar: ggUser.avatar,
@@ -86,7 +88,7 @@ export class AuthService {
         avatar: curUser.avatar,
       },
       access_token: this.jwtService.sign(payload, {
-        secret: process.env.JWT_SECRET,
+        secret: this.configService.get<string>('JWT_SECRET'),
       }),
     };
   }
