@@ -70,7 +70,7 @@ export class AuthController {
   @UseGuards(GoogleOAuthGuard)
   async googleAuthRedirect(@Request() req, @Res() res) {
     const token = await this.authService.signInWithGoogle(req);
-    const redirectUrl = this.configService.get<string>('FRONTEND_URL');
+    const redirectUrl = this.configService.get<string>('fronend_url');
     const redirectWithToken = `${redirectUrl}?token=${token.access_token}`;
     res.redirect(redirectWithToken);
     // return this.authService.signInWithGoogle(req);

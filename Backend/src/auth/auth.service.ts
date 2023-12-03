@@ -59,7 +59,7 @@ export class AuthService {
           avatar: newUser.avatar,
         },
         access_token: this.jwtService.sign(payload, {
-          secret: this.configService.get<string>('JWT_SECRET'),
+          secret: this.configService.get<string>('jwt_secret'),
         }),
       };
     }
@@ -88,7 +88,7 @@ export class AuthService {
         avatar: curUser.avatar,
       },
       access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
+        secret: this.configService.get<string>('jwt_secret'),
       }),
     };
   }
