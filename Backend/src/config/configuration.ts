@@ -8,6 +8,6 @@ export default function configuration() {
     google_client_id: process.env.GOOGLE_CLIENT_ID,
     google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
     public_url: process.env.PUBLIC_URL,
-    fronend_url: process.env.FONTEND_URL,
+    fronend_url: process.env.FRONTEND_URL,
   };
 }
