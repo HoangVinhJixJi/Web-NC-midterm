@@ -219,7 +219,7 @@ export class AuthController {
     console.log('Handles the Facebook OAuth callback', req.user);
     // Xử lý đăng nhập và lấy token
     const token = await this.authService.signInFacebook(req.user);
-    console.log('token: ', token);
+    //console.log('token: ', token);
     // Tạo URL chứa token và redirect_url
     const redirectUrl = `${this.configService.get<string>(
       'client_url',

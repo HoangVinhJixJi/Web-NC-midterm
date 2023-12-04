@@ -8,10 +8,13 @@ export default function configuration() {
       secret: process.env.JWT_SECRET,
       expiresIn: process.env.JWT_EXPIRES_IN,
     },
+    //Public host
+    public_url: process.env.PUBLIC_URL,
+    frontend_url: process.env.FRONTEND_URL,
     //Facbook
     fb_client_id: process.env.FB_CLIENT_ID,
     fb_client_secret: process.env.FB_CLIENT_SECRET,
-    public_url: process.env.PUBLIC_URL,
+
     //Mail
     mail: {
       user: process.env.MJ_APIKEY_PUBLIC,

@@ -63,17 +63,16 @@ export class UsersService {
     facebookId: string,
     email: string,
   ): Promise<User | null> {
-    try {
-      const existingUser = await this.usersModel
-        .findOne({ $or: [{ facebookId }, { email }] })
-        .exec();
+    if (facebookId) {
+      const existingUser = await this.usersModel.findOne({ facebookId }).exec();
       return existingUser;
-    } catch (error) {
-      console.log('Error finding by facebookId or email: ', error);
-      throw error;
+    } else if (email) {
+      const existingUser = await this.usersModel.findOne({ email }).exec();
+      return existingUser;
+    } else {
+      return null;
     }
   }
-
   async updateUserByField(
     userId: string,
     updatedFields: Record<string, any>,
