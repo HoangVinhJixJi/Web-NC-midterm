@@ -7,7 +7,7 @@ import api from '../api/api';
 import { useAuth as useAuthContext } from '../api/AuthContext';
 
 const SignUp = () => {
-  const { register } = useAuthContext();
+  const { register, isLoggedIn } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -19,6 +19,14 @@ const SignUp = () => {
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập
+    if (isLoggedIn) {
+      // Nếu đã đăng nhập, điều hướng về trang Home
+      navigate('/home');
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleDateOfBirthFocus = () => {
     setIsDateOfBirthFocused(true);

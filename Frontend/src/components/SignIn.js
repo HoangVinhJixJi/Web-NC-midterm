@@ -1,18 +1,26 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button, Container, TextField, Typography, Paper, IconButton, InputAdornment, Grid } from '@mui/material';
 import { Visibility, VisibilityOff, Facebook, Google } from '@mui/icons-material'; // Import icons
 
-import api, {setAuthToken}from '../api/api';
+import api, { setAuthToken } from '../api/api';
 import { useAuth as useAuthContext } from '../api/AuthContext';
 
 const SignIn = () => {
-  const { login } = useAuthContext();
+  const { login, isLoggedIn } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); // State for password visibility
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập
+    if (isLoggedIn) {
+      // Nếu đã đăng nhập, điều hướng về trang Home
+      navigate('/home');
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleSignIn = async (event) => {
     try {
@@ -50,7 +58,7 @@ const SignIn = () => {
       console.error('Sign in failed:', error);
     }
   };
-  
+
   useEffect(() => {
     // Lấy token từ URL
     const fetchUserData = async () => {
@@ -58,7 +66,7 @@ const SignIn = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
         console.log("token in : ", token);
-        if(!token){
+        if (!token) {
           console.error('Error get token from URL: NO-TOKEN', Error);
           throw Error;
         }
@@ -68,7 +76,7 @@ const SignIn = () => {
         const response = await api.get('/auth/profile');
         console.log("response: ", response.data);
         // Lưu trữ token vào localStorage
-        const userData = {fullName: response.data.fullName, avatar: response.data.avatar};
+        const userData = { fullName: response.data.fullName, avatar: response.data.avatar };
         login(token, userData);
         // Chuyển hướng người dùng đến trang chính
         navigate('/home')
@@ -79,7 +87,7 @@ const SignIn = () => {
         if (error.response && error.response.status === 401) {
           navigate('/signin');
         }
-        
+
       }
     };
 
@@ -129,17 +137,17 @@ const SignIn = () => {
           <Grid container spacing={1} style={{ marginTop: '10px' }}>
             <Grid item xs={6}>
               <Link to="https://ptudwnc-final-project.vercel.app/auth/google">
-              <Button variant="outlined"  fullWidth sx={{  color: '#DB4437'}}>
-                <Google/> Google
-              </Button>
-            </Link>
+                <Button variant="outlined" fullWidth sx={{ color: '#DB4437' }}>
+                  <Google /> Google
+                </Button>
+              </Link>
             </Grid>
             <Grid item xs={6}>
-            <Link to="https://webnc-ga01.vercel.app/auth/facebook">
-              <Button variant="outlined" fullWidth  sx={{  color:'#3B5998' }}>
-                <Facebook/> Facebook
-              </Button>
-            </Link>
+              <Link to="https://ptudwnc-final-project.vercel.app/auth/facebook">
+                <Button variant="outlined" fullWidth sx={{ color: '#3B5998' }}>
+                  <Facebook /> Facebook
+                </Button>
+              </Link>
             </Grid>
           </Grid>
         </form>
