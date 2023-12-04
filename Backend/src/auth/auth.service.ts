@@ -21,6 +21,12 @@ export class AuthService {
     if (!user) {
       throw new HttpException('Username not found', HttpStatus.BAD_REQUEST);
     }
+    if (!user.isActivated) {
+      throw new HttpException(
+        'Account has not been activated',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
     const { password } = user;
     const isMatch = await bcrypt.compare(pass, password);
     if (isMatch) {
