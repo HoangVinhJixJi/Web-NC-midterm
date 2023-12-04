@@ -221,7 +221,9 @@ export class AuthController {
     const token = await this.authService.signInFacebook(req.user);
     console.log('token: ', token);
     // Tạo URL chứa token và redirect_url
-    const redirectUrl = 'https://frontend-test-vert.vercel.app/signin';
+    const redirectUrl = `${this.configService.get<string>(
+      'client_url',
+    )}/signin`;
     const redirectWithToken = `${redirectUrl}?token=${token['access_token']}`;
     // Chuyển hướng người dùng đến URL mới
     res.redirect(redirectWithToken);

@@ -3,7 +3,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-facebook';
+import { Profile, Strategy } from 'passport-facebook';
 import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
@@ -16,10 +16,11 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any): Promise<any> {
+  async validate(accessToken: string, refreshToken: string, profile: Profile): Promise<any> {
     const { id, displayName, photos, emails } = profile;
     console.log("Profile Facebook: ", profile);
-    const avatarUrl = `https://graph.facebook.com/${id}/picture?type=normal`;
+    // const avatarUrl = `https://graph.facebook.com/${id}/picture?type=normal`;
+    const avatarUrl = `https://graph.facebook.com/${id}/picture?width=200&height=200&access_token=${accessToken}`;
     console.log("avatarURL: ", avatarUrl);
     const user = {
       facebookId: id,
