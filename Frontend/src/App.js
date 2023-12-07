@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Container, CssBaseline, Box } from '@mui/material';
 import { AuthProvider } from './api/AuthContext';
 import Header from './components/Header'; 
@@ -15,18 +15,23 @@ import Profile from './components/Profile';
 import './App.css';
 import ActivateAccount from "./components/ActivateAccount";
 import ForgotPassword from "./components/ForgotPassword";
+import Classroom from './components/Classroom';
+import ClassDetailTab from './components/classroom/ClassDetailTab';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  
   const handleSignOut = () => {
     // Handle sign out logic
     setIsLoggedIn(false);
   };
 
+  
+
   return (
     <AuthProvider>
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CssBaseline />
         <Header isLoggedIn={isLoggedIn} handleSignOut={handleSignOut}/>
         <Container component="main" maxWidth="md" sx={{ flexGrow: 1, mt: 4, mb: 4 }}>
@@ -42,6 +47,8 @@ const App = () => {
             <Route path="/user/change-password" element={<ChangePassword />} />
             <Route path="/about" element={<Group/>} />
             <Route path="/user/profile" element={<Profile />} />
+            <Route path="/classroom/*" element={<Classroom />} />
+            
           </Routes>
         </Container>
         <Footer />
