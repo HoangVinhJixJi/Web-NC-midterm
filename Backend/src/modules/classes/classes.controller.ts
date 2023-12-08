@@ -18,7 +18,17 @@ export class ClassesController {
   @Get('/')
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
-    return await this.classesService.getClasses(userId);
+    return await this.classesService.getClasses(userId, null);
+  }
+  @Get('/teaching')
+  async getTeachingClasses(@Request() req: any) {
+    const userId = req.user.sub;
+    return await this.classesService.getClasses(userId, 'teacher');
+  }
+  @Get('/enrolled')
+  async getEnrolledClasses(@Request() req: any) {
+    const userId = req.user.sub;
+    return await this.classesService.getClasses(userId, 'student');
   }
   @Post('create')
   async createNewClass(

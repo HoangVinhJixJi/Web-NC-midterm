@@ -26,13 +26,13 @@ export class ClassesService {
     await this.enrollmentsService.add(classId, userId, 'teacher');
     return newClass;
   }
-  async getClasses(userId: any) {
+  async getClasses(userId: any, roll: any) {
     try {
       const enrollments =
         await this.enrollmentsService.getEnrollmentsPopulatedUser(
           userId,
           'classId',
-          null,
+          roll,
         );
       return enrollments.map((enrollment) => enrollment['classId']);
     } catch (error) {
