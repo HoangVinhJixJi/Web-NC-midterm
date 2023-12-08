@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Post,
+  Request,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,8 +17,11 @@ export class ClassesController {
   constructor(private readonly classesService: ClassesService) {}
   @Post('create')
   async createNewClass(
+    @Request() req: any,
     @Body(new ValidationPipe({ transform: true })) userData: CreateClassDto,
   ): Promise<Class> {
-    return this.classesService.create(userData);
+    const userId = req.user.sub;
+    console.log(userId);
+    return this.classesService.create(userData, userId);
   }
 }
