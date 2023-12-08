@@ -14,6 +14,7 @@ import JoinedClassTab from './classroom/JoinedClassTab';
 import ClassDetailTab from './classroom/ClassDetailTab';
 
 import { Container } from '@mui/material';
+import NotificationJoinClass from './classroom/NotificationJoinClass';
 const SidebarContainer = styled('div')(({ theme }) => ({
   width: 200,
   padding: theme.spacing(3),
@@ -87,6 +88,7 @@ const Classroom = () => {
           <Route path="/teaching" element={<TeachingTab onClassClick={handleClassClick} />} />
           <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick} />} />
           <Route path="/class-detail/:classId" element={<ClassDetailTab />} />
+          <Route path="/class/:classcode" element={<NotificationJoinClass />} />
         </Routes>
 
       </MainContent>

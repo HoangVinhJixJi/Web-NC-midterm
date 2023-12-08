@@ -1,20 +1,90 @@
-import React from 'react';
-import { useParams } from "react-router-dom";
-import { Box, Tab, Tabs, Typography } from '@mui/material';
 
-// Các component con cho mỗi tab
-const NoticeTab = ({classId}) => <Typography variant="body1"> Nội dung tab Bảng tin Class id = {classId} </Typography>;
-const TeacherListTab = () => <Typography variant="body1">Nội dung tab Danh sách giáo viên</Typography>;
-const StudentListTab = () => <Typography variant="body1">Nội dung tab Danh sách học sinh</Typography>;
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { 
+  Box, 
+  Tab, 
+  Tabs, 
+  Typography, 
+  Grid, 
+  Paper, 
+  Container, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  ListItemAvatar, 
+  Avatar,
+  MenuItem,
+  Menu,
+  IconButton,
+  Snackbar,
+} from '@mui/material';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CloseIcon from '@mui/icons-material/Close';
+import api, {setAuthToken} from '../../api/api';
+//Các componet của mỗi tab
+import ClassInfoTab from './ClassInfoTab';
+import TeacherListTab from './TeacherListTab';
+import StudentListTab from './StudentListTab';
 
 const ClassDetailTab = () => {
+  const teacherData = [
+    { _id: '1', fullName: 'Nguyễn Văn A', avatar: 'https://anhcuoiviet.vn/wp-content/uploads/2022/11/avatar-dep-dang-yeu-nu-5.jpg' },
+    { _id: '2', fullName: 'Trần Thị B', avatar: 'https://i.pinimg.com/564x/e1/c6/f9/e1c6f998ec506bbbf0b2d7f00e646b46.jpg' },
+    { _id: '3', fullName: 'Lê Văn C', avatar: 'url_to_avathttps://haycafe.vn/wp-content/uploads/2021/11/Avt-cute-chbi-bts.jpgar_3' },
+    // Thêm giáo viên khác nếu cần
+  ];
+  const classInfo ={
+    _id: '123',
+    className: 'Lớp học Lập trình web',
+    description: 'Thông tin cơ bản của lớp học gồm các thông tin liên quan đến web',
+    classCode: 'abc123basd',
+    teachers: teacherData,
+    students: teacherData,
+  }
   const [currentTab, setCurrentTab] = React.useState(0);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
   const { classId } = useParams();
+  const {classList, setClassList} = useState();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Lấy token từ localStorage hoặc nơi lưu trữ khác
+        const token = localStorage.getItem('token');
+        if(!token){
+          console.error('Error fetching user data:', Error);
+          
+          navigate('/signin');
+        }
+        
+        // Đặt token cho mọi yêu cầu
+        setAuthToken(token);
+        // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
+        const response = await api.get(`/class/detail-class/:${classId}`);
+        //Lưu thông tin toàn bộ lớp học vào state
+        setClassList(response.data);
+        
+        
+      } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
 
+        // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
+        if (error.response && error.response.status === 401) {
+          navigate('/signin');
+        }
+      }
+    };
+
+    // Gọi hàm lấy dữ liệu người dùng
+    //fetchUserData();
+
+  }, []); 
   return (
     <Box sx={{ width: '100%' }}>
       {/* Tabs */}
@@ -33,13 +103,13 @@ const ClassDetailTab = () => {
 
       {/* Tab Panels */}
       <TabPanel value={currentTab} index={0}>
-        <NoticeTab classId={classId} />
+        <ClassInfoTab classInfo={classInfo} />
       </TabPanel>
       <TabPanel value={currentTab} index={1}>
-        <TeacherListTab />
+        <TeacherListTab teachers={teacherData}/>
       </TabPanel>
       <TabPanel value={currentTab} index={2}>
-        <StudentListTab />
+        <StudentListTab  students={teacherData}/>
       </TabPanel>
     </Box>
   );
