@@ -14,13 +14,13 @@ import {
 } from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard'; // Thêm import JwtAuthGuard
-import { GoogleOAuthGuard } from './google-oauth.guard';
-import { UsersService } from '../users/users.service';
-import { UserDto } from '../users/dto/user.dto';
-import { FacebookAuthGuard } from './facebook-auth.guard';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { LocalAuthGuard } from './local/local-auth.guard';
+import { JwtAuthGuard } from './jwt/jwt-auth.guard'; // Thêm import JwtAuthGuard
+import { GoogleOAuthGuard } from './google/google-oauth.guard';
+import { UsersService } from '../modules/users/users.service';
+import { UserDto } from '../modules/users/dto/user.dto';
+import { FacebookAuthGuard } from './facebook/facebook-auth.guard';
+import { CreateUserDto } from '../modules/users/dto/create-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import * as useragent from 'express-useragent';
