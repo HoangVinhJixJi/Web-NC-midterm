@@ -26,4 +26,17 @@ export class ClassesService {
     await this.enrollmentsService.add(classId, userId, 'teacher');
     return newClass;
   }
+  async getClasses(userId: any) {
+    try {
+      const enrollments =
+        await this.enrollmentsService.getEnrollmentsPopulatedUser(
+          userId,
+          'classId',
+          null,
+        );
+      return enrollments.map((enrollment) => enrollment['classId']);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

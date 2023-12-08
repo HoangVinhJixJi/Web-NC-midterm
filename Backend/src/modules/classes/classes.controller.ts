@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Get,
   Post,
   Request,
   UseGuards,
@@ -15,13 +15,17 @@ import { ClassesService } from './classes.service';
 @UseGuards(JwtAuthGuard)
 export class ClassesController {
   constructor(private readonly classesService: ClassesService) {}
+  @Get('/')
+  async getAllClasses(@Request() req: any) {
+    const userId = req.user.sub;
+    return await this.classesService.getClasses(userId);
+  }
   @Post('create')
   async createNewClass(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true })) userData: CreateClassDto,
   ): Promise<Class> {
     const userId = req.user.sub;
-    console.log(userId);
     return this.classesService.create(userData, userId);
   }
 }
