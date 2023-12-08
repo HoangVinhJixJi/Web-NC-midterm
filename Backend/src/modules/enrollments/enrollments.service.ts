@@ -8,12 +8,13 @@ export class EnrollmentsService {
   constructor(
     @InjectModel('Enrollment') private enrollmentsModel: Model<Enrollment>,
   ) {}
-  async add(classId: string, userId: string, role: string) {
+  async add(classId: string, userId: string, role: string, isCreator: boolean) {
     const newEnrollment = {
       classId,
       userId,
       role,
       joinAt: new Date().toString(),
+      isCreator,
     };
     const createEnrollment = new this.enrollmentsModel(newEnrollment);
     return createEnrollment.save();
@@ -30,5 +31,8 @@ export class EnrollmentsService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+  async getOne(classId: string, userId: any) {
+    return this.enrollmentsModel.findOne({ classId, userId }).exec();
   }
 }

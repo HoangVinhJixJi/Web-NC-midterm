@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CreateClassDto } from './dto/create-class.dto';
-import { Model } from 'mongoose';
 import { Class } from './schema/class.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ClassesService {
@@ -23,7 +23,7 @@ export class ClassesService {
     const createClass = new this.classesModel(newClassData);
     const newClass = await createClass.save();
     const classId = newClass._id.toString();
-    await this.enrollmentsService.add(classId, userId, 'teacher');
+    await this.enrollmentsService.add(classId, userId, 'teacher', true);
     return newClass;
   }
   async getClasses(userId: any, roll: any) {
@@ -38,5 +38,12 @@ export class ClassesService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+  async getClassInfo(userId: any, classId: string) {
+    const { role } = await this.enrollmentsService.getOne(classId, userId);
+    const _class = await this.classesModel.findOne({ _id: classId }).exec();
+    return role === 'teacher'
+      ? _class
+      : { className: _class.className, description: _class.description };
   }
 }
