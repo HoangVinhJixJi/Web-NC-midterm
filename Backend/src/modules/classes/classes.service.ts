@@ -19,4 +19,26 @@ export class ClassesService {
     const createClass = new this.classesModel(newClass);
     return createClass.save();
   }
+  async getAll(): Promise<Class[]> {
+    return await this.classesModel.find().exec();
+  }
+  async findClassesByIds(classIds: any): Promise<Class[]> {
+    try {
+      // Sử dụng phương thức find và truyền mảng classIds vào
+      const classes = await this.classesModel
+        .find({ _id: { $in: classIds } })
+        .exec();
+      return classes;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async findClassById(classId: any): Promise<Class> {
+    try {
+      const classes = await this.classesModel.findById({ _id: classId }).exec();
+      return classes;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

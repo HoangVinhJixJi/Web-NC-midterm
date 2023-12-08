@@ -6,14 +6,7 @@ import api, {setAuthToken} from '../../api/api';
 
 
 const JoinedClassTab = ({ onClassClick}) => {
-    const [classList, setClassList] = useState([
-      { _id: 1, className: 'Lớp học 1 kakjsdh aso doasd', description: 'Mô tả lớp học 1 Joined class aosdhoasi doas doasduh asodj asd' },
-      { _id: 2, className: 'Lớp học 2 asdas', description: 'Mô tả lớp học 2 Joined class' },
-      { _id: 3, className: 'Lớp học 3', description: 'Mô tả lớp học 3 Joined classdasd' },
-      { _id: 4, className: 'Lớp học 4aosid oasdh asda ', description: 'Joined class' },
-      { _id: 5, className: 'Lớp học 5', description: 'Mô tả lớp học 5 Joined class aosdhoasi doas doasduh asodj asd' },
-
-  ]);
+    const [classList, setClassList] = useState([]);
     const navigate = useNavigate();
     useEffect(() => {
       const fetchUserData = async () => {
@@ -50,13 +43,15 @@ const JoinedClassTab = ({ onClassClick}) => {
   
     }, []);   
   return (
+    
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    { classList.length === 0 && <Typography> Hiện tại bạn chưa có lớp học nào</Typography> }
     <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 160px)' }}>
     {classList.map((classItem) => (
       <Grid item key={classItem._id} xs={12} sm={6} md={4}>
         <Paper elevation={3} sx={{ padding: '16px', margin: '8px', height: '100%', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onClick={() => onClassClick(classItem._id)}>
        
-          <Diversity3Icon fontSize="large" style={{ marginBottom: '8px' }}/>
+          <Diversity3Icon fontSize="large" color='primary' style={{ marginBottom: '8px' }}/>
 
           {/* Nội dung thông tin */}
           <div style={{ textAlign: 'center' }}>

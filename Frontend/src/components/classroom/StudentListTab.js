@@ -63,11 +63,12 @@ const StudentListTab = ({students}) => {
         </Typography>
         <Grid item >
           <Grid container alignItems="center" spacing={1}>
-          <Grid item>
+          {students && <Grid item>
             <Typography variant="body1">
               {students.length} học sinh
             </Typography>
-          </Grid>
+          </Grid>}
+          
           <Grid item>
             <Button
               variant="contained"
@@ -86,7 +87,7 @@ const StudentListTab = ({students}) => {
         <Divider sx={{ margin: '16px 0' }} />
 
         {/* Danh sách học sinh */}
-        <List>
+        {students && <List>
           {students.map((student) => (
             <ListItem key={student._id}>
               <ListItemAvatar>
@@ -96,6 +97,7 @@ const StudentListTab = ({students}) => {
             </ListItem>
           ))}
         </List>
+        }
 
         {/* Dialog để thêm học sinh */}
         <Dialog open={isAddStudentDialogOpen} onClose={handleCloseDialog}>

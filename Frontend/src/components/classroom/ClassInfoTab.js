@@ -23,6 +23,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
 import api, {setAuthToken} from '../../api/api';
 const ClassInfoTab = ({ classInfo }) => {
+    console.log('classInfo: ', classInfo);
     const [anchorEl, setAnchorEl] = useState(null);
     const [isSnackbarOpen, setSnackbarOpen] = useState(false);
     const handleClick = (event) => {
@@ -48,7 +49,7 @@ const ClassInfoTab = ({ classInfo }) => {
     const handleSnackbarClose = () => {
       setSnackbarOpen(false);
     };
-    //Kiểm tra đúng là lớp do mình làm giáo viên thì cho hiển thị code
+    //Kiểm tra đúng là lớp do mình làm giáo viên thì cho hiển thị codex
     if(true){
         return (
             <div>

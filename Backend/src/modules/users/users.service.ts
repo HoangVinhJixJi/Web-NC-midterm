@@ -120,4 +120,15 @@ export class UsersService {
       throw error;
     }
   }
+  async findUsersByIds(userIds: any): Promise<User[]> {
+    try {
+      // Sử dụng phương thức find và truyền mảng UserIds vào
+      const Users = await this.usersModel
+        .find({ _id: { $in: userIds } })
+        .exec();
+      return Users;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

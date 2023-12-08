@@ -65,11 +65,12 @@ const TeacherListTab = ({teachers}) => {
         </Typography>
         <Grid item >
           <Grid container alignItems="center" spacing={1}>
-          <Grid item>
+          {teachers && <Grid item>
             <Typography variant="body1">
               {teachers.length} giáo viên
             </Typography>
-          </Grid>
+          </Grid>}
+          
           <Grid item>
             <Button
               variant="contained"
@@ -86,13 +87,13 @@ const TeacherListTab = ({teachers}) => {
       </Grid>
 
         <Divider sx={{ margin: '16px 0' }} />
-        {/* Danh sách lời mời đã gửi */}
+        
         {invitedEmails.map((teacher) => (
           <ListItem key={teacher.email} sx={{ opacity: teacher.invited ? 0.5 : 1 }}>
             <ListItemText primary={teacher.email} secondary={teacher.invited ? 'Đã gửi lời mời' : ''} />
           </ListItem>
         ))}
-        {/* Danh sách giáo viên */}
+        {teachers && 
         <List>
           {teachers.map((teacher) => (
             <ListItem key={teacher._id}>
@@ -103,6 +104,7 @@ const TeacherListTab = ({teachers}) => {
             </ListItem>
           ))}
         </List>
+        }
 
         {/* Dialog để thêm giáo viên */}
         <Dialog open={isAddTeacherDialogOpen} onClose={handleCloseDialog}>

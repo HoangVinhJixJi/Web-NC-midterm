@@ -37,12 +37,7 @@ const CustomListItemButton = styled(ListItemButton)(({ theme }) => ({
 const MainHomepageTab = ({ onClassClick }) => {
   const [isCreateClassOpen, setCreateClassOpen] = useState(false);
   const [isJoinClassOpen, setJoinClassOpen] = useState(false);
-  const [classList, setClassList] = useState([
-    { _id: 1, className: 'Lớp học 1', description: 'Mô tả lớp học 1 aishdoh saodhas oduas hdoash doasd' },
-    { _id: 2, className: 'Lớp học 2', description: 'Mô tả lớp học 2' },
-    { _id: 3, className: 'Lớp học 3', description: 'Mô tả lớp học 3 aishdoh saodhas oduas hdoash doasdaishdoh saodhas oduas hdoash doasd' },
-    { _id: 4, className: 'Lớp học 4', description: 'Mô tả lớp học 4' },
-  ]);
+  const [classList, setClassList] = useState([]);
 
   const openCreateClassPopup = () => setCreateClassOpen(true);
   const closeCreateClassPopup = () => setCreateClassOpen(false);
@@ -50,42 +45,89 @@ const MainHomepageTab = ({ onClassClick }) => {
   const openJoinClassPopup = () => setJoinClassOpen(true);
   const closeJoinClassPopup = () => setJoinClassOpen(false);
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Lấy token từ localStorage hoặc nơi lưu trữ khác
-        const token = localStorage.getItem('token');
-        if(!token){
-          console.error('Error fetching user data:', Error);
-          
-          navigate('/signin');
-        }
-        
-        // Đặt token cho mọi yêu cầu
-        setAuthToken(token);
-        // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
-        const response = await api.get('/class/all-class');
-        //Lưu thông tin toàn bộ lớp học vào state
-        setClassList(response.data);
-        
-        
-      } catch (error) {
-        // Xử lý lỗi
-        console.error('Error fetching user data:', error);
 
-        // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
-        if (error.response && error.response.status === 401) {
-          navigate('/signin');
-        }
+
+  const fetchClassData = async () => {
+    try {
+      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        
+        navigate('/signin');
       }
-    };
+      
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
+      // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
+      const response = await api.get('/classes/all-class');
+      //Lưu thông tin toàn bộ lớp học vào state
+      setClassList(response.data);
+      console.log('response.data: ', response.data);
+      
+      
+    } catch (error) {
+      // Xử lý lỗi
+      console.error('Error fetching user data:', error);
 
+      // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
+      if (error.response && error.response.status === 401) {
+        navigate('/signin');
+      }
+    }
+  };
+
+  useEffect(() => {
     // Gọi hàm lấy dữ liệu người dùng
-    //fetchUserData();
+    fetchClassData();
+  }, []); 
 
-  }, [navigate]); 
-
-
+  const submitCreateClass = async () => {
+    try {
+      // Lấy giá trị từ các trường nhập liệu
+      const className = document.getElementById('textfield-className').value;
+      const description = document.getElementById('textfield-description').value;
+      
+      // Kiểm tra xem các trường bắt buộc đã được điền đầy đủ hay chưa
+      if (!className) {
+        console.log('CHưa nhập class Name');
+        // Hiển thị thông báo hoặc thực hiện xử lý khi tên lớp học không hợp lệ
+        return;
+      }
+      console.log({className}, {description});
+      
+      // Lấy token từ localStorage
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        navigate('/signin');
+      }
+      
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
+      const response = await api.post('/classes/create', {
+        className,
+        description,
+      });
+      console.log("response.data: ", response.data);
+  
+      //Kiểm tra trạng thái của yêu cầu
+      if (response.status === 201 || response.status === 200) {
+        // Nếu tạo mới lớp học thành công, có thể thực hiện các bước tiếp theo
+        fetchClassData();
+        closeCreateClassPopup();
+        // Thực hiện các bước tiếp theo tùy thuộc vào yêu cầu của bạn
+      } else {
+        // Xử lý khi có lỗi từ server
+        console.error('Error creating class:', response.data);
+        // Có thể hiển thị thông báo lỗi hoặc xử lý lỗi khác tùy ý
+      }
+    } catch (error) {
+      // Xử lý khi có lỗi không mong muốn
+      console.error('Unexpected error:', error);
+      // Có thể hiển thị thông báo lỗi hoặc xử lý lỗi khác tùy ý
+    }
+  };
  
 
   return (
@@ -147,16 +189,16 @@ const MainHomepageTab = ({ onClassClick }) => {
         <Typography textAlign={'center'} margin={2}>
             - Vui lòng nhập vào các thông tin cơ bản của lớp học -
         </Typography>
-          <TextField label="Tên lớp học" fullWidth sx={{ marginY: 2 }}/>
-          <TextField label="Chủ đề" fullWidth sx={{ marginY: 2 }}/>
-          <TextField label="Phòng" fullWidth sx={{ marginY: 2 }}/>
-          <TextField label="Mô tả" fullWidth sx={{ marginY: 2 }}/>
+          <TextField id='textfield-className' label="Tên lớp học" fullWidth sx={{ marginY: 2 }}/>
+          {/* <TextField label="Chủ đề" fullWidth sx={{ marginY: 2 }}/>
+          <TextField label="Phòng" fullWidth sx={{ marginY: 2 }}/> */}
+          <TextField id='textfield-description' label="Mô tả" fullWidth sx={{ marginY: 2 }}/>
         </DialogContent>
         <DialogActions>
           <Button onClick={closeCreateClassPopup} color="primary">
             Hủy
           </Button>
-          <Button onClick={closeCreateClassPopup} color="primary">
+          <Button onClick={submitCreateClass} color="primary">
             Tạo
           </Button>
         </DialogActions>

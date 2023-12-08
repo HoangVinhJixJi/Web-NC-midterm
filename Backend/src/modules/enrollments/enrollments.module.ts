@@ -10,5 +10,6 @@ import { EnrollmentSchema } from './schema/enrollment.schema';
     ]),
   ],
   providers: [EnrollmentsService],
+  exports: [EnrollmentsService],
 })
 export class EnrollmentsModule {}

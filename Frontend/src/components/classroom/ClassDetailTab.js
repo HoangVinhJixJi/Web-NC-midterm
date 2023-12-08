@@ -35,21 +35,14 @@ const ClassDetailTab = () => {
     { _id: '3', fullName: 'Lê Văn C', avatar: 'url_to_avathttps://haycafe.vn/wp-content/uploads/2021/11/Avt-cute-chbi-bts.jpgar_3' },
     // Thêm giáo viên khác nếu cần
   ];
-  const classInfo ={
-    _id: '123',
-    className: 'Lớp học Lập trình web',
-    description: 'Thông tin cơ bản của lớp học gồm các thông tin liên quan đến web',
-    classCode: 'abc123basd',
-    teachers: teacherData,
-    students: teacherData,
-  }
-  const [currentTab, setCurrentTab] = React.useState(0);
-
+  
+  const [currentTab, setCurrentTab] = useState(0);
+  const [classInfo, setClassInfo] = useState({});
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
   const { classId } = useParams();
-  const {classList, setClassList} = useState();
+  
   const navigate = useNavigate();
   useEffect(() => {
     const fetchUserData = async () => {
@@ -59,15 +52,16 @@ const ClassDetailTab = () => {
         if(!token){
           console.error('Error fetching user data:', Error);
           
-          navigate('/signin');
+          //navigate('/signin');
         }
         
         // Đặt token cho mọi yêu cầu
         setAuthToken(token);
         // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
-        const response = await api.get(`/class/detail-class/:${classId}`);
+        const response = await api.get(`/classes/class-detail/${classId}`);
         //Lưu thông tin toàn bộ lớp học vào state
-        setClassList(response.data);
+        console.log('Class Data: ', response.data);
+        setClassInfo(response.data);
         
         
       } catch (error) {
@@ -82,9 +76,10 @@ const ClassDetailTab = () => {
     };
 
     // Gọi hàm lấy dữ liệu người dùng
-    //fetchUserData();
+    fetchUserData();
 
-  }, []); 
+  }, []);  
+  console.log("0 c;a clasInfo: ", classInfo);
   return (
     <Box sx={{ width: '100%' }}>
       {/* Tabs */}
@@ -106,10 +101,10 @@ const ClassDetailTab = () => {
         <ClassInfoTab classInfo={classInfo} />
       </TabPanel>
       <TabPanel value={currentTab} index={1}>
-        <TeacherListTab teachers={teacherData}/>
+        <TeacherListTab teachers={classInfo.teachers}/>
       </TabPanel>
       <TabPanel value={currentTab} index={2}>
-        <StudentListTab  students={teacherData}/>
+        <StudentListTab  students={classInfo.students}/>
       </TabPanel>
     </Box>
   );
