@@ -21,7 +21,6 @@ import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
 
 @Controller('classes')
-// @UseGuards(JwtAuthGuard)
 export class ClassesController {
   constructor(
     private readonly classesService: ClassesService,
@@ -31,21 +30,25 @@ export class ClassesController {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
   ) {}
+  @UseGuards(JwtAuthGuard)
   @Get('/')
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, null);
   }
+  @UseGuards(JwtAuthGuard)
   @Get('teaching')
   async getTeachingClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, 'teacher');
   }
+  @UseGuards(JwtAuthGuard)
   @Get('enrolled')
   async getEnrolledClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, 'student');
   }
+  @UseGuards(JwtAuthGuard)
   @Post('create')
   async createNewClass(
     @Request() req: any,
@@ -54,6 +57,7 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.create(userData, userId);
   }
+  @UseGuards(JwtAuthGuard)
   @Get('info/:classId')
   async getClassInfo(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
@@ -141,7 +145,7 @@ export class ClassesController {
           const pendingInvite =
             await this.pendingInvitesService.findByClassIdAndEmailAndRole(
               pendingInviteInfo.classId,
-              pendingInviteInfo.userId,
+              pendingInviteInfo.email,
               pendingInviteInfo.role,
             );
           res.redirect(

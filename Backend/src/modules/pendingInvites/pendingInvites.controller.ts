@@ -1,9 +1,7 @@
-import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
+import { Controller, Get, Param, Request } from '@nestjs/common';
 import { PendingInvitesService } from './pendingInvites.service';
 
 @Controller('pendingInvites')
-// @UseGuards(JwtAuthGuard)
 export class PendingInvitesController {
   constructor(private readonly pendingInvitesService: PendingInvitesService) {}
   @Get(':classId')
