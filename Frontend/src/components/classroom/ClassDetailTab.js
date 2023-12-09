@@ -52,15 +52,15 @@ const ClassDetailTab = () => {
         if(!token){
           console.error('Error fetching user data:', Error);
           
-          //navigate('/signin');
+          navigate('/signin');
         }
         
         // Đặt token cho mọi yêu cầu
         setAuthToken(token);
         // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
-        const response = await api.get(`/classes/class-detail/${classId}`);
+        const response = await api.get(`/classes/info/${classId}`);
         //Lưu thông tin toàn bộ lớp học vào state
-        console.log('Class Data: ', response.data);
+        console.log('Class Detail Data 3: ', response.data);
         setClassInfo(response.data);
         
         
@@ -79,7 +79,6 @@ const ClassDetailTab = () => {
     fetchUserData();
 
   }, []);  
-  console.log("0 c;a clasInfo: ", classInfo);
   return (
     <Box sx={{ width: '100%' }}>
       {/* Tabs */}
@@ -101,10 +100,10 @@ const ClassDetailTab = () => {
         <ClassInfoTab classInfo={classInfo} />
       </TabPanel>
       <TabPanel value={currentTab} index={1}>
-        <TeacherListTab teachers={classInfo.teachers}/>
+        <TeacherListTab classId={classId}/>
       </TabPanel>
       <TabPanel value={currentTab} index={2}>
-        <StudentListTab  students={classInfo.students}/>
+        <StudentListTab  classId={classId}/>
       </TabPanel>
     </Box>
   );

@@ -22,8 +22,9 @@ const JoinedClassTab = ({ onClassClick}) => {
           // Đặt token cho mọi yêu cầu
           setAuthToken(token);
           // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
-          const response = await api.get('/class/joined-class');
+          const response = await api.get('/classes/enrolled');
           //Lưu thông tin toàn bộ lớp học vào state
+          console.log('Joined class: ', response.data);
           setClassList(response.data);
           
           
@@ -39,7 +40,7 @@ const JoinedClassTab = ({ onClassClick}) => {
       };
   
       // Gọi hàm lấy dữ liệu người dùng
-      //fetchUserData();
+      fetchUserData();
   
     }, []);   
   return (

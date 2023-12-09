@@ -22,12 +22,48 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
 
-const TeacherListTab = ({teachers}) => {
+const TeacherListTab = ({classId}) => {
   const [isAddTeacherDialogOpen, setIsAddTeacherDialogOpen] = useState(false);
   const [newTeacherEmail, setNewTeacherEmail] = useState('');
   const [message, setMessage] = useState('');
   const [invitedEmails, setInvitedEmails] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchTeacherData = async () => {
+      try {
+        // Lấy token từ localStorage hoặc nơi lưu trữ khác
+        const token = localStorage.getItem('token');
+        if(!token){
+          console.error('Error fetching user data:', Error);
+          
+          navigate('/signin');
+        }
+        
+        // Đặt token cho mọi yêu cầu
+        setAuthToken(token);
+        // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
+        const response = await api.get(`/enrollments/teacher/${classId}`);
+        //Lưu thông tin toàn bộ lớp học vào state
+        console.log('List teachers Data: ', response.data);
+        setTeachers(response.data);
+        
+        
+      } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
 
+        // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
+        if (error.response && error.response.status === 401) {
+          navigate('/signin');
+        }
+      }
+    };
+
+    // Gọi hàm lấy dữ liệu người dùng
+    fetchTeacherData();
+
+  }, []); 
 
   const handleAddTeacherClick = () => {
     setIsAddTeacherDialogOpen(true);

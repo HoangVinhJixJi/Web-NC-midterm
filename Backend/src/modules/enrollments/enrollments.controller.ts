@@ -9,6 +9,7 @@ export class EnrollmentsController {
   @Get('/:classId')
   async getAllMembers(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
+
     return this.enrollmentsService.getMembers(userId, classId, null);
   }
   @UseGuards(JwtAuthGuard)
