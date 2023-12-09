@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { PendingInvitesService } from './pendingInvites.service';
 
 @Controller('pendingInvites')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class PendingInvitesController {
   constructor(private readonly pendingInvitesService: PendingInvitesService) {}
   @Get(':classId')

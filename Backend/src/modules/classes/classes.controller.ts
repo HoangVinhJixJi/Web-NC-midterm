@@ -19,7 +19,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 
 @Controller('classes')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class ClassesController {
   constructor(
     private readonly classesService: ClassesService,
@@ -71,13 +71,20 @@ export class ClassesController {
     @Param('inviteToken') inviteToken: string,
     @Res() res: any,
   ) {
-    const pendingInviteInfo = await this.authService.extractToken(inviteToken);
+    const pendingInviteInfo =
+      await this.pendingInvitesService.extractToken(inviteToken);
     if (pendingInviteInfo) {
       const check = await this.enrollmentsService.hasEmailJoinedClass(
         pendingInviteInfo.email,
         pendingInviteInfo.classId,
       );
       if (check) {
+        const deletePendingInvite = await this.pendingInvitesService.delete(
+          pendingInviteInfo.classId,
+          pendingInviteInfo.email,
+          pendingInviteInfo.role,
+        );
+        console.log(deletePendingInvite);
         res.redirect(
           `${this.configService.get<string>('client_url')}/c/${
             pendingInviteInfo.classId
@@ -115,7 +122,7 @@ export class ClassesController {
         }
       }
     } else {
-      res.render('reset-password-expired');
+      res.render('invitation-expired');
     }
   }
 }

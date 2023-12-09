@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { EnrollmentsService } from './enrollments.service';
 
 @Controller('enrollments')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
   @Get('email/:classId')

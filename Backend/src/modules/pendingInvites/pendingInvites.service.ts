@@ -2,12 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PendingInvite } from './schema/pendingInvite.schema';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class PendingInvitesService {
   constructor(
     @InjectModel('PendingInvite')
     private pendingInvitesModel: Model<PendingInvite>,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
   async add(classId: string, email: string, role: string) {
     const newPendingInvite = {
@@ -81,6 +85,23 @@ export class PendingInvitesService {
       return await this.pendingInvitesModel.findById(pendingInviteId).exec();
     } catch (error) {
       throw new Error(error);
+    }
+  }
+  async extractToken(inviteToken: string) {
+    const pendingInvite = await this.pendingInvitesModel
+      .findOne({ inviteToken })
+      .exec();
+    if (pendingInvite) {
+      const jwt_secret = this.configService.get<string>('jwt.secret');
+      try {
+        return await this.jwtService.verifyAsync(inviteToken, {
+          secret: jwt_secret,
+        });
+      } catch {
+        return null;
+      }
+    } else {
+      return null;
     }
   }
 }
