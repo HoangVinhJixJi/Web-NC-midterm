@@ -18,7 +18,7 @@ export class ClassesService {
       className: userData.className,
       classCode: uuidv4(),
       description: userData.description,
-      status: '',
+      status: 'active',
       createAt: new Date().toString(),
     };
     const createClass = new this.classesModel(newClassData);
@@ -34,6 +34,7 @@ export class ClassesService {
           userId,
           'classId',
           role,
+          'active',
         );
       return enrollments.map((enrollment) => enrollment['classId']);
     } catch (error) {
@@ -42,12 +43,13 @@ export class ClassesService {
   }
   async getClassInfo(userId: any, classId: string) {
     const member = await this.enrollmentsService.getOne(classId, userId);
-    const _class = await this.classesModel.findOne({ _id: classId }).exec();
-    return member !== null
-      ? member.role === 'teacher'
+    if (member !== null) {
+      const _class = await this.classesModel.findOne({ _id: classId }).exec();
+      return member.role === 'teacher'
         ? _class
-        : { className: _class.className, description: _class.description }
-      : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+        : { className: _class.className, description: _class.description };
+    }
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
   async update(userId: any, classId: any, userData: UpdateClassDto) {
     const member = await this.enrollmentsService.getOne(classId, userId);
@@ -82,5 +84,18 @@ export class ClassesService {
     } else {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
+  }
+  async archive(userId: any, classId: string) {
+    const member = await this.enrollmentsService.getOne(classId, userId);
+    if (member !== null) {
+      return member.role === 'teacher'
+        ? await this.classesModel.findOneAndUpdate(
+            { _id: classId },
+            { status: 'archive' },
+            { new: true },
+          )
+        : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
 }

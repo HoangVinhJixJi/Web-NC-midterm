@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   Request,
   UseGuards,
@@ -64,5 +65,10 @@ export class ClassesController {
   ) {
     const userId = req.user.sub;
     return this.classesService.joinClass(userId, classId, classCode);
+  }
+  @Put('archive/:classId')
+  async archiveClass(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.archive(userId, classId);
   }
 }

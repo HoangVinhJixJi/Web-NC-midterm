@@ -23,11 +23,16 @@ export class EnrollmentsService {
     userId: string,
     populate: string,
     role: string,
+    status: string,
   ) {
     try {
       return role !== null
-        ? await this.enrollmentsModel.find({ userId, role }).populate(populate)
-        : await this.enrollmentsModel.find({ userId }).populate(populate);
+        ? await this.enrollmentsModel
+            .find({ userId, role })
+            .populate({ path: populate, match: { status: status } })
+        : await this.enrollmentsModel
+            .find({ userId })
+            .populate({ path: populate, match: { status: status } });
     } catch (error) {
       throw new Error(error);
     }
