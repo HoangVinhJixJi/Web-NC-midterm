@@ -54,7 +54,7 @@ export class AuthService {
     console.log('Facebook user after : ', user);
     return user;
   }
-  //Sign In  Facebook
+  //Sign In Facebook
   async signInFacebook(user: any) {
     try {
       //Kiểm tra trong database có tài khoản trùng hay không?

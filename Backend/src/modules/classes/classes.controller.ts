@@ -17,6 +17,8 @@ import { PendingInvitesService } from '../pendingInvites/pendingInvites.service'
 import { AuthService } from 'src/auth/auth.service';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
+import { Class } from './schema/class.schema';
+import { CreateClassDto } from './dto/create-class.dto';
 
 @Controller('classes')
 // @UseGuards(JwtAuthGuard)
@@ -29,6 +31,34 @@ export class ClassesController {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
   ) {}
+  @Get('/')
+  async getAllClasses(@Request() req: any) {
+    const userId = req.user.sub;
+    return await this.classesService.getClasses(userId, null);
+  }
+  @Get('teaching')
+  async getTeachingClasses(@Request() req: any) {
+    const userId = req.user.sub;
+    return await this.classesService.getClasses(userId, 'teacher');
+  }
+  @Get('enrolled')
+  async getEnrolledClasses(@Request() req: any) {
+    const userId = req.user.sub;
+    return await this.classesService.getClasses(userId, 'student');
+  }
+  @Post('create')
+  async createNewClass(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true })) userData: CreateClassDto,
+  ): Promise<Class> {
+    const userId = req.user.sub;
+    return this.classesService.create(userData, userId);
+  }
+  @Get('info/:classId')
+  async getClassInfo(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.getClassInfo(userId, classId);
+  }
   @Post('invite-email/:classId')
   async inviteEmail(
     @Body(new ValidationPipe({ transform: true })) userData: InviteEmailsDto,
