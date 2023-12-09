@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { CreateUserDto } from '../modules/users/dto/create-user.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '../users/schema/user.schema';
+import { User } from '../modules/users/schema/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
 
