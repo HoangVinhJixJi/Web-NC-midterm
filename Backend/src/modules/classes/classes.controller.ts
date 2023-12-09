@@ -16,11 +16,7 @@ import { ClassesService } from './classes.service';
 @Controller('classes')
 @UseGuards(JwtAuthGuard)
 export class ClassesController {
-  constructor(
-    private readonly classesService: ClassesService,
-    private readonly enrollmentsService: EnrollmentsService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly classesService: ClassesService) {}
   @Get('/')
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
