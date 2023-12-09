@@ -32,32 +32,65 @@ export class EnrollmentsService {
       throw new Error(error);
     }
   }
+  async getEnrollmentsPopulatedClass(
+    classId: string,
+    populate: string,
+    notEqual: any,
+    role: string,
+    select: string,
+  ) {
+    try {
+      return role !== null
+        ? select !== ''
+          ? await this.enrollmentsModel
+              .find({ classId, role, userId: { $ne: notEqual } })
+              .populate({ path: populate, select: select })
+          : await this.enrollmentsModel
+              .find({ classId, role, userId: { $ne: notEqual } })
+              .populate(populate)
+        : select !== ''
+          ? await this.enrollmentsModel
+              .find({ classId, userId: { $ne: notEqual } })
+              .populate({ path: populate, select: select })
+          : await this.enrollmentsModel
+              .find({ classId, userId: { $ne: notEqual } })
+              .populate(populate);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
   async getOne(classId: string, userId: any) {
     return this.enrollmentsModel.findOne({ classId, userId }).exec();
   }
   async getMembers(userId: string, classId: any, _role: string) {
-    const { role } = await this.enrollmentsModel
+    const user = await this.enrollmentsModel
       .findOne({ userId, classId })
       .exec();
-    switch (_role) {
-      case 'teacher':
-        return role === 'teacher'
-          ? await this.enrollmentsModel
-              .find({ classId, userId, role: _role })
-              .exec()
-          : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-      case 'student':
-        return role === 'teacher'
-          ? await this.enrollmentsModel
-              .find({ classId, userId, role: _role })
-              .exec()
-          : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-      default:
-        return role === 'teacher'
-          ? await this.enrollmentsModel.find({ classId, userId }).exec()
-          : await this.enrollmentsModel
-              .find({ classId, userId, role: 'teacher' })
-              .exec();
+    if (user) {
+      try {
+        const select =
+          user.role === 'teacher'
+            ? '_id fullName email avatar'
+            : 'fullName avatar';
+        const notEqual = user.role === 'student' ? user.userId : null;
+        const enrollments = await this.getEnrollmentsPopulatedClass(
+          classId,
+          'userId',
+          notEqual,
+          _role,
+          select,
+        );
+        return enrollments.map((enrollment) => {
+          return {
+            memberInfo: enrollment['userId'],
+            role: enrollment.role,
+          };
+        });
+      } catch (error) {
+        throw new Error(error);
+      }
+    } else {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
   }
 }
