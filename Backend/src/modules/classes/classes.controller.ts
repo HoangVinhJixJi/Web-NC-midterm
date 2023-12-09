@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Request,
   UseGuards,
   ValidationPipe,
@@ -54,5 +55,14 @@ export class ClassesController {
   ) {
     const userId = req.user.sub;
     return this.classesService.update(userId, classId, userData);
+  }
+  @Get(':classId')
+  async joinClass(
+    @Request() req: any,
+    @Param('classId') classId: string,
+    @Query('cjc') classCode: string,
+  ) {
+    const userId = req.user.sub;
+    return this.classesService.joinClass(userId, classId, classCode);
   }
 }

@@ -41,18 +41,18 @@ export class ClassesService {
     }
   }
   async getClassInfo(userId: any, classId: string) {
-    const user = await this.enrollmentsService.getOne(classId, userId);
+    const member = await this.enrollmentsService.getOne(classId, userId);
     const _class = await this.classesModel.findOne({ _id: classId }).exec();
-    return user !== null
-      ? user.role === 'teacher'
+    return member !== null
+      ? member.role === 'teacher'
         ? _class
         : { className: _class.className, description: _class.description }
       : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
   async update(userId: any, classId: any, userData: UpdateClassDto) {
-    const user = await this.enrollmentsService.getOne(classId, userId);
-    return user !== null
-      ? user.role === 'teacher'
+    const member = await this.enrollmentsService.getOne(classId, userId);
+    return member !== null
+      ? member.role === 'teacher'
         ? await this.classesModel.findOneAndUpdate(
             { _id: classId },
             {
@@ -63,5 +63,24 @@ export class ClassesService {
           )
         : new HttpException('Forbidden', HttpStatus.FORBIDDEN)
       : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+  }
+  async joinClass(userId: any, classId: string, classCode: string) {
+    const _class = await this.classesModel
+      .findOne({ _id: classId, classCode })
+      .exec();
+    if (_class) {
+      const member = await this.enrollmentsService.getOne(classId, userId);
+      if (!member) {
+        return await this.enrollmentsService.add(
+          classId,
+          userId,
+          'student',
+          false,
+        );
+      }
+      return member;
+    } else {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
   }
 }
