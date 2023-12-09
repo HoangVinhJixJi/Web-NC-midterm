@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
 import { ClassesService } from './classes.service';
+import { UpdateClassDto } from './dto/update-class.dto';
 
 @Controller('classes')
 @UseGuards(JwtAuthGuard)
@@ -44,5 +45,14 @@ export class ClassesController {
   async getClassInfo(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.getClassInfo(userId, classId);
+  }
+  @Post('update/:classId')
+  async update(
+    @Request() req: any,
+    @Param('classId') classId: string,
+    @Body(new ValidationPipe({ transform: true })) userData: UpdateClassDto,
+  ) {
+    const userId = req.user.sub;
+    return this.classesService.update(userId, classId, userData);
   }
 }

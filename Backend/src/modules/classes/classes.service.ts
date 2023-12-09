@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateClassDto } from './dto/create-class.dto';
 import { Class } from './schema/class.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
 import { Model } from 'mongoose';
+import { UpdateClassDto } from './dto/update-class.dto';
 
 @Injectable()
 export class ClassesService {
@@ -45,5 +46,15 @@ export class ClassesService {
     return role === 'teacher'
       ? _class
       : { className: _class.className, description: _class.description };
+  }
+  async update(userId: any, classId: any, userData: UpdateClassDto) {
+    const { role } = await this.enrollmentsService.getOne(classId, userId);
+    return role === 'teacher'
+      ? await this.classesModel.findOneAndUpdate(
+          { _id: classId },
+          { className: userData.className, description: userData.description },
+          { new: true },
+        )
+      : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
 }
