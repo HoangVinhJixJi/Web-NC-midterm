@@ -60,7 +60,7 @@ const MainHomepageTab = ({ onClassClick }) => {
       // Đặt token cho mọi yêu cầu
       setAuthToken(token);
       // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
-      const response = await api.get('/classes/all-class');
+      const response = await api.get('/classes/');
       //Lưu thông tin toàn bộ lớp học vào state
       setClassList(response.data);
       console.log('response.data: ', response.data);
@@ -108,6 +108,49 @@ const MainHomepageTab = ({ onClassClick }) => {
       const response = await api.post('/classes/create', {
         className,
         description,
+      });
+      console.log("response.data: ", response.data);
+  
+      //Kiểm tra trạng thái của yêu cầu
+      if (response.status === 201 || response.status === 200) {
+        // Nếu tạo mới lớp học thành công, có thể thực hiện các bước tiếp theo
+        fetchClassData();
+        closeCreateClassPopup();
+        // Thực hiện các bước tiếp theo tùy thuộc vào yêu cầu của bạn
+      } else {
+        // Xử lý khi có lỗi từ server
+        console.error('Error creating class:', response.data);
+        // Có thể hiển thị thông báo lỗi hoặc xử lý lỗi khác tùy ý
+      }
+    } catch (error) {
+      // Xử lý khi có lỗi không mong muốn
+      console.error('Unexpected error:', error);
+      // Có thể hiển thị thông báo lỗi hoặc xử lý lỗi khác tùy ý
+    }
+  };
+
+  const submitJoinClass = async () => {
+    try {
+      // Lấy giá trị từ các trường nhập liệu
+      const classCode = document.getElementById('textfield-classCode').value;
+      if (!classCode) {
+        console.log('CHưa nhập class Code');
+        // Hiển thị thông báo hoặc thực hiện xử lý khi tên lớp học không hợp lệ
+        return;
+      }
+      console.log({classCode});
+      
+      // Lấy token từ localStorage
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        navigate('/signin');
+      }
+      
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
+      const response = await api.post(`/classes/join/${classCode}`,{
+        classCode
       });
       console.log("response.data: ", response.data);
   
@@ -215,14 +258,14 @@ const MainHomepageTab = ({ onClassClick }) => {
                 - Sử dụng tài khoản được cấp phép<br/>
                 - Sử dụng mã lớp học gồm 5-7 chữ cái hoặc số, không có dấu cách hoặc ký hiệu<br/>
           </Typography>
-          <TextField label="Mã lớp học" fullWidth />
+          <TextField id='textfield-classCode' label="Mã lớp học" fullWidth />
           
         </DialogContent>
         <DialogActions>
           <Button onClick={closeJoinClassPopup} color="primary">
             Hủy
           </Button>
-          <Button onClick={closeJoinClassPopup} color="primary">
+          <Button onClick={submitJoinClass} color="primary">
             Tham gia
           </Button>
         </DialogActions>

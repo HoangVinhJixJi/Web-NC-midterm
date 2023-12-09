@@ -23,7 +23,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
 import api, {setAuthToken} from '../../api/api';
 const ClassInfoTab = ({ classInfo }) => {
-    console.log('classInfo: ', classInfo);
+    console.log('classInfo in ClassInfotab: ', classInfo);
     const [anchorEl, setAnchorEl] = useState(null);
     const [isSnackbarOpen, setSnackbarOpen] = useState(false);
     const handleClick = (event) => {
@@ -38,9 +38,10 @@ const ClassInfoTab = ({ classInfo }) => {
       handleClose();
     };
     const handleCopyLink = (classCode) => {
-      const currentURL = window.location.href;
+      const currentURL = window.location.origin;
       // Tạo link mời với mã lớp
-      const inviteLink = `${currentURL}/classcode=${classCode}`;
+      const inviteLink = `${currentURL}/classroom/class-code/${classCode}`;
+      console.log(inviteLink);
       // Xử lý logic sao chép đường link mời tham gia lớp học
       navigator.clipboard.writeText(inviteLink);
       setSnackbarOpen(true);
@@ -49,7 +50,7 @@ const ClassInfoTab = ({ classInfo }) => {
     const handleSnackbarClose = () => {
       setSnackbarOpen(false);
     };
-    //Kiểm tra đúng là lớp do mình làm giáo viên thì cho hiển thị codex
+    //Kiểm tra đúng là lớp do mình làm giáo viên thì cho hiển thị code
     if(true){
         return (
             <div>

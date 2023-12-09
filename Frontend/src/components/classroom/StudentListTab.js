@@ -22,11 +22,48 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
 
-const StudentListTab = ({students}) => {
+const StudentListTab = ({classId}) => {
   const [isAddStudentDialogOpen, setIsAddStudentDialogOpen] = useState(false);
   const [newStudentEmail, setNewStudentEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [invitedEmails, setInvitedEmails] = useState([]);
+  const [students, setStudents] = useState([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        // Lấy token từ localStorage hoặc nơi lưu trữ khác
+        const token = localStorage.getItem('token');
+        if(!token){
+          console.error('Error fetching user data:', Error);
+          
+          navigate('/signin');
+        }
+        
+        // Đặt token cho mọi yêu cầu
+        setAuthToken(token);
+        // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
+        const response = await api.get(`/enrollments/student/${classId}`);
+        //Lưu thông tin toàn bộ lớp học vào state
+        console.log('List Students Data: ', response.data);
+        setStudents(response.data);
+        
+        
+      } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
 
+        // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
+        if (error.response && error.response.status === 401) {
+          navigate('/signin');
+        }
+      }
+    };
+
+    // Gọi hàm lấy dữ liệu người dùng
+    fetchStudentData();
+
+  }, []); 
   const handleAddStudentClick = () => {
     setIsAddStudentDialogOpen(true);
   };
@@ -42,6 +79,7 @@ const StudentListTab = ({students}) => {
     if (isValidEmail(newStudentEmail)) {
       // Xử lý logic khi xác nhận thêm học sinh với địa chỉ email newStudentEmail
       // ...
+      setInvitedEmails((prevInvitedEmails) => [...prevInvitedEmails, { email: newStudentEmail, invited: true }]);
       setMessage('');
       handleCloseDialog();
     } else {
@@ -86,7 +124,11 @@ const StudentListTab = ({students}) => {
 
         <Divider sx={{ margin: '16px 0' }} />
 
-        {/* Danh sách học sinh */}
+        {invitedEmails.map((teacher) => (
+          <ListItem key={teacher.email} sx={{ opacity: teacher.invited ? 0.5 : 1 }}>
+            <ListItemText primary={teacher.email} secondary={teacher.invited ? 'Đã gửi lời mời' : ''} />
+          </ListItem>
+        ))}
         {students && <List>
           {students.map((student) => (
             <ListItem key={student._id}>

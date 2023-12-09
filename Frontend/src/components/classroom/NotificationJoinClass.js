@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Button, Typography, Paper, IconButton, Box } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 
-const NotificationJoinClass = ({classCode}) => {
+const NotificationJoinClass = () => {
   const [joining, setJoining] = useState(false);
-
   //Gọi API kiểm tra thông tin lớp học
-  const fetchClassData = classCode; 
+  const {classCode} = useParams();
+  console.log(classCode);
   const handleJoinClass = async () => {
     // Gọi API để tham gia lớp học
+
     setJoining(true);
 
     // try {

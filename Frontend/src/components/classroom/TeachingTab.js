@@ -22,7 +22,7 @@ const TeachingTab = ({ onClassClick}) => {
           // Đặt token cho mọi yêu cầu
           setAuthToken(token);
           // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
-          const response = await api.get('/classes/teaching-classes');
+          const response = await api.get('/classes/teaching');
           //Lưu thông tin toàn bộ lớp học vào state
           console.log('response.data: ', response.data);
           setClassList(response.data);
