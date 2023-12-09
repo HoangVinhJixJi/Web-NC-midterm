@@ -120,9 +120,9 @@ export class ClassesController {
         );
         console.log(deletePendingInvite);
         res.redirect(
-          `${this.configService.get<string>('client_url')}/c/${
-            pendingInviteInfo.classId
-          }`,
+          `${this.configService.get<string>(
+            'client_url',
+          )}/classroom/class-detail/${pendingInviteInfo.classId}`,
         );
       } else {
         const u = await this.usersService.findOneByEmail(
