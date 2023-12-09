@@ -143,6 +143,11 @@ export class ClassesController {
           );
           console.log(enrollment);
           console.log(deletePendingInvite);
+          res.redirect(
+            `${this.configService.get<string>(
+              'client_url',
+            )}/classroom/class-detail/${pendingInviteInfo.classId}`,
+          );
         } else {
           const pendingInvite =
             await this.pendingInvitesService.findByClassIdAndEmailAndRole(

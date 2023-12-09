@@ -74,14 +74,28 @@ const StudentListTab = ({classId}) => {
     setMessage('');
   };
 
-  const handleAddStudentConfirm = () => {
+  const handleAddStudentConfirm = async() => {
     // Kiểm tra hợp lệ của địa chỉ email
     if (isValidEmail(newStudentEmail)) {
-      // Xử lý logic khi xác nhận thêm học sinh với địa chỉ email newStudentEmail
-      // ...
-      setInvitedEmails((prevInvitedEmails) => [...prevInvitedEmails, { email: newStudentEmail, invited: true }]);
-      setMessage('');
-      handleCloseDialog();
+      const allEmails = await api.get(`/classes/email/${classId}`);
+      const check = allEmails.data.includes(newStudentEmail);
+      if (check) {
+        setMessage('Email is already in the class!');
+      }
+      else {
+        const u = await api.get('/auth/profile');
+        const userData = {
+          userEmail: u.data.email,
+          invitedEmail: newStudentEmail,
+          role: "student",
+        }
+        console.log(userData);
+        const res = await api.post(`/classes/invite-email/${classId}`, userData);
+        console.log(res);
+        setInvitedEmails((prevInvitedEmails) => [...prevInvitedEmails, { email: newStudentEmail, invited: true }]);
+        setMessage('');
+        handleCloseDialog();
+      }
     } else {
       // Hiển thị thông báo lỗi hoặc thực hiện hành động phù hợp
       setMessage('Email is not valid!');
