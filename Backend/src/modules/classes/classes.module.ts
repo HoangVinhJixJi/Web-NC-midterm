@@ -6,6 +6,9 @@ import { UserSchema } from '../users/schema/user.schema';
 import { ClassesController } from './classes.controller';
 import { EnrollmentsModule } from '../enrollments/enrollments.module';
 import { PendingInvitesModule } from '../pendingInvites/pendingInvites.module';
+import { AuthService } from 'src/auth/auth.service';
+import { UsersModule } from '../users/users.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -15,6 +18,8 @@ import { PendingInvitesModule } from '../pendingInvites/pendingInvites.module';
     ]),
     EnrollmentsModule,
     PendingInvitesModule,
+    UsersModule,
+    AuthModule,
   ],
   providers: [ClassesService],
   exports: [ClassesService],
