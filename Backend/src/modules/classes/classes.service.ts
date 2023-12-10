@@ -212,6 +212,10 @@ export class ClassesService {
           joined: !!newMember,
         };
       }
+      return {
+        classInfo: _class,
+        joined: true,
+      };
     }
     throw new HttpException('Not found', HttpStatus.NOT_FOUND);
   }
