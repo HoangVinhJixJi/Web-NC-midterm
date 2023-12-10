@@ -40,12 +40,19 @@ const MainHomepageTab = ({ onClassClick }) => {
   const [isJoinClassOpen, setJoinClassOpen] = useState(false);
   const [classList, setClassList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [message, setMessage] = useState('');
 
   const openCreateClassPopup = () => setCreateClassOpen(true);
-  const closeCreateClassPopup = () => setCreateClassOpen(false);
+  const closeCreateClassPopup = () => {
+    setCreateClassOpen(false);
+    setMessage('');
+  };
 
   const openJoinClassPopup = () => setJoinClassOpen(true);
-  const closeJoinClassPopup = () => setJoinClassOpen(false);
+  const closeJoinClassPopup = () => {
+    setJoinClassOpen(false);
+    setMessage('');
+  }
   const navigate = useNavigate();
 
 
@@ -92,10 +99,11 @@ const MainHomepageTab = ({ onClassClick }) => {
       
       // Kiểm tra xem các trường bắt buộc đã được điền đầy đủ hay chưa
       if (!className) {
-        console.log('Chưa nhập class Name');
+        setMessage('Enter Class name!');
         // Hiển thị thông báo hoặc thực hiện xử lý khi tên lớp học không hợp lệ
         return;
       }
+      setMessage('');
       console.log({className}, {description});
       
       // Lấy token từ localStorage
@@ -136,9 +144,10 @@ const MainHomepageTab = ({ onClassClick }) => {
       // Lấy giá trị từ các trường nhập liệu
       const classCode = document.getElementById('textfield-classCode').value;
       if (!classCode) {
-        console.log('Chưa nhập class Code');
+        setMessage('Enter Class code!');
         return;
       }
+      setMessage('');
       console.log({classCode});
       
       // Lấy token từ localStorage
@@ -183,10 +192,10 @@ const MainHomepageTab = ({ onClassClick }) => {
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <div>
         <CustomListItemButton color="inherit" onClick={openCreateClassPopup}>
-          <AddIcon /> Tạo lớp học
+          <AddIcon /> Create Class
         </CustomListItemButton>
         <CustomListItemButton color="inherit" onClick={openJoinClassPopup}>
-          <PersonAddIcon /> Tham gia lớp học
+          <PersonAddIcon /> Join Class
         </CustomListItemButton>
       </div>
         
@@ -233,44 +242,49 @@ const MainHomepageTab = ({ onClassClick }) => {
       
     {/* Popup Tạo lớp học */}
     <Dialog open={isCreateClassOpen} onClose={closeCreateClassPopup}>
-        <DialogTitle variant="h5" > <AddIcon />Tạo lớp học</DialogTitle>
+        <DialogTitle variant="h5" > <AddIcon />Create Class</DialogTitle>
         <DialogContent>
         <Typography textAlign={'center'} margin={2}>
-            - Vui lòng nhập vào các thông tin cơ bản của lớp học -
+            - Please enter the basic information of the class  -
         </Typography>
-          <TextField id='textfield-className' label="Tên lớp học" fullWidth sx={{ marginY: 2 }}/>
-          <TextField id='textfield-description' label="Mô tả" fullWidth sx={{ marginY: 2 }}/>
+          <TextField id='textfield-className' label="Class name*" fullWidth sx={{ marginY: 2 }}/>
+          <Typography variant="body2" color="error">
+            {message}
+          </Typography>
+          <TextField id='textfield-description' label="Description" fullWidth sx={{ marginY: 2 }}/>
         </DialogContent>
         <DialogActions>
           <Button onClick={closeCreateClassPopup} color="primary">
-            Hủy
+            Cancel
           </Button>
           <Button onClick={submitCreateClass} color="primary">
-            Tạo
+            Create
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Popup Tham gia lớp học */}
       <Dialog open={isJoinClassOpen} onClose={closeJoinClassPopup}>
-        <DialogTitle variant="h5" > <PersonAddIcon /> Tham gia lớp học </DialogTitle>
+        <DialogTitle variant="h5" > <PersonAddIcon />  Join Class </DialogTitle>
         <DialogContent>
 
         <Typography margin={2}> 
 
-          Cách đăng nhập bằng mã lớp học<br/>
-                - Sử dụng tài khoản được cấp phép<br/>
-                - Sử dụng mã lớp học của bạn<br/>
+        Joining by Class Code<br/>
+        - Use an authorized account<br/>
+        - Use your class code<br/>
           </Typography>
-          <TextField id='textfield-classCode' label="Mã lớp học" fullWidth />
-          
+          <TextField id='textfield-classCode' label="Class code" fullWidth />
+          <Typography variant="body2" color="error" mt={2}>
+            {message}
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={closeJoinClassPopup} color="primary">
-            Hủy
+            Cancel
           </Button>
           <Button onClick={submitJoinClass} color="primary">
-            Tham gia
+            Join
           </Button>
         </DialogActions>
       </Dialog>

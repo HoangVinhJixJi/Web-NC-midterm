@@ -70,9 +70,9 @@ const ClassDetailTab = () => {
         variant="fullWidth"
         aria-label="class-detail-tabs"
       >
-        <Tab label="Bảng tin" />
-        <Tab label="Danh sách giáo viên" />
-        <Tab label="Danh sách học sinh" />
+        <Tab label="Class Information" />
+        <Tab label="Teacher List" />
+        <Tab label="Student List" />
       </Tabs>
 
       {/* Tab Panels */}

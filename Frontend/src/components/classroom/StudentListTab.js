@@ -127,13 +127,20 @@ const StudentListTab = ({classId, isTeaching}) => {
       <div>
       <Grid container alignItems="center" justifyContent="space-between">
         <Typography variant="h6" gutterBottom>
-          Danh sách học sinh
+          Student List
         </Typography>
         <Grid item >
           <Grid container alignItems="center" spacing={1}>
           {students && <Grid item>
             <Typography variant="body1">
-            {isTeaching ? students.length : students.length + 1} học sinh
+            {!isTeaching
+              ? students.length === 0
+                  ? `${students.length +1} student`
+                  : `${students.length+1} students`
+                : students.length < 2 ?
+                `${students.length } student `
+                :`${students.length } students`}
+
             </Typography>
           </Grid>}
           { isTeaching &&
@@ -144,7 +151,7 @@ const StudentListTab = ({classId, isTeaching}) => {
               startIcon={<AddIcon />}
               onClick={handleAddStudentClick}
             >
-              Thêm
+              Add
             </Button>
           </Grid>
           }
@@ -157,7 +164,7 @@ const StudentListTab = ({classId, isTeaching}) => {
 
         {invitedEmails.map((teacher) => (
           <ListItem key={teacher.email} sx={{ opacity: teacher.invited ? 0.5 : 1 }}>
-            <ListItemText primary={teacher.email} secondary={teacher.invited ? 'Đã gửi lời mời' : ''} />
+            <ListItemText primary={teacher.email} secondary={teacher.invited ? 'Invitation sent' : ''} />
           </ListItem>
         ))}
         {students && <List>
@@ -174,14 +181,14 @@ const StudentListTab = ({classId, isTeaching}) => {
 
         {/* Dialog để thêm học sinh */}
         <Dialog open={isAddStudentDialogOpen} onClose={handleCloseDialog}>
-          <DialogTitle>Thêm học sinh</DialogTitle>
+          <DialogTitle>Add Student</DialogTitle>
           
           <DialogContent>
             <Typography textAlign={'center'} margin={2}>
-              - Vui lòng nhập vào địa chỉ email người muốn thêm vào -
+              - Please enter the email address -
             </Typography>
             <TextField
-              label="Email học sinh"
+              label="Email student"
               fullWidth
               value={newStudentEmail}
               onChange={(e) => setNewStudentEmail(e.target.value)}
@@ -192,8 +199,8 @@ const StudentListTab = ({classId, isTeaching}) => {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Hủy</Button>
-            <Button onClick={handleAddStudentConfirm} color="primary">Xác nhận</Button>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={handleAddStudentConfirm} color="primary">Send</Button>
           </DialogActions>
         </Dialog>
       </div>}

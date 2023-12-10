@@ -52,7 +52,7 @@ const TeachingTab = ({ onClassClick}) => {
         </div>
         :
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-    { classList.length === 0 && <Typography> Hiện tại bạn chưa có lớp học nào</Typography> }
+    { classList.length === 0 && <Typography> You currently do not have any classes! </Typography> }
     <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 160px)' }}>
     {classList.map((classItem) => (
       <Grid item key={classItem._id} xs={12} sm={6} md={4}>
