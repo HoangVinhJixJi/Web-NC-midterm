@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Post,
   Request,
@@ -64,38 +65,53 @@ export class ClassesController {
     @Param('classCode') classCode: string,
   ) {
     const userId = req.user.sub;
+    //Kiểm tra người dùng đã có trong lớp hay chưa?
     const classInfo = await this.classesService.findClassByClassCode(classCode);
-    console.log('classInfo ===== :', classInfo);
-    return classInfo;
+    const enrolled = await this.classesService.getClassInfo(
+      userId,
+      classInfo['_id'],
+    );
+    return {
+      classInfo,
+      joined: enrolled['_id'] && enrolled ? true : false,
+    };
   }
   @Post('class-code/:classCode')
-  joinClassByClassCode(
+  async joinClassByClassCode(
     @Request() req: any,
     @Param('classCode') classCode: string,
-    @Res() res: any,
   ) {
-    // const userId = req.user.sub;
-    // //Kiểm tra người dùng đã có trong lớp hay chưa?
-    // const classInfo = await this.classesService.findClassByClassCode(classCode);
-    // const enrolled = await this.classesService.getClassInfo(
-    //   userId,
-    //   classInfo['_id'],
-    // );
-    // console.log('enrolled ===== :', enrolled);
-    // if (enrolled['response'] === 'Forbidden') {
-    //   //Người dùng chưa có trong lớp
-    //   const newEnrollment = await this.classesService.addEnrollment(
-    //     userId,
-    //     classInfo['_id'],
-    //   );
-    //   console.log('newEnrollment: ', newEnrollment);
-    // }
-    // const frontendUrl = 'http://localhost:3000';
-    // const redirectUrl = `${frontendUrl}/classroom/class-detail/${classInfo[
-    //   '_id'
-    // ].toString()}`;
-    res.redirect(
-      'http://localhost:3000/classroom/class-detail/6573335fc7ca28ec6cf06f39',
+    const userId = req.user.sub;
+    //Kiểm tra người dùng đã có trong lớp hay chưa?
+    const classInfo = await this.classesService.findClassByClassCode(classCode);
+    const enrolled = await this.classesService.getClassInfo(
+      userId,
+      classInfo['_id'],
     );
+    console.log('enrolled ===== :', enrolled);
+    if (!enrolled['_id'] && enrolled['response'] === 'Forbidden') {
+      //Người dùng chưa có trong lớp
+      try {
+        const newEnrollment = await this.classesService.addEnrollment(
+          classInfo['_id'],
+          userId,
+        );
+        console.log('Thêm mới : newEnrollment: ', newEnrollment);
+        return {
+          classInfo,
+          joined: true,
+        };
+      } catch (error) {
+        return {
+          classInfo,
+          joined: false,
+        };
+      }
+    } else {
+      return {
+        classInfo,
+        joined: true,
+      };
+    }
   }
 }

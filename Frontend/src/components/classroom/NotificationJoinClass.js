@@ -22,9 +22,14 @@ const NotificationJoinClass = () => {
       setAuthToken(token);
       // Gọi API để lấy dữ liệu class thông qua classCode
       const response = await api.get(`/classes/class-code/${classCode}`);
+
       //Lưu thông tin toàn bộ lớp học vào state
       console.log('Class By Class Code  : ', response.data);
-      setClassInfo(response.data);
+      setClassInfo(response.data.classInfo);
+      //Người dùng đã tham gia vào lớp học
+      if(response.data && response.data.joined){
+        navigate(`/classroom/class-detail/${response.data.classInfo._id}`);
+      }
     } catch (error) {
       // Xử lý lỗi
       console.error('Error fetching class data:', error);
@@ -48,8 +53,12 @@ const NotificationJoinClass = () => {
       // }
       // setAuthToken(token);
       // Gọi API để lấy dữ liệu class thông qua classCode
-      await api.post(`/classes/class-code/${classCode}`);
-      //Lưu thông tin toàn bộ lớp học vào state
+      const response = await api.post(`/classes/class-code/${classCode}`);
+      //redirect tới trang chi tiết lớp học
+      if(response.data.classInfo && response.data.joined){
+        console.log(response.data);
+        navigate(`/classroom/class-detail/${response.data.classInfo._id}`)
+      }
       
     } catch (error) {
       // Xử lý lỗi
@@ -60,20 +69,6 @@ const NotificationJoinClass = () => {
       }
     }
     setJoining(true);
-
-    // try {
-    //   // Gọi API tham gia lớp học
-    //   //await onJoinClass(); // Thực hiện xác nhận tham gia lớp học
-
-    //   // Nếu tham gia lớp học thành công, chuyển hướng đến trang chính của classroom
-    //   // Đây là nơi bạn muốn chuyển hướng, có thể sử dụng hook useNavigate hoặc history.push
-    //   // Ví dụ: navigate('/classroom/main');
-    // } catch (error) {
-    //   console.error('Error joining class:', error);
-    //   // Xử lý lỗi nếu cần
-    // } finally {
-    //   setJoining(false);
-    // }
   };
 
   return (
