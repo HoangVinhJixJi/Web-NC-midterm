@@ -22,7 +22,7 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
 import api, {setAuthToken} from '../../api/api';
-const ClassInfoTab = ({ classInfo }) => {
+const ClassInfoTab = ({ classInfo, isTeaching }) => {
     console.log('classInfo in ClassInfotab: ', classInfo);
     const [anchorEl, setAnchorEl] = useState(null);
     const [isSnackbarOpen, setSnackbarOpen] = useState(false);
@@ -56,6 +56,7 @@ const ClassInfoTab = ({ classInfo }) => {
             <div>
               {/* Thông tin cơ bản của lớp học */}
               <Grid container spacing={2}>
+              { isTeaching &&
                 <Grid item xs={4}>
                 <Paper elevation={3} sx={{ padding: '16px 32px', position: 'relative', float: 'left' }}>
                   {/* Mã code của lớp học */}
@@ -81,6 +82,7 @@ const ClassInfoTab = ({ classInfo }) => {
                   </Menu>
                 </Paper>
                 </Grid>
+              }
         
                 <Grid item xs={8} >
                 <Typography variant="h5" gutterBottom>

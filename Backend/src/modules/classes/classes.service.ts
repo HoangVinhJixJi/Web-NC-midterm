@@ -86,4 +86,25 @@ export class ClassesService {
       throw error;
     }
   }
+  async findClassByClassCode(classCode: any): Promise<Class> {
+    try {
+      const classes = await this.classesModel.findOne({ classCode }).exec();
+      return classes;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async addEnrollment(clasId: string, userId: string) {
+    try {
+      const newEnrollment = await this.enrollmentsService.add(
+        clasId,
+        userId,
+        'student',
+        false,
+      );
+      return newEnrollment;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

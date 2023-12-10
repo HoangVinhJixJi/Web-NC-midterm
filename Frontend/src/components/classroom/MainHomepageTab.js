@@ -256,7 +256,7 @@ const MainHomepageTab = ({ onClassClick }) => {
 
           Cách đăng nhập bằng mã lớp học<br/>
                 - Sử dụng tài khoản được cấp phép<br/>
-                - Sử dụng mã lớp học gồm 5-7 chữ cái hoặc số, không có dấu cách hoặc ký hiệu<br/>
+                - Sử dụng mã lớp học của bạn<br/>
           </Typography>
           <TextField id='textfield-classCode' label="Mã lớp học" fullWidth />
           
