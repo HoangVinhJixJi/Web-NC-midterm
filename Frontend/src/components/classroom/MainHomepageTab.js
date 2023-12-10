@@ -91,8 +91,8 @@ const MainHomepageTab = ({ onClassClick }) => {
       const description = document.getElementById('textfield-description').value;
       
       // Kiểm tra xem các trường bắt buộc đã được điền đầy đủ hay chưa
-      if (!!className) {
-        console.log('CHưa nhập class Name');
+      if (!className) {
+        console.log('Chưa nhập class Name');
         // Hiển thị thông báo hoặc thực hiện xử lý khi tên lớp học không hợp lệ
         return;
       }
