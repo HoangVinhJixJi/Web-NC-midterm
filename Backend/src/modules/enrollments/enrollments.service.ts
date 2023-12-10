@@ -76,7 +76,7 @@ export class EnrollmentsService {
         const select =
           member.role === 'teacher'
             ? '_id fullName email avatar'
-            : 'fullName avatar';
+            : 'fullName avatar -_id';
         const notEqual = member.role === 'student' ? member.userId : null;
         const enrollments = await this.getEnrollmentsPopulatedClass(
           classId,
@@ -97,5 +97,14 @@ export class EnrollmentsService {
     } else {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
+  }
+  async deleteMembers(classId: string) {
+    return this.enrollmentsModel.deleteMany({ classId: classId });
+  }
+  async deleteOne(classId: string, rmvId: string) {
+    return this.enrollmentsModel.findOneAndDelete({
+      classId: classId,
+      userId: rmvId,
+    });
   }
 }

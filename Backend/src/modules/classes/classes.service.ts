@@ -98,4 +98,69 @@ export class ClassesService {
     }
     throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
+  async restore(userId: any, classId: string) {
+    const member = await this.enrollmentsService.getOne(classId, userId);
+    if (member !== null) {
+      return member.role === 'teacher'
+        ? await this.classesModel.findOneAndUpdate(
+            { _id: classId },
+            { status: 'active' },
+            { new: true },
+          )
+        : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+  }
+  async delete(userId: any, classId: string) {
+    const isArchived = await this.isArchived(classId);
+    if (!isArchived) {
+      const member = await this.enrollmentsService.getOne(classId, userId);
+      if (member !== null) {
+        if (member.isCreator) {
+          const result = await this.enrollmentsService.deleteMembers(classId);
+          if (result.acknowledged) {
+            return this.classesModel.findByIdAndDelete(classId);
+          }
+        }
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+  }
+  async removeMember(userId: any, classId: string, rmvId: string) {
+    const isArchived = await this.isArchived(classId);
+    if (!isArchived) {
+      if (userId === rmvId) {
+        throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+      }
+      const member = await this.enrollmentsService.getOne(classId, userId);
+      if (member !== null) {
+        if (member.isCreator) {
+          return this.enrollmentsService.deleteOne(classId, rmvId);
+        }
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+  }
+  async leaveClass(classId: string, userId: any) {
+    const isArchived = await this.isArchived(classId);
+    if (!isArchived) {
+      const member = await this.enrollmentsService.getOne(classId, userId);
+      if (member !== null) {
+        if (!member.isCreator) {
+          return this.enrollmentsService.deleteOne(classId, userId);
+        }
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
+    throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+  }
+  private async isArchived(classId: string) {
+    const { status } = await this.classesModel.findOne({ _id: classId }).exec();
+    return status !== null && status === 'archive';
+  }
 }

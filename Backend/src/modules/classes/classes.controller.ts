@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Delete,
   Get,
   Param,
   Post,
@@ -66,9 +66,33 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.joinClass(userId, classId, classCode);
   }
+  @Delete('remove-member/:classId')
+  async removeMember(
+    @Request() req: any,
+    @Param('classId') classId: string,
+    @Query('rmvId') rmvId: string,
+  ) {
+    const userId = req.user.sub;
+    return this.classesService.removeMember(userId, classId, rmvId);
+  }
   @Put('archive/:classId')
   async archiveClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.archive(userId, classId);
+  }
+  @Put('restore/:classId')
+  async restoreClass(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.restore(userId, classId);
+  }
+  @Delete('delete/:classId')
+  async deleteClass(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.delete(userId, classId);
+  }
+  @Delete('leave/:classId')
+  async leaveClass(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.leaveClass(classId, userId);
   }
 }
