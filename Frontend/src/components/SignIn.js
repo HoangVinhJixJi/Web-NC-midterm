@@ -57,6 +57,11 @@ const SignIn = () => {
           navigate(`/classroom/class-code/${classCode}`);
         }
         else {
+          const classId = localStorage.getItem('classId');
+          if (classId) {
+            localStorage.removeItem('classId');
+            navigate(`/classroom/class-detail/${classId}`);
+          }
           navigate('/home');
         }
       }

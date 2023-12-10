@@ -20,6 +20,7 @@ const ClassDetailTab = () => {
     setCurrentTab(newValue);
   };
   const { classId } = useParams();
+  localStorage.setItem('classId', classId);
   
   const navigate = useNavigate();
   useEffect(() => {
