@@ -60,6 +60,7 @@ export class AuthController {
         pendingInvite.classId.toString(),
         newUser._id,
         pendingInvite.role,
+        false,
       );
       const deletePendingInvite = await this.pendingInvitesService.delete(
         pendingInvite.classId.toString(),
