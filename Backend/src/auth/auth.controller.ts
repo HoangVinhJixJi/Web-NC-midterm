@@ -25,6 +25,8 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import * as useragent from 'express-useragent';
 import { ConfigService } from '@nestjs/config';
+import { PendingInvitesService } from 'src/modules/pendingInvites/pendingInvites.service';
+import { EnrollmentsService } from 'src/modules/enrollments/enrollments.service';
 
 @Controller('auth')
 export class AuthController {
@@ -32,6 +34,8 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly pendingInvitesService: PendingInvitesService,
+    private readonly enrollmentsService: EnrollmentsService,
   ) {}
 
   @Post('register')
@@ -40,6 +44,31 @@ export class AuthController {
   ): Promise<string> {
     const newUser = await this.authService.signUp(userData);
     await this.authService.sendActivationEmail(newUser);
+    return 'Sign Up Success. Please check your email to activate your account.';
+  }
+  @Post('register/:pendingInviteId')
+  async signUpAndJoinClass(
+    @Body(new ValidationPipe({ transform: true })) userData: CreateUserDto,
+    @Param('pendingInviteId') pendingInviteId: string,
+  ): Promise<string> {
+    const newUser = await this.authService.signUp(userData);
+    await this.authService.sendActivationEmail(newUser);
+    const pendingInvite =
+      await this.pendingInvitesService.findOneById(pendingInviteId);
+    if (pendingInvite.email === userData.email) {
+      const enrollment = await this.enrollmentsService.add(
+        pendingInvite.classId.toString(),
+        newUser._id,
+        pendingInvite.role,
+      );
+      const deletePendingInvite = await this.pendingInvitesService.delete(
+        pendingInvite.classId.toString(),
+        pendingInvite.email,
+        pendingInvite.role,
+      );
+      console.log(enrollment);
+      console.log(deletePendingInvite);
+    }
     return 'Sign Up Success. Please check your email to activate your account.';
   }
   @Get('active/:token')

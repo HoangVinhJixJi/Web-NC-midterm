@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, Container, TextField, Typography, Paper, MenuItem, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
@@ -19,6 +19,7 @@ const SignUp = () => {
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { pendingInviteId } = useParams();
 
   useEffect(() => {
     // Kiểm tra trạng thái đăng nhập
@@ -114,13 +115,27 @@ const SignUp = () => {
       console.log(u);
 
       // Make API call
-      const response = await api.post('/auth/register', u);
+      if (pendingInviteId) {
+        console.log('coparam', pendingInviteId);
+        const response = await api.post(`/auth/register/${pendingInviteId}`, u);
 
-      if (response.data) {
-        setMessage('Sign up success. Sign in now!');
-        console.log(response.data);
-        register(email);
-        navigate('/account/activate');
+        if (response.data) {
+          setMessage('Sign up success. Sign in now!');
+          console.log(response.data);
+          register(email);
+          navigate('/account/activate');
+        }
+      }
+      else {
+        console.log('koparam', pendingInviteId);
+        const response = await api.post('/auth/register', u);
+
+        if (response.data) {
+          setMessage('Sign up success. Sign in now!');
+          console.log(response.data);
+          register(email);
+          navigate('/account/activate');
+        }
       }
     } catch (error) {
       setMessage('Sign up failed. Try again!');

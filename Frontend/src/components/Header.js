@@ -15,7 +15,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth as useAuthContext } from '../api/AuthContext';
-const pages = ['home', 'about'];
+const pages = ['home', 'about', 'classroom'];
 
 function Header() {
     const [anchorElNav, setAnchorElNav] = React.useState(null);

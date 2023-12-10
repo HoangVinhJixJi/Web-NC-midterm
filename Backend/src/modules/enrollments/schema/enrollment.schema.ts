@@ -12,7 +12,5 @@ export class Enrollment extends mongoose.Document {
   role: string;
   @Prop()
   joinAt: string;
-  @Prop({ default: false })
-  isCreator: boolean;
 }
 export const EnrollmentSchema = SchemaFactory.createForClass(Enrollment);

@@ -21,4 +21,18 @@ export class EnrollmentsController {
     const userId = req.user.sub;
     return this.enrollmentsService.getMembers(userId, classId, 'student');
   }
+  @Get('email/:classId')
+  async getAllEmailsByClassId(
+    @Request() req: any,
+    @Param('classId') classId: string,
+  ) {
+    return this.enrollmentsService.getEmailsByClassId(classId);
+  }
+  @Get(':classId')
+  async getAllByClassId(
+    @Request() req: any,
+    @Param('classId') classId: string,
+  ) {
+    return this.enrollmentsService.findAllByClassId(classId);
+  }
 }
