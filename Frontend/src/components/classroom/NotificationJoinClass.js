@@ -15,8 +15,9 @@ const NotificationJoinClass = () => {
   const fetchClassData = async () => {
     try {
       const token = localStorage.getItem('token');
-      if(!token){
+      if (!token) {
         console.error('Error fetching class data:', Error);
+        localStorage.setItem('classCode', classCode);
         navigate('/signin');
       }
       setAuthToken(token);

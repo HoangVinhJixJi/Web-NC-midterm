@@ -51,7 +51,14 @@ const SignIn = () => {
         login(access_token, userData);
 
         // Redirect to the home page
-        navigate('/home');
+        const classCode = localStorage.getItem('classCode');
+        if (classCode) {
+          localStorage.removeItem('classCode');
+          navigate(`/classroom/class-code/${classCode}`);
+        }
+        else {
+          navigate('/home');
+        }
       }
     } catch (error) {
       setMessage('Sign in failed. Try again!');
