@@ -33,7 +33,7 @@ export class ClassesService {
     const createClass = new this.classesModel(newClassData);
     const newClass = await createClass.save();
     const classId = newClass._id.toString();
-    await this.enrollmentsService.add(classId, userId, 'teacher');
+    await this.enrollmentsService.add(classId, userId, 'teacher', true);
     return newClass;
   }
   async getClasses(userId: any, role: any, status: any) {
@@ -111,6 +111,7 @@ export class ClassesService {
         clasId,
         userId,
         'student',
+        false,
       );
       return newEnrollment;
     } catch (error) {
