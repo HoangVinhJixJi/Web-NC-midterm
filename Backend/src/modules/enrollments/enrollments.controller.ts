@@ -6,10 +6,9 @@ import { EnrollmentsService } from './enrollments.service';
 @UseGuards(JwtAuthGuard)
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
-  @Get('/:classId')
+  @Get(':classId')
   async getAllMembers(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
-
     return this.enrollmentsService.getMembers(userId, classId, null);
   }
   @Get('teacher/:classId')
@@ -21,5 +20,19 @@ export class EnrollmentsController {
   async getAllStudents(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.enrollmentsService.getMembers(userId, classId, 'student');
+  }
+  @Get('email/:classId')
+  async getAllEmailsByClassId(
+    @Request() req: any,
+    @Param('classId') classId: string,
+  ) {
+    return this.enrollmentsService.getEmailsByClassId(classId);
+  }
+  @Get(':classId')
+  async getAllByClassId(
+    @Request() req: any,
+    @Param('classId') classId: string,
+  ) {
+    return this.enrollmentsService.findAllByClassId(classId);
   }
 }

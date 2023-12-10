@@ -87,13 +87,27 @@ const TeacherListTab = ({classId, isTeaching}) => {
     setMessage('');
   };
 
-  const handleAddTeacherConfirm = () => {
+  const handleAddTeacherConfirm = async () => {
     // Kiểm tra hợp lệ của địa chỉ email
     if (isValidEmail(newTeacherEmail)) {
-      // Xử lý logic khi xác nhận thêm giáo viên với địa chỉ email newTeacherEmail
-      setInvitedEmails((prevInvitedEmails) => [...prevInvitedEmails, { email: newTeacherEmail, invited: true }]);
-      setMessage('');
-      handleCloseDialog();
+      const allEmails = await api.get(`/classes/email/${classId}`);
+      const check = allEmails.data.includes(newTeacherEmail);
+      if (check) {
+        setMessage('Email is already in the class!');
+      }
+      else {
+        const u = await api.get('/auth/profile');
+        const userData = {
+          userEmail: u.data.email,
+          invitedEmail: newTeacherEmail,
+          role: "teacher",
+        }
+        console.log(userData);
+        const res = await api.post(`/classes/invite-email/${classId}`, userData);
+        console.log(res);
+        setInvitedEmails((prevInvitedEmails) => [...prevInvitedEmails, { email: newTeacherEmail, invited: true }]);
+        setMessage('Invitation sent successfully!');
+      }
     } else {
       // Hiển thị thông báo lỗi hoặc thực hiện hành động phù hợp
       setMessage('Email is not valid!');

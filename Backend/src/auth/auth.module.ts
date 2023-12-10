@@ -9,6 +9,8 @@ import { JwtStrategy } from './jwt/jwt.strategy';
 import { GoogleStrategy } from './google/google.strategy';
 import { FacebookStrategy } from './facebook/facebook.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { EnrollmentsModule } from 'src/modules/enrollments/enrollments.module';
+import { PendingInvitesModule } from 'src/modules/pendingInvites/pendingInvites.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { PassportModule } from '@nestjs/passport';
       },
     }),
     PassportModule,
+    EnrollmentsModule,
+    PendingInvitesModule,
   ],
   controllers: [AuthController],
   providers: [

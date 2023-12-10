@@ -28,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
       const encodedPayload = jwt.sign(
         payload,
-        this.configService.get<string>('JWT_SECRET'),
+        this.configService.get<string>('jwt.secret'),
       );
 
       console.log('Type of payload:', typeof encodedPayload);
