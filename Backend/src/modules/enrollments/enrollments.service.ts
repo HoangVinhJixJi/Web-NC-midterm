@@ -10,12 +10,13 @@ export class EnrollmentsService {
     @InjectModel('Enrollment') private enrollmentsModel: Model<Enrollment>,
     @InjectModel('User') private usersModel: Model<User>,
   ) {}
-  async add(classId: string, userId: string, role: string) {
+  async add(classId: string, userId: string, role: string, isCreator: boolean) {
     const newEnrollment = {
       classId,
       userId,
       role,
       joinAt: new Date().toString(),
+      isCreator,
     };
     const createEnrollment = new this.enrollmentsModel(newEnrollment);
     return createEnrollment.save();

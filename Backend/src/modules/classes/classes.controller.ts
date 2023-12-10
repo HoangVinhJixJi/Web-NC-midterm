@@ -167,6 +167,7 @@ export class ClassesController {
             pendingInviteInfo.classId,
             u._id,
             pendingInviteInfo.role,
+            false,
           );
           const deletePendingInvite = await this.pendingInvitesService.delete(
             pendingInviteInfo.classId,
