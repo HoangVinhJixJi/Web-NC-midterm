@@ -24,6 +24,7 @@ export class EnrollmentsController {
     const userId = req.user.sub;
     return this.enrollmentsService.getMembers(userId, classId, 'student');
   }
+  @UseGuards(JwtAuthGuard)
   @Get('email/:classId')
   async getAllEmailsByClassId(
     @Request() req: any,
@@ -31,6 +32,7 @@ export class EnrollmentsController {
   ) {
     return this.enrollmentsService.getEmailsByClassId(classId);
   }
+  @UseGuards(JwtAuthGuard)
   @Get(':classId')
   async getAllByClassId(
     @Request() req: any,

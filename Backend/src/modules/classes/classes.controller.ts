@@ -66,6 +66,7 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.getClassInfo(userId, classId);
   }
+  @UseGuards(JwtAuthGuard)
   @Post('update/:classId')
   async update(
     @Request() req: any,
@@ -75,6 +76,7 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.update(userId, classId, userData);
   }
+  @UseGuards(JwtAuthGuard)
   @Get('class-code/:classCode')
   async getClassByClassCode(
     @Request() req: any,
@@ -92,6 +94,7 @@ export class ClassesController {
       joined: enrolled['_id'] && enrolled ? true : false,
     };
   }
+  @UseGuards(JwtAuthGuard)
   @Post('class-code/:classCode')
   async joinClassByClassCode(
     @Request() req: any,
@@ -130,6 +133,7 @@ export class ClassesController {
       };
     }
   }
+  @UseGuards(JwtAuthGuard)
   @Get('email/:classId')
   async getAllEmailsByClassId(
     @Request() req: any,
@@ -146,8 +150,10 @@ export class ClassesController {
 
     return uniqueEmails;
   }
+  @UseGuards(JwtAuthGuard)
   @Post('invite-email/:classId')
   async inviteEmail(
+    @Request() req: any,
     @Body(new ValidationPipe({ transform: true })) userData: InviteEmailsDto,
     @Param('classId') classId: string,
   ) {
@@ -167,7 +173,6 @@ export class ClassesController {
     await this.classesService.sendInvitationEmail(pendingInviteInfo);
     return pendingInviteInfo.receiver;
   }
-
   @Get('join-invite-email/:inviteToken')
   async handleInvitationLinkClick(
     @Param('inviteToken') inviteToken: string,

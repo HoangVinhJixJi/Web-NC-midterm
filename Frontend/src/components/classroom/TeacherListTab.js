@@ -103,8 +103,7 @@ const TeacherListTab = ({classId, isTeaching}) => {
         const res = await api.post(`/classes/invite-email/${classId}`, userData);
         console.log(res);
         setInvitedEmails((prevInvitedEmails) => [...prevInvitedEmails, { email: newTeacherEmail, invited: true }]);
-        setMessage('');
-        handleCloseDialog();
+        setMessage('Invitation sent successfully!');
       }
     } else {
       // Hiển thị thông báo lỗi hoặc thực hiện hành động phù hợp
