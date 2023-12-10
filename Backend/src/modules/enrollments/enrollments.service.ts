@@ -58,11 +58,16 @@ export class EnrollmentsService {
     userId: string,
     populate: string,
     role: string,
+    status: string,
   ) {
     try {
       return role !== null
-        ? await this.enrollmentsModel.find({ userId, role }).populate(populate)
-        : await this.enrollmentsModel.find({ userId }).populate(populate);
+        ? await this.enrollmentsModel
+            .find({ userId, role })
+            .populate({ path: populate, match: { status: status } })
+        : await this.enrollmentsModel
+            .find({ userId })
+            .populate({ path: populate, match: { status: status } });
     } catch (error) {
       throw new Error(error);
     }
@@ -98,16 +103,16 @@ export class EnrollmentsService {
     return this.enrollmentsModel.findOne({ classId, userId }).exec();
   }
   async getMembers(userId: string, classId: any, _role: string) {
-    const user = await this.enrollmentsModel
+    const member = await this.enrollmentsModel
       .findOne({ userId, classId })
       .exec();
-    if (user) {
+    if (member) {
       try {
         const select =
-          user.role === 'teacher'
+          member.role === 'teacher'
             ? '_id fullName email avatar'
-            : 'fullName avatar';
-        const notEqual = user.role === 'student' ? user.userId : null;
+            : 'fullName avatar -_id';
+        const notEqual = member.role === 'student' ? member.userId : null;
         const enrollments = await this.getEnrollmentsPopulatedClass(
           classId,
           'userId',
@@ -127,5 +132,14 @@ export class EnrollmentsService {
     } else {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
+  }
+  async deleteMembers(classId: string) {
+    return this.enrollmentsModel.deleteMany({ classId: classId });
+  }
+  async deleteOne(classId: string, rmvId: string) {
+    return this.enrollmentsModel.findOneAndDelete({
+      classId: classId,
+      userId: rmvId,
+    });
   }
 }

@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Post,
   Param,
+  Put,
+  Query,
   Request,
   Res,
   UseGuards,
@@ -22,6 +25,7 @@ import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 
 @Controller('classes')
+@UseGuards(JwtAuthGuard)
 export class ClassesController {
   constructor(
     private readonly classesService: ClassesService,
@@ -31,27 +35,26 @@ export class ClassesController {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
   ) {}
-  @UseGuards(JwtAuthGuard)
   @Get('/')
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
-    return await this.classesService.getClasses(userId, null);
+    return await this.classesService.getClasses(userId, null, 'active');
   }
-  @UseGuards(JwtAuthGuard)
   @Get('teaching')
   async getTeachingClasses(@Request() req: any) {
     const userId = req.user.sub;
-    const teachers = await this.classesService.getClasses(userId, 'teacher');
-    return teachers;
+    return await this.classesService.getClasses(userId, 'teacher', 'active');
   }
-  @UseGuards(JwtAuthGuard)
   @Get('enrolled')
   async getEnrolledClasses(@Request() req: any) {
     const userId = req.user.sub;
-    const students = await this.classesService.getClasses(userId, 'student');
-    return students;
+    return await this.classesService.getClasses(userId, 'student', 'active');
   }
-  @UseGuards(JwtAuthGuard)
+  @Get('archived')
+  async getArchivedClasses(@Request() req: any) {
+    const userId = req.user.sub;
+    return this.classesService.getClasses(userId, null, 'archive');
+  }
   @Post('create')
   async createNewClass(
     @Request() req: any,
@@ -60,13 +63,11 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.create(userData, userId);
   }
-  @UseGuards(JwtAuthGuard)
   @Get('info/:classId')
   async getClassInfo(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.getClassInfo(userId, classId);
   }
-  @UseGuards(JwtAuthGuard)
   @Post('update/:classId')
   async update(
     @Request() req: any,
@@ -76,64 +77,25 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.update(userId, classId, userData);
   }
-  @UseGuards(JwtAuthGuard)
   @Get('class-code/:classCode')
-  async getClassByClassCode(
+  async getClassInfoAndUserJoinedSatus(
     @Request() req: any,
     @Param('classCode') classCode: string,
   ) {
     const userId = req.user.sub;
-    //Kiểm tra người dùng đã có trong lớp hay chưa?
-    const classInfo = await this.classesService.findClassByClassCode(classCode);
-    const enrolled = await this.classesService.getClassInfo(
+    return this.classesService.getClassInfoAndUserJoinedStatus(
       userId,
-      classInfo['_id'],
+      classCode,
     );
-    return {
-      classInfo,
-      joined: enrolled['_id'] && enrolled ? true : false,
-    };
   }
-  @UseGuards(JwtAuthGuard)
   @Post('class-code/:classCode')
-  async joinClassByClassCode(
+  async joinClassByClassCodeOrLink(
     @Request() req: any,
     @Param('classCode') classCode: string,
   ) {
     const userId = req.user.sub;
-    //Kiểm tra người dùng đã có trong lớp hay chưa?
-    const classInfo = await this.classesService.findClassByClassCode(classCode);
-    const enrolled = await this.classesService.getClassInfo(
-      userId,
-      classInfo['_id'],
-    );
-    console.log('enrolled ===== :', enrolled);
-    if (!enrolled['_id'] && enrolled['response'] === 'Forbidden') {
-      //Người dùng chưa có trong lớp
-      try {
-        const newEnrollment = await this.classesService.addEnrollment(
-          classInfo['_id'],
-          userId,
-        );
-        console.log('Thêm mới : newEnrollment: ', newEnrollment);
-        return {
-          classInfo,
-          joined: true,
-        };
-      } catch (error) {
-        return {
-          classInfo,
-          joined: false,
-        };
-      }
-    } else {
-      return {
-        classInfo,
-        joined: true,
-      };
-    }
+    return this.classesService.joinClass(userId, classCode);
   }
-  @UseGuards(JwtAuthGuard)
   @Get('email/:classId')
   async getAllEmailsByClassId(
     @Request() req: any,
@@ -150,7 +112,6 @@ export class ClassesController {
 
     return uniqueEmails;
   }
-  @UseGuards(JwtAuthGuard)
   @Post('invite-email/:classId')
   async inviteEmail(
     @Request() req: any,
@@ -236,5 +197,34 @@ export class ClassesController {
     } else {
       res.render('invitation-expired');
     }
+  }
+  @Delete('remove-member/:classId')
+  async removeMember(
+    @Request() req: any,
+    @Param('classId') classId: string,
+    @Query('rmvId') rmvId: string,
+  ) {
+    const userId = req.user.sub;
+    return this.classesService.removeMember(userId, classId, rmvId);
+  }
+  @Put('archive/:classId')
+  async archiveClass(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.archive(userId, classId);
+  }
+  @Put('restore/:classId')
+  async restoreClass(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.restore(userId, classId);
+  }
+  @Delete('delete/:classId')
+  async deleteClass(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.delete(userId, classId);
+  }
+  @Delete('leave/:classId')
+  async leaveClass(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.classesService.leaveClass(classId, userId);
   }
 }
