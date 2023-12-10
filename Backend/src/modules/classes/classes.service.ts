@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
 import { CreateClassDto } from './dto/create-class.dto';
+import { UpdateClassDto } from './dto/update-class.dto';
 
 @Injectable()
 export class ClassesService {
@@ -35,13 +36,13 @@ export class ClassesService {
     await this.enrollmentsService.add(classId, userId, 'teacher');
     return newClass;
   }
-  async getClasses(userId: any, roll: any) {
+  async getClasses(userId: any, role: any) {
     try {
       const enrollments =
         await this.enrollmentsService.getEnrollmentsPopulatedUser(
           userId,
           'classId',
-          roll,
+          role,
         );
       return enrollments.map((enrollment) => enrollment['classId']);
     } catch (error) {
@@ -49,11 +50,28 @@ export class ClassesService {
     }
   }
   async getClassInfo(userId: any, classId: string) {
-    const { role } = await this.enrollmentsService.getOne(classId, userId);
+    const user = await this.enrollmentsService.getOne(classId, userId);
     const _class = await this.classesModel.findOne({ _id: classId }).exec();
-    return role === 'teacher'
-      ? _class
-      : { className: _class.className, description: _class.description };
+    return user !== null
+      ? user.role === 'teacher'
+        ? _class
+        : { className: _class.className, description: _class.description }
+      : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+  }
+  async update(userId: any, classId: any, userData: UpdateClassDto) {
+    const user = await this.enrollmentsService.getOne(classId, userId);
+    return user !== null
+      ? user.role === 'teacher'
+        ? await this.classesModel.findOneAndUpdate(
+            { _id: classId },
+            {
+              className: userData.className,
+              description: userData.description,
+            },
+            { new: true },
+          )
+        : new HttpException('Forbidden', HttpStatus.FORBIDDEN)
+      : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
   async getAll(): Promise<Class[]> {
     return await this.classesModel.find().exec();
@@ -73,6 +91,26 @@ export class ClassesService {
     try {
       const classes = await this.classesModel.findById({ _id: classId }).exec();
       return classes;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async findClassByClassCode(classCode: any): Promise<Class> {
+    try {
+      const classes = await this.classesModel.findOne({ classCode }).exec();
+      return classes;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async addEnrollment(clasId: string, userId: string) {
+    try {
+      const newEnrollment = await this.enrollmentsService.add(
+        clasId,
+        userId,
+        'student',
+      );
+      return newEnrollment;
     } catch (error) {
       throw error;
     }
@@ -126,7 +164,7 @@ export class ClassesService {
       invite_token,
     };
   }
-  async sendInvitaionEmail(pendingInviteInfo: {
+  async sendInvitationEmail(pendingInviteInfo: {
     receiver: string;
     sender: string;
     className: string;

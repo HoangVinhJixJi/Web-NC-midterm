@@ -19,6 +19,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
+import { UpdateClassDto } from './dto/update-class.dto';
 
 @Controller('classes')
 export class ClassesController {
@@ -65,6 +66,86 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.getClassInfo(userId, classId);
   }
+  @Post('update/:classId')
+  async update(
+    @Request() req: any,
+    @Param('classId') classId: string,
+    @Body(new ValidationPipe({ transform: true })) userData: UpdateClassDto,
+  ) {
+    const userId = req.user.sub;
+    return this.classesService.update(userId, classId, userData);
+  }
+  @Get('class-code/:classCode')
+  async getClassByClassCode(
+    @Request() req: any,
+    @Param('classCode') classCode: string,
+  ) {
+    const userId = req.user.sub;
+    //Kiểm tra người dùng đã có trong lớp hay chưa?
+    const classInfo = await this.classesService.findClassByClassCode(classCode);
+    const enrolled = await this.classesService.getClassInfo(
+      userId,
+      classInfo['_id'],
+    );
+    return {
+      classInfo,
+      joined: enrolled['_id'] && enrolled ? true : false,
+    };
+  }
+  @Post('class-code/:classCode')
+  async joinClassByClassCode(
+    @Request() req: any,
+    @Param('classCode') classCode: string,
+  ) {
+    const userId = req.user.sub;
+    //Kiểm tra người dùng đã có trong lớp hay chưa?
+    const classInfo = await this.classesService.findClassByClassCode(classCode);
+    const enrolled = await this.classesService.getClassInfo(
+      userId,
+      classInfo['_id'],
+    );
+    console.log('enrolled ===== :', enrolled);
+    if (!enrolled['_id'] && enrolled['response'] === 'Forbidden') {
+      //Người dùng chưa có trong lớp
+      try {
+        const newEnrollment = await this.classesService.addEnrollment(
+          classInfo['_id'],
+          userId,
+        );
+        console.log('Thêm mới : newEnrollment: ', newEnrollment);
+        return {
+          classInfo,
+          joined: true,
+        };
+      } catch (error) {
+        return {
+          classInfo,
+          joined: false,
+        };
+      }
+    } else {
+      return {
+        classInfo,
+        joined: true,
+      };
+    }
+  }
+  @Get('email/:classId')
+  async getAllEmailsByClassId(
+    @Request() req: any,
+    @Param('classId') classId: string,
+  ) {
+    const [enrollmentEmails, pendingInviteEmails] = await Promise.all([
+      this.enrollmentsService.getEmailsByClassId(classId),
+      this.pendingInvitesService.getEmailsByClassId(classId),
+    ]);
+
+    const uniqueEmails = Array.from(
+      new Set([...enrollmentEmails, ...pendingInviteEmails]),
+    );
+
+    return uniqueEmails;
+  }
   @Post('invite-email/:classId')
   async inviteEmail(
     @Body(new ValidationPipe({ transform: true })) userData: InviteEmailsDto,
@@ -83,27 +164,12 @@ export class ClassesController {
       userData.role,
       userData.userEmail,
     );
-    await this.classesService.sendInvitaionEmail(pendingInviteInfo);
+    await this.classesService.sendInvitationEmail(pendingInviteInfo);
     return pendingInviteInfo.receiver;
   }
-  @Get('email/:classId')
-  async getAllEmailsByClassId(
-    @Request() req: any,
-    @Param('classId') classId: string,
-  ) {
-    const [enrollmentEmails, pendingInviteEmails] = await Promise.all([
-      this.enrollmentsService.getEmailsByClassId(classId),
-      this.pendingInvitesService.getEmailsByClassId(classId),
-    ]);
 
-    const uniqueEmails = Array.from(
-      new Set([...enrollmentEmails, ...pendingInviteEmails]),
-    );
-
-    return uniqueEmails;
-  }
   @Get('join-invite-email/:inviteToken')
-  async goToResetPasswordPage(
+  async handleInvitationLinkClick(
     @Param('inviteToken') inviteToken: string,
     @Res() res: any,
   ) {

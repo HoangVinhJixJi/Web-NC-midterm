@@ -22,7 +22,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
 
-const StudentListTab = ({classId}) => {
+const StudentListTab = ({classId, isTeaching}) => {
   const [isAddStudentDialogOpen, setIsAddStudentDialogOpen] = useState(false);
   const [newStudentEmail, setNewStudentEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -46,7 +46,16 @@ const StudentListTab = ({classId}) => {
         const response = await api.get(`/enrollments/student/${classId}`);
         //Lưu thông tin toàn bộ lớp học vào state
         console.log('List Students Data: ', response.data);
-        setStudents(response.data);
+        //Kiểm tra lại thông tin teacher:
+        const list = response.data.reduce((accumulator, obj) => {
+          if (obj.memberInfo != null && obj.role === 'student') {
+            accumulator.push(obj.memberInfo);
+          }
+          return accumulator;
+        }, []);
+        
+        console.log("list: ", list);
+        setStudents(list);
         
         
       } catch (error) {
@@ -117,10 +126,10 @@ const StudentListTab = ({classId}) => {
           <Grid container alignItems="center" spacing={1}>
           {students && <Grid item>
             <Typography variant="body1">
-              {students.length} học sinh
+            {isTeaching ? students.length : students.length + 1} học sinh
             </Typography>
           </Grid>}
-          
+          { isTeaching &&
           <Grid item>
             <Button
               variant="contained"
@@ -131,6 +140,7 @@ const StudentListTab = ({classId}) => {
               Thêm
             </Button>
           </Grid>
+          }
           </Grid>
           
         </Grid>

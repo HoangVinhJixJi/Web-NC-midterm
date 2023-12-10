@@ -134,8 +134,7 @@ const MainHomepageTab = ({ onClassClick }) => {
       // Lấy giá trị từ các trường nhập liệu
       const classCode = document.getElementById('textfield-classCode').value;
       if (!classCode) {
-        console.log('CHưa nhập class Code');
-        // Hiển thị thông báo hoặc thực hiện xử lý khi tên lớp học không hợp lệ
+        console.log('Chưa nhập class Code');
         return;
       }
       console.log({classCode});
@@ -149,17 +148,16 @@ const MainHomepageTab = ({ onClassClick }) => {
       
       // Đặt token cho mọi yêu cầu
       setAuthToken(token);
-      const response = await api.post(`/classes/join/${classCode}`,{
-        classCode
-      });
-      console.log("response.data: ", response.data);
+      const response = await api.post(`/classes/class-code/${classCode}`);
+      
   
       //Kiểm tra trạng thái của yêu cầu
       if (response.status === 201 || response.status === 200) {
         // Nếu tạo mới lớp học thành công, có thể thực hiện các bước tiếp theo
-        fetchClassData();
-        closeCreateClassPopup();
-        // Thực hiện các bước tiếp theo tùy thuộc vào yêu cầu của bạn
+        if(response.data.classInfo && response.data.joined){
+          console.log(response.data);
+          navigate(`/classroom/class-detail/${response.data.classInfo._id}`)
+        }
       } else {
         // Xử lý khi có lỗi từ server
         console.error('Error creating class:', response.data);
@@ -256,7 +254,7 @@ const MainHomepageTab = ({ onClassClick }) => {
 
           Cách đăng nhập bằng mã lớp học<br/>
                 - Sử dụng tài khoản được cấp phép<br/>
-                - Sử dụng mã lớp học gồm 5-7 chữ cái hoặc số, không có dấu cách hoặc ký hiệu<br/>
+                - Sử dụng mã lớp học của bạn<br/>
           </Typography>
           <TextField id='textfield-classCode' label="Mã lớp học" fullWidth />
           

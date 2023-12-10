@@ -38,6 +38,7 @@ const ClassDetailTab = () => {
   
   const [currentTab, setCurrentTab] = useState(0);
   const [classInfo, setClassInfo] = useState({});
+  const [isTeaching, setIsTeaching] = useState(false);
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
@@ -60,7 +61,10 @@ const ClassDetailTab = () => {
         // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
         const response = await api.get(`/classes/info/${classId}`);
         //Lưu thông tin toàn bộ lớp học vào state
-        console.log('Class Detail Data 3: ', response.data);
+        console.log('Class Detail Data : ', response.data);
+        if(response.data.classCode){
+          setIsTeaching(true);
+        }
         setClassInfo(response.data);
         
         
@@ -97,13 +101,13 @@ const ClassDetailTab = () => {
 
       {/* Tab Panels */}
       <TabPanel value={currentTab} index={0}>
-        <ClassInfoTab classInfo={classInfo} />
+        <ClassInfoTab classInfo={classInfo} isTeaching={isTeaching}/>
       </TabPanel>
       <TabPanel value={currentTab} index={1}>
-        <TeacherListTab classId={classId}/>
+        <TeacherListTab classId={classId} isTeaching={isTeaching}/>
       </TabPanel>
       <TabPanel value={currentTab} index={2}>
-        <StudentListTab  classId={classId}/>
+        <StudentListTab  classId={classId} isTeaching={isTeaching}/>
       </TabPanel>
     </Box>
   );
