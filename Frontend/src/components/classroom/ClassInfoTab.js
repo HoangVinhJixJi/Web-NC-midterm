@@ -17,6 +17,7 @@ import {
   Menu,
   IconButton,
   Snackbar,
+  Divider,
 } from '@mui/material';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -54,6 +55,7 @@ const ClassInfoTab = ({ classInfo, isTeaching }) => {
     if(true){
         return (
             <div>
+              <Divider sx={{ margin: '16px 0' }} />
               {/* Thông tin cơ bản của lớp học */}
               <Grid container spacing={2}>
               { isTeaching &&

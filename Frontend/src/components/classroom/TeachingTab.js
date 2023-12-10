@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Tab, Tabs, Typography, Grid, Paper, Container } from '@mui/material';
+import { Box, Tab, Tabs, Typography, Grid, Paper, Container, CircularProgress } from '@mui/material';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import api, {setAuthToken} from '../../api/api';
 
 
 const TeachingTab = ({ onClassClick}) => {
     const [classList, setClassList] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     useEffect(() => {
       const fetchClassData = async () => {
@@ -26,7 +27,7 @@ const TeachingTab = ({ onClassClick}) => {
           //Lưu thông tin toàn bộ lớp học vào state
           console.log('response.data: ', response.data);
           setClassList(response.data);
-          
+          setIsLoading(false);
           
         } catch (error) {
           // Xử lý lỗi
@@ -38,12 +39,18 @@ const TeachingTab = ({ onClassClick}) => {
           }
         }
       };
-  
+      
       // Gọi hàm lấy dữ liệu người dùng
       fetchClassData();
   
     }, []); 
   return (
+    <>
+    { isLoading ? 
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </div>
+        :
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
     { classList.length === 0 && <Typography> Hiện tại bạn chưa có lớp học nào</Typography> }
     <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 160px)' }}>
@@ -85,7 +92,8 @@ const TeachingTab = ({ onClassClick}) => {
       </Grid>
     ))}
   </Grid>
-  </Container>
+  </Container>}
+  </>
   );
 };
 

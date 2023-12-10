@@ -15,7 +15,8 @@ import {
   DialogActions,
   DialogContent,
   TextField,
-  Grid
+  Grid,
+  CircularProgress
 } from '@mui/material';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -28,6 +29,7 @@ const StudentListTab = ({classId, isTeaching}) => {
   const [message, setMessage] = useState('');
   const [invitedEmails, setInvitedEmails] = useState([]);
   const [students, setStudents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -56,7 +58,7 @@ const StudentListTab = ({classId, isTeaching}) => {
         
         console.log("list: ", list);
         setStudents(list);
-        
+        setIsLoading(false);
         
       } catch (error) {
         // Xử lý lỗi
@@ -103,6 +105,12 @@ const StudentListTab = ({classId, isTeaching}) => {
   };
   //Kiểm tra nếu là giáo viên thì hiển thị Button Thêm học sinh còn nếu là học sinh thì chỉ cho xem số lượng học sinh
     return (
+      <>
+      { students && isLoading ? 
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </div>
+        :
       <div>
       <Grid container alignItems="center" justifyContent="space-between">
         <Typography variant="h6" gutterBottom>
@@ -175,7 +183,8 @@ const StudentListTab = ({classId, isTeaching}) => {
             <Button onClick={handleAddStudentConfirm} color="primary">Xác nhận</Button>
           </DialogActions>
         </Dialog>
-      </div>
+      </div>}
+      </>
     );
   };
 
