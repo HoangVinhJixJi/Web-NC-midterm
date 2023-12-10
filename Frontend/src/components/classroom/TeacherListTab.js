@@ -15,7 +15,8 @@ import {
   DialogActions,
   DialogContent,
   TextField,
-  Grid
+  Grid,
+  CircularProgress
 } from '@mui/material';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -28,6 +29,8 @@ const TeacherListTab = ({classId, isTeaching}) => {
   const [message, setMessage] = useState('');
   const [invitedEmails, setInvitedEmails] = useState([]);
   const [teachers, setTeachers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const navigate = useNavigate();
   useEffect(() => {
     const fetchTeacherData = async () => {
@@ -56,7 +59,7 @@ const TeacherListTab = ({classId, isTeaching}) => {
         
         console.log("list: ", list);
         setTeachers(list);
-        
+        setIsLoading(false);
         
       } catch (error) {
         // Xử lý lỗi
@@ -117,6 +120,12 @@ const TeacherListTab = ({classId, isTeaching}) => {
   };
   //Kiểm tra nếu là giáo viên thì hiển thị Button Thêm giáo viên còn nếu là học sinh thì chỉ cho xem số lượng học sinh
     return (
+      <>
+      { teachers && isLoading ? 
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </div>
+        :
       <div>
       <Grid container alignItems="center" justifyContent="space-between">
         <Typography variant="h6" gutterBottom>
@@ -124,11 +133,11 @@ const TeacherListTab = ({classId, isTeaching}) => {
         </Typography>
         <Grid item >
           <Grid container alignItems="center" spacing={1}>
-          {teachers && <Grid item>
+          <Grid item>
             <Typography variant="body1">
               {teachers.length} giáo viên
             </Typography>
-          </Grid>}
+          </Grid>
           { isTeaching &&
           <Grid item>
             <Button
@@ -191,6 +200,8 @@ const TeacherListTab = ({classId, isTeaching}) => {
           </DialogActions>
         </Dialog>
       </div>
+      }
+      </>
     );
   };
 

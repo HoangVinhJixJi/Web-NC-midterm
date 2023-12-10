@@ -18,6 +18,7 @@ import {
   DialogTitle,
   TextField,
   Button,
+  CircularProgress,
   
 } from '@mui/material';
 import { Add as AddIcon, PersonAdd as PersonAddIcon } from '@mui/icons-material';
@@ -38,6 +39,7 @@ const MainHomepageTab = ({ onClassClick }) => {
   const [isCreateClassOpen, setCreateClassOpen] = useState(false);
   const [isJoinClassOpen, setJoinClassOpen] = useState(false);
   const [classList, setClassList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const openCreateClassPopup = () => setCreateClassOpen(true);
   const closeCreateClassPopup = () => setCreateClassOpen(false);
@@ -64,7 +66,7 @@ const MainHomepageTab = ({ onClassClick }) => {
       //Lưu thông tin toàn bộ lớp học vào state
       setClassList(response.data);
       console.log('response.data: ', response.data);
-      
+      setIsLoading(false);
       
     } catch (error) {
       // Xử lý lỗi
@@ -89,7 +91,7 @@ const MainHomepageTab = ({ onClassClick }) => {
       const description = document.getElementById('textfield-description').value;
       
       // Kiểm tra xem các trường bắt buộc đã được điền đầy đủ hay chưa
-      if (!className) {
+      if (!!className) {
         console.log('CHưa nhập class Name');
         // Hiển thị thông báo hoặc thực hiện xử lý khi tên lớp học không hợp lệ
         return;
@@ -172,6 +174,12 @@ const MainHomepageTab = ({ onClassClick }) => {
  
 
   return (
+    <>
+    { isLoading ? 
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </div>
+        :
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <div>
         <CustomListItemButton color="inherit" onClick={openCreateClassPopup}>
@@ -231,8 +239,6 @@ const MainHomepageTab = ({ onClassClick }) => {
             - Vui lòng nhập vào các thông tin cơ bản của lớp học -
         </Typography>
           <TextField id='textfield-className' label="Tên lớp học" fullWidth sx={{ marginY: 2 }}/>
-          {/* <TextField label="Chủ đề" fullWidth sx={{ marginY: 2 }}/>
-          <TextField label="Phòng" fullWidth sx={{ marginY: 2 }}/> */}
           <TextField id='textfield-description' label="Mô tả" fullWidth sx={{ marginY: 2 }}/>
         </DialogContent>
         <DialogActions>
@@ -270,6 +276,7 @@ const MainHomepageTab = ({ onClassClick }) => {
       </Dialog>
 
     </Container>
+    }</>
   );
 };
 
