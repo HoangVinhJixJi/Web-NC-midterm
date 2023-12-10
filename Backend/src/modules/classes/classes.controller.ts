@@ -1,6 +1,7 @@
 import {
   Body,
-  Controller, Delete,
+  Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -23,17 +24,22 @@ export class ClassesController {
   @Get('/')
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
-    return await this.classesService.getClasses(userId, null);
+    return await this.classesService.getClasses(userId, null, 'active');
   }
   @Get('teaching')
   async getTeachingClasses(@Request() req: any) {
     const userId = req.user.sub;
-    return await this.classesService.getClasses(userId, 'teacher');
+    return await this.classesService.getClasses(userId, 'teacher', 'active');
   }
   @Get('enrolled')
   async getEnrolledClasses(@Request() req: any) {
     const userId = req.user.sub;
-    return await this.classesService.getClasses(userId, 'student');
+    return await this.classesService.getClasses(userId, 'student', 'active');
+  }
+  @Get('archived')
+  async getArchivedClasses(@Request() req: any) {
+    const userId = req.user.sub;
+    return this.classesService.getClasses(userId, null, 'archive');
   }
   @Post('create')
   async createNewClass(
@@ -57,14 +63,24 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.update(userId, classId, userData);
   }
-  @Get(':classId')
-  async joinClass(
+  @Get('class-code/:classCode')
+  async getClassInfoAndUserJoinedSatus(
     @Request() req: any,
-    @Param('classId') classId: string,
-    @Query('cjc') classCode: string,
+    @Param('classCode') classCode: string,
   ) {
     const userId = req.user.sub;
-    return this.classesService.joinClass(userId, classId, classCode);
+    return this.classesService.getClassInfoAndUserJoinedStatus(
+      userId,
+      classCode,
+    );
+  }
+  @Post('class-code/:classCode')
+  async joinClassByClassCodeOrLink(
+    @Request() req: any,
+    @Param('classCode') classCode: string,
+  ) {
+    const userId = req.user.sub;
+    return this.classesService.joinClass(userId, classCode);
   }
   @Delete('remove-member/:classId')
   async removeMember(

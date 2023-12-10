@@ -27,14 +27,14 @@ export class ClassesService {
     await this.enrollmentsService.add(classId, userId, 'teacher', true);
     return newClass;
   }
-  async getClasses(userId: any, role: any) {
+  async getClasses(userId: any, role: any, status: any) {
     try {
       const enrollments =
         await this.enrollmentsService.getEnrollmentsPopulatedUser(
           userId,
           'classId',
           role,
-          'active',
+          status,
         );
       return enrollments.map((enrollment) => enrollment['classId']);
     } catch (error) {
@@ -66,24 +66,29 @@ export class ClassesService {
         : new HttpException('Forbidden', HttpStatus.FORBIDDEN)
       : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
-  async joinClass(userId: any, classId: string, classCode: string) {
+  async joinClass(userId: any, classCode: string) {
     const _class = await this.classesModel
-      .findOne({ _id: classId, classCode })
+      .findOne({ classCode: classCode })
       .exec();
     if (_class) {
-      const member = await this.enrollmentsService.getOne(classId, userId);
+      const member = await this.enrollmentsService.getOne(
+        _class._id.toString(),
+        userId,
+      );
       if (!member) {
-        return await this.enrollmentsService.add(
-          classId,
+        const newMember = await this.enrollmentsService.add(
+          _class._id.toString(),
           userId,
           'student',
           false,
         );
+        return {
+          classInfo: _class,
+          joined: !!newMember,
+        };
       }
-      return member;
-    } else {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
+    throw new HttpException('Not found', HttpStatus.NOT_FOUND);
   }
   async archive(userId: any, classId: string) {
     const member = await this.enrollmentsService.getOne(classId, userId);
@@ -162,5 +167,19 @@ export class ClassesService {
   private async isArchived(classId: string) {
     const { status } = await this.classesModel.findOne({ _id: classId }).exec();
     return status !== null && status === 'archive';
+  }
+  async getClassInfoAndUserJoinedStatus(userId: any, classCode: string) {
+    const _class = await this.classesModel.findOne({ classCode: classCode });
+    if (_class) {
+      const member = await this.enrollmentsService.getOne(
+        _class._id.toString(),
+        userId,
+      );
+      return {
+        classInfo: _class,
+        joined: !!member,
+      };
+    }
+    throw new HttpException('Not found', HttpStatus.NOT_FOUND);
   }
 }
