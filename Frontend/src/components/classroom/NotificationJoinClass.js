@@ -83,7 +83,7 @@ const NotificationJoinClass = () => {
 
       {/* Thông tin cơ bản của lớp học */}
       <Typography variant="h6" gutterBottom>
-        Thông báo mời tham gia vào lớp học
+        Invitation to join the class.
       </Typography>
 
       
@@ -97,11 +97,11 @@ const NotificationJoinClass = () => {
       {/* Nút tham gia lớp học */}
       {joining ? (
         <Button variant="contained" color="primary" disabled>
-          Đang vào lớp học...
+          Joining Class...
         </Button>
       ) : (
         <Button variant="contained" color="primary" onClick={handleJoinClass}>
-          Tham gia lớp học
+          Join Class
         </Button>
       )}
     </Paper>

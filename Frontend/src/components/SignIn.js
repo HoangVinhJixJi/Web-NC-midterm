@@ -49,16 +49,22 @@ const SignIn = () => {
 
         // Save user information and token to localStorage or sessionStorage
         login(access_token, userData);
-
-        // Redirect to the home page
-        const classCode = localStorage.getItem('classCode');
-        if (classCode) {
-          localStorage.removeItem('classCode');
-          navigate(`/classroom/class-code/${classCode}`);
+        
+        const classId = localStorage.getItem('classId');
+        if (classId) {
+          localStorage.removeItem('classId');
+          navigate(`/classroom/class-detail/${classId}`);
         }
         else {
-          navigate('/home');
-        }
+          const classCode = localStorage.getItem('classCode');
+          if (classCode) {
+            localStorage.removeItem('classCode');
+            navigate(`/classroom/class-code/${classCode}`);
+          }
+          else {
+            navigate('/home');
+          }
+        }        
       }
     } catch (error) {
       setMessage('Sign in failed. Try again!');

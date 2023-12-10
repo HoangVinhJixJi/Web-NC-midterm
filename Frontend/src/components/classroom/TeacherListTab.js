@@ -15,7 +15,8 @@ import {
   DialogActions,
   DialogContent,
   TextField,
-  Grid
+  Grid,
+  CircularProgress
 } from '@mui/material';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -28,6 +29,8 @@ const TeacherListTab = ({classId, isTeaching}) => {
   const [message, setMessage] = useState('');
   const [invitedEmails, setInvitedEmails] = useState([]);
   const [teachers, setTeachers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const navigate = useNavigate();
   useEffect(() => {
     const fetchTeacherData = async () => {
@@ -56,7 +59,7 @@ const TeacherListTab = ({classId, isTeaching}) => {
         
         console.log("list: ", list);
         setTeachers(list);
-        
+        setIsLoading(false);
         
       } catch (error) {
         // Xử lý lỗi
@@ -117,18 +120,26 @@ const TeacherListTab = ({classId, isTeaching}) => {
   };
   //Kiểm tra nếu là giáo viên thì hiển thị Button Thêm giáo viên còn nếu là học sinh thì chỉ cho xem số lượng học sinh
     return (
+      <>
+      { teachers && isLoading ? 
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </div>
+        :
       <div>
       <Grid container alignItems="center" justifyContent="space-between">
         <Typography variant="h6" gutterBottom>
-          Danh sách giáo viên
+          Teacher List
         </Typography>
         <Grid item >
           <Grid container alignItems="center" spacing={1}>
-          {teachers && <Grid item>
+          <Grid item>
             <Typography variant="body1">
-              {teachers.length} giáo viên
+              {teachers.length > 1 ? 
+              `${teachers.length} teachers`
+              :`${teachers.length} teacher`}
             </Typography>
-          </Grid>}
+          </Grid>
           { isTeaching &&
           <Grid item>
             <Button
@@ -137,7 +148,7 @@ const TeacherListTab = ({classId, isTeaching}) => {
               startIcon={<AddIcon />}
               onClick={handleAddTeacherClick}
             >
-              Thêm
+              Add
             </Button>
           </Grid>
           }
@@ -150,7 +161,7 @@ const TeacherListTab = ({classId, isTeaching}) => {
         
         {invitedEmails.map((teacher) => (
           <ListItem key={teacher.email} sx={{ opacity: teacher.invited ? 0.5 : 1 }}>
-            <ListItemText primary={teacher.email} secondary={teacher.invited ? 'Đã gửi lời mời' : ''} />
+            <ListItemText primary={teacher.email} secondary={teacher.invited ? 'Invitation sent' : ''} />
           </ListItem>
         ))}
         {teachers && 
@@ -168,14 +179,14 @@ const TeacherListTab = ({classId, isTeaching}) => {
 
         {/* Dialog để thêm giáo viên */}
         <Dialog open={isAddTeacherDialogOpen} onClose={handleCloseDialog}>
-          <DialogTitle>Thêm giáo viên</DialogTitle>
+          <DialogTitle>Add Teacher</DialogTitle>
           
           <DialogContent>
             <Typography textAlign={'center'} margin={2}>
-              - Vui lòng nhập vào địa chỉ email người muốn thêm vào -
+              - Please enter the email address -
             </Typography>
             <TextField
-              label="Email giáo viên"
+              label="Email Teacher"
               fullWidth
               value={newTeacherEmail}
               onChange={(e) => setNewTeacherEmail(e.target.value)}
@@ -186,11 +197,13 @@ const TeacherListTab = ({classId, isTeaching}) => {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Hủy</Button>
-            <Button onClick={handleAddTeacherConfirm} color="primary">Xác nhận</Button>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={handleAddTeacherConfirm} color="primary">Send</Button>
           </DialogActions>
         </Dialog>
       </div>
+      }
+      </>
     );
   };
 
