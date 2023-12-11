@@ -175,6 +175,7 @@ const MainHomepageTab = ({ onClassClick }) => {
         // Có thể hiển thị thông báo lỗi hoặc xử lý lỗi khác tùy ý
       }
     } catch (error) {
+      setMessage('Invalid class code!');
       // Xử lý khi có lỗi không mong muốn
       console.error('Unexpected error:', error);
       // Có thể hiển thị thông báo lỗi hoặc xử lý lỗi khác tùy ý
