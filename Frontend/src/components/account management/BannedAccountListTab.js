@@ -26,7 +26,7 @@ const accounts = [
     username: "nht2610"
   },
   {
-    userId: "182130350350365060",
+    userId: "182130319550365160",
     avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
     fullName: "Nguyễn Văn Bình",
     startTime: "Thu Dec 21 2023 20:56:41 GMT+0700",
@@ -123,10 +123,10 @@ export default function BannedAccountListTab() {
           {account.endTime}
         </TableCell>
         <TableCell>
-          <Button variant="contained" color="primary" sx={{marginBottom: 1}}>
+          <Button variant="contained" color="inherit" sx={{marginBottom: 1}}>
             Unban
           </Button>
-          <Button variant="contained" color="inherit">
+          <Button variant="contained" color="error">
             Delete
           </Button>
         </TableCell>
