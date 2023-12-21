@@ -4,9 +4,11 @@ import PendingOutlinedIcon from "@mui/icons-material/PendingOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
 
-function renderTableColumnTitle(titleNames) {
-  return titleNames.map((titleName) => (
-    <TableCell><strong>{titleName}</strong></TableCell>
+function renderTableColumnTitle(titleNames, handleSort) {
+  return titleNames.map((columnName) => (
+    <TableCell key={columnName} onClick={() => handleSort(columnName)}>
+      <strong>{columnName}</strong>
+    </TableCell>
   ));
 }
 function renderStatus(status) {
@@ -39,6 +41,15 @@ function renderStatus(status) {
       return null;
   }
 }
+function sortTable(a, b, sortedBy, sortOrder) {
+  console.log(sortOrder);
+  if (sortedBy === 'User Info') {
+    const lastNameA = a.fullName.split(' ').pop().toLowerCase();
+    const lastNameB = b.fullName.split(' ').pop().toLowerCase();
+    return sortOrder === 'asc' ? lastNameA.localeCompare(lastNameB) : lastNameB.localeCompare(lastNameA);
+  }
+  // Các trường hợp sắp xếp khác
+}
 export default function RenderFunctions() {
-  return { renderTableColumnTitle, renderStatus };
+  return { renderTableColumnTitle, renderStatus, sortTable };
 }

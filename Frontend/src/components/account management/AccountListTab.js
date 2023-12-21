@@ -8,14 +8,14 @@ import {
   TableHead,
   TableRow
 } from "@mui/material";
-import React from "react";
+import React, {useState} from "react";
 import {Link} from "react-router-dom";
 import RenderFunctions from "./table functions/RenderFunctions";
 
 const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
 const accounts = [
   {
-    userId: "1821303503503650600",
+    userId: "182130350350365060",
     avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
     fullName: "Nguyễn Văn Anh",
     status: "Pending",
@@ -36,42 +36,42 @@ const accounts = [
     username: "huutruc26"
   },
   {
-    userId: "1821303503503650600",
+    userId: "182130350350210458",
     avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
     fullName: "Nguyễn Văn Anh",
     status: "Pending",
     username: "nht2610"
   },
   {
-    userId: "182130350350214054",
+    userId: "182130748502140542",
     avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
     fullName: "Nguyễn Văn Bình",
     status: "Activated",
     username: "nht2002"
   },
   {
-    userId: "182130350350362391",
+    userId: "182130310550195391",
     avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
     fullName: "Nguyễn Văn Cảnh",
     status: "Banned",
     username: "huutruc26"
   },
   {
-    userId: "1821303503503650600",
+    userId: "182130151180365060",
     avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
     fullName: "Nguyễn Văn Anh",
     status: "Pending",
     username: "nht2610"
   },
   {
-    userId: "182130350350214054",
+    userId: "182116050350247054",
     avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
     fullName: "Nguyễn Văn Bình",
     status: "Activated",
     username: "nht2002"
   },
   {
-    userId: "182130350350362391",
+    userId: "182156750240361191",
     avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
     fullName: "Nguyễn Văn Cảnh",
     status: "Banned",
@@ -79,9 +79,21 @@ const accounts = [
   }
 ];
 export default function AccountListTab() {
-  const { renderTableColumnTitle, renderStatus } = RenderFunctions();
+  const { renderTableColumnTitle, renderStatus, sortTable } = RenderFunctions();
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
+  const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
+
+  function handleSort(columnName) {
+    if (sortedBy === columnName) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortOrder('asc');
+    }
+    setSortedBy(columnName);
+  }
   function renderAccountList(accounts) {
-    return accounts.map((account) => (
+    const sortedAccounts = [...accounts].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
+    return sortedAccounts.map((account) => (
       <TableRow key={account.userId}>
         <TableCell>{account.userId}</TableCell>
         <TableCell>
@@ -97,7 +109,7 @@ export default function AccountListTab() {
         </TableCell>
         <TableCell>
           {account.status === 'Pending' && (
-            <Button variant="contained" color="success">
+            <Button variant="contained" color="secondary">
               Active
             </Button>
           )}
@@ -128,7 +140,7 @@ export default function AccountListTab() {
           <Table>
             <TableHead>
               <TableRow>
-                {renderTableColumnTitle(titleNames)}
+                {renderTableColumnTitle(titleNames, handleSort)}
               </TableRow>
             </TableHead>
             <TableBody>
