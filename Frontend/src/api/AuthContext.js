@@ -5,6 +5,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
   const [user, setUser] = useState(null);
   const [emailRegistration, setEmailRegistration] = useState('');
 
@@ -34,6 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setIsLoggedIn(false);
+    setIsAdmin(false);
     setUser(null);
 
     // Xoá thông tin đăng nhập khỏi localStorage
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn,user,emailRegistration, register,login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn,isAdmin,user,emailRegistration, register,login, logout }}>
       {children}
     </AuthContext.Provider>
   );

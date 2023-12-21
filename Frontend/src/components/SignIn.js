@@ -168,6 +168,9 @@ const SignIn = () => {
           {message}
         </Typography>
         <Typography variant="body2" mt={2}>
+          <Link to="/admin-signin">Login as Administrator</Link>
+        </Typography>
+        <Typography variant="body2" mt={2}>
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </Typography>
       </Paper>
