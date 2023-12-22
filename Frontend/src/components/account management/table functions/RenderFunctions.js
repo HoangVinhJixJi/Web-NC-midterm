@@ -1,8 +1,9 @@
-import {ListItemIcon, Stack, TableCell} from "@mui/material";
+import {TableCell} from "@mui/material";
 import React from "react";
 import PendingOutlinedIcon from "@mui/icons-material/PendingOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
+import Status from "../table item/column/Status";
 
 function renderTableColumnTitle(titleNames, handleSort) {
   return titleNames.map((columnName) => (
@@ -14,29 +15,11 @@ function renderTableColumnTitle(titleNames, handleSort) {
 function renderStatus(status) {
   switch (status) {
     case 'Pending':
-      return (
-        <Stack direction="row" alignItems="center" sx={{color: "#ffc107"}}>
-          <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
-            <PendingOutlinedIcon />
-          </ListItemIcon>
-          {status}
-        </Stack>);
-    case 'Activated':
-      return (
-        <Stack direction="row" alignItems="center" sx={{color: "success.main"}}>
-          <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
-            <CheckCircleOutlinedIcon />
-          </ListItemIcon>
-          {status}
-        </Stack>);
+      return <Status statusColor="#ffc107" statusIcon={<PendingOutlinedIcon />} statusText={status} />;
+    case 'Active':
+      return <Status statusColor="success.main" statusIcon={<CheckCircleOutlinedIcon />} statusText={status} />;
     case 'Banned':
-      return (
-        <Stack direction="row" alignItems="center" sx={{color: "error.main"}}>
-          <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
-            <BlockOutlinedIcon />
-          </ListItemIcon>
-          {status}
-        </Stack>);
+      return <Status statusColor="error.main" statusIcon={<BlockOutlinedIcon />} statusText={status} />;
     default:
       return null;
   }
