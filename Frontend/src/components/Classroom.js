@@ -86,7 +86,7 @@ const Classroom = () => {
           <Route path="/" element={<MainHomepageTab onClassClick={handleClassClick} />} />
           <Route path="/home" element={<MainHomepageTab onClassClick={handleClassClick} />} />
           <Route path="/teaching" element={<TeachingTab onClassClick={handleClassClick} />} />
-          <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick} />} />
+          <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick}/>} />
           <Route path="/class-detail/:classId" element={<ClassDetailTab />} />
           <Route path="/class-code/:classCode" element={<NotificationJoinClass />} />
         </Routes>

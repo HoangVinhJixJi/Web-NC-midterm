@@ -51,7 +51,7 @@ const SignIn = () => {
         login(access_token, userData);
 
         // Redirect to the home page
-        navigate('/homepage');
+        navigate('/home');
       }
     } catch (error) {
       setMessage('Sign in failed. Try again!');
