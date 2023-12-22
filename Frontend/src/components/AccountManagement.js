@@ -35,7 +35,7 @@ export default function AccountManagement() {
         {[
           { text: 'List', path: '/management/account/list', icon: <ManageAccountsIcon />, component: AccountListTab },
           { text: 'Pending', path: '/management/account/pending', icon: <PendingOutlinedIcon />, component: PendingAccountListTab },
-          { text: 'Activated', path: '/management/account/activated', icon: <CheckCircleOutlinedIcon />, component: ActivatedAccountListTab },
+          { text: 'Active', path: '/management/account/active', icon: <CheckCircleOutlinedIcon />, component: ActivatedAccountListTab },
           { text: 'Banned', path: '/management/account/banned',icon: <BlockIcon />, component: BannedAccountListTab },
         ].map(({ text, path, icon }, index) => (
           <SidebarItem
@@ -56,7 +56,7 @@ export default function AccountManagement() {
           <Route path="/" element={<AccountListTab />} />
           <Route path="/list" element={<AccountListTab />} />
           <Route path="pending" element={<PendingAccountListTab />} />
-          <Route path="/activated" element={<ActivatedAccountListTab />} />
+          <Route path="/active" element={<ActivatedAccountListTab />} />
           <Route path="/banned" element={<BannedAccountListTab />} />
           <Route path="details/:username" element={<UserDetails />} />
         </Routes>

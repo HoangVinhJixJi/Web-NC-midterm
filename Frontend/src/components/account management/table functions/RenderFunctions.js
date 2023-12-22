@@ -25,7 +25,6 @@ function renderStatus(status) {
   }
 }
 function sortTable(a, b, sortedBy, sortOrder) {
-  console.log(sortOrder);
   if (sortedBy === 'User Info') {
     const lastNameA = a.fullName.split(' ').pop().toLowerCase();
     const lastNameB = b.fullName.split(' ').pop().toLowerCase();
@@ -33,6 +32,34 @@ function sortTable(a, b, sortedBy, sortOrder) {
   }
   // Các trường hợp sắp xếp khác
 }
+function filterAccounts(accounts, filter) {
+  return accounts.filter((account) => {
+    return Object.keys(filter).every(key => {
+      switch (key) {
+        case "status":
+          return filter[key] !== "" ? account[key] === filter[key] : true;
+        case "action":
+          if (filter[key] !== "") {
+            if (filter[key].toLowerCase() === "active" && account.status === "Pending") {
+              return true;
+            }
+            else if (filter[key].toLowerCase() === "ban" && account.status === "Active") {
+              return true;
+            }
+            else if (filter[key].toLowerCase() === "unban" && account.status === "Banned") {
+              return true;
+            }
+            return false;
+          }
+          return true;
+        // Các trường hợp lọc khác
+        // ...
+        default:
+          return true;
+      }
+    });
+  });
+}
 export default function RenderFunctions() {
-  return { renderTableColumnTitle, renderStatus, sortTable };
+  return { renderTableColumnTitle, renderStatus, sortTable, filterAccounts };
 }

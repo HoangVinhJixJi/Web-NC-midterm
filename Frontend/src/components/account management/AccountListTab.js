@@ -8,8 +8,13 @@ import {
 import React, {useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
 import AccountItem from "./table item/AccountItem";
+import NoResultsFound from "./NoResultsFound";
+import SearchBar from "../search and filter/SearchBar";
+import Filter from "../search and filter/Filter";
 
 const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
+const status = ["Pending", "Active", "Banned"];
+const actions = ["ACTIVE", "BAN", "UNBAN"];
 export default function AccountListTab() {
   const [accounts, setAccounts] = useState([
     {
@@ -75,8 +80,15 @@ export default function AccountListTab() {
       status: "Banned",
       username: "huutruc26"
     }
-  ])
-  const { renderTableColumnTitle, sortTable } = RenderFunctions();
+  ]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDisplayFilterSide, setIsDisplayFilterSide] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [isDisplayClearStatusButton, setIsDisplayClearStatusButton] = useState(false);
+  const [selectedAction, setSelectedAction] = useState("");
+  const [isDisplayClearActionButton, setIsDisplayClearActionButton] = useState(false);
+  const [filteredAccounts, setFilteredAccounts] = useState([]);
+  const { renderTableColumnTitle, sortTable, filterAccounts } = RenderFunctions();
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
 
@@ -115,9 +127,59 @@ export default function AccountListTab() {
                    onUnbanClick={() => handleUnbanClick(account.userId)} />
     ));
   }
-
+  function handleSearchClick() {
+    setIsDisplayFilterSide(true);
+  }
+  function handleFilterByStatusSelect(event) {
+    setSelectedStatus(event.target.value);
+    setIsDisplayClearStatusButton(true);
+    setFilteredAccounts(filterAccounts(accounts, { status: event.target.value, action: selectedAction }));
+  }
+  function handleFilterByActionSelect(event) {
+    setSelectedAction(event.target.value);
+    setIsDisplayClearActionButton(true);
+    setFilteredAccounts(filterAccounts(accounts, { action: event.target.value, status: selectedStatus }));
+  }
+  function handleClearStatusClick() {
+    setSelectedStatus("");
+    setIsDisplayClearStatusButton(false);
+    setFilteredAccounts(filterAccounts(accounts, { action: selectedAction }));
+  }
+  function handleClearActionClick() {
+    setSelectedAction("");
+    setIsDisplayClearActionButton(false);
+    setFilteredAccounts(filterAccounts(accounts, { status: selectedStatus }));
+  }
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
+        <SearchBar
+          placeholder="Search User ID, Name"
+          searchTerm={searchTerm}
+          onSearchTermChange={(e) => setSearchTerm(e.target.value)}
+          onSearchClick={handleSearchClick}
+        />
+        {isDisplayFilterSide &&
+          <>
+            <Filter
+              name="Status"
+              options={status}
+              isDisplayClearButton={isDisplayClearStatusButton}
+              onClearClick={handleClearStatusClick}
+              selectedOption={selectedStatus}
+              onFilterSelect={handleFilterByStatusSelect}
+            />
+            <Filter
+              name="Action"
+              options={actions}
+              isDisplayClearButton={isDisplayClearActionButton}
+              onClearClick={handleClearActionClick}
+              selectedOption={selectedAction}
+              onFilterSelect={handleFilterByActionSelect}
+            />
+          </>
+        }
+      </Container>
       <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
         <TableContainer>
           <Table>
@@ -127,7 +189,9 @@ export default function AccountListTab() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {renderAccountList(accounts)}
+              {isDisplayClearStatusButton || isDisplayClearActionButton
+                ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFound />
+                : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFound />}
             </TableBody>
           </Table>
         </TableContainer>

@@ -15,7 +15,7 @@ export default function PendingAccountItem({ user, onActiveClick }) {
         </Stack>
       </TableCell>
       <TableCell>
-        <Button variant="contained" color="secondary" onClick={onActiveClick}>
+        <Button variant="contained" color="primary" onClick={onActiveClick}>
           Active
         </Button>
       </TableCell>

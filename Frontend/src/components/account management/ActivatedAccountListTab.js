@@ -8,6 +8,7 @@ import {
 import RenderFunctions from "./table functions/RenderFunctions";
 import React, {useState} from "react";
 import ActivatedAccountItem from "./table item/ActivatedAccountItem";
+import SearchBar from "../search and filter/SearchBar";
 
 const titleNames = [ "User ID", "User Info", "Action", "Details" ];
 export default function ActivatedAccountListTab() {
@@ -67,6 +68,7 @@ export default function ActivatedAccountListTab() {
       username: "huutruc26"
     }
   ]);
+  const [searchTerm, setSearchTerm] = useState("");
   const { renderTableColumnTitle, sortTable } = RenderFunctions();
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
@@ -91,9 +93,20 @@ export default function ActivatedAccountListTab() {
       <ActivatedAccountItem user={account} onBanClick={() => handleBanClick(account.userId)} />
     ));
   }
+  function handleSearchClick() {
+
+  }
 
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
+        <SearchBar
+          placeholder="Search User ID, Name"
+          searchTerm={searchTerm}
+          onSearchTermChange={(e) => setSearchTerm(e.target.value)}
+          onSearchClick={handleSearchClick}
+        />
+      </Container>
       <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
         <TableContainer>
           <Table>

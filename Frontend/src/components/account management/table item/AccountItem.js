@@ -1,9 +1,14 @@
-import {Avatar, Button, ListItemAvatar, Stack, TableCell, TableRow} from "@mui/material";
+import {Avatar, Button, ListItemAvatar, ListItemIcon, Select, Stack, TableCell, TableRow} from "@mui/material";
 import {Link} from "react-router-dom";
 import React from "react";
 import RenderFunctions from "../table functions/RenderFunctions";
-import Status from "./column/Status";
+import SettingsIcon from '@mui/icons-material/Settings';
 
+const Actions = {
+  pending: ["ACTIVE"],
+  active: ["BAN"],
+  banned: ["UNBAN", "DELETE"]
+}
 export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanClick }) {
   const { renderStatus } = RenderFunctions();
 
@@ -22,21 +27,9 @@ export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanCl
         {renderStatus(user.status)}
       </TableCell>
       <TableCell>
-        {user.status === 'Pending' && (
-          <Button variant="contained" color="secondary" onClick={onActiveClick}>
-            Active
-          </Button>
-        )}
-        {user.status === 'Active' && (
-          <Button variant="contained" color="primary" onClick={onBanClick}>
-            Ban
-          </Button>
-        )}
-        {user.status === 'Banned' && (
-          <Button variant="contained" color="inherit" onClick={onUnbanClick}>
-            Unban
-          </Button>
-        )}
+        <Button direction="row" alignItems="center" sx={{minWidth: 0, color: "gray"}}>
+          <SettingsIcon />
+        </Button>
       </TableCell>
       <TableCell>
         <Link to={`mangement/account/details/${user.username}`} underline="hover">
