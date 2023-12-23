@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import React, {useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
-import PendingAccountItem from "./table item/PendingAccountItem";
+import PendingAccountItem from "./table item/account item/PendingAccountItem";
 import SearchBar from "../search and filter/SearchBar";
 import Filter from "../search and filter/Filter";
 

@@ -3,7 +3,11 @@ import React from "react";
 import PendingOutlinedIcon from "@mui/icons-material/PendingOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
-import Status from "../table item/column/Status";
+import Status from "../table item/item widgets/Status";
+import LockPersonIcon from '@mui/icons-material/LockPerson';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 function renderTableColumnTitle(titleNames, handleSort) {
   return titleNames.map((columnName) => (
@@ -42,11 +46,11 @@ function filterAccounts(accounts, filter) {
           if (filter[key] !== "") {
             if (filter[key].toLowerCase() === "active" && account.status === "Pending") {
               return true;
-            }
-            else if (filter[key].toLowerCase() === "ban" && account.status === "Active") {
+            } else if (filter[key].toLowerCase() === "ban" && account.status === "Active") {
               return true;
-            }
-            else if (filter[key].toLowerCase() === "unban" && account.status === "Banned") {
+            } else if (filter[key].toLowerCase() === "unban" && account.status === "Banned") {
+              return true;
+            } else if (filter[key].toLowerCase() === "delete" && account.status === "Banned") {
               return true;
             }
             return false;
@@ -60,6 +64,39 @@ function filterAccounts(accounts, filter) {
     });
   });
 }
+function renderActionButtonColor(action) {
+  switch (action) {
+    case "ACTIVE":
+      return "secondary";
+    case "BAN":
+      return "primary";
+    case "DELETE":
+      return "error";
+    default:
+      return "inherit"
+  }
+}
+function renderActionButtonIcon(action) {
+  switch (action) {
+    case "ACTIVE":
+      return <HowToRegIcon />;
+    case "BAN":
+      return <LockPersonIcon />;
+    case "UNBAN":
+      return <LockOpenIcon />;
+    case "DELETE":
+      return <DeleteForeverIcon />;
+    default:
+      return null;
+  }
+}
 export default function RenderFunctions() {
-  return { renderTableColumnTitle, renderStatus, sortTable, filterAccounts };
+  return {
+    renderTableColumnTitle,
+    renderStatus,
+    sortTable,
+    filterAccounts,
+    renderActionButtonColor,
+    renderActionButtonIcon,
+  };
 }

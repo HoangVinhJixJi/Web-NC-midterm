@@ -1,7 +1,7 @@
 import {ImageListItem, TableCell, Typography} from "@mui/material";
 import React from "react";
 
-export default function NoResultsFound() {
+export default function NoResultsFoundItem() {
   return (
     <TableCell colSpan={5}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

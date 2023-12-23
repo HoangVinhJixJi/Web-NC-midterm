@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import RenderFunctions from "./table functions/RenderFunctions";
 import React, {useState} from "react";
-import ActivatedAccountItem from "./table item/ActivatedAccountItem";
+import ActivatedAccountItem from "./table item/account item/ActivatedAccountItem";
 import SearchBar from "../search and filter/SearchBar";
 
 const titleNames = [ "User ID", "User Info", "Action", "Details" ];

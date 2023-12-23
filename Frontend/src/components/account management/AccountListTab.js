@@ -7,14 +7,14 @@ import {
 } from "@mui/material";
 import React, {useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
-import AccountItem from "./table item/AccountItem";
-import NoResultsFound from "./NoResultsFound";
+import AccountItem from "./table item/account item/AccountItem";
+import NoResultsFoundItem from "./table item/NoResultsFoundItem";
 import SearchBar from "../search and filter/SearchBar";
 import Filter from "../search and filter/Filter";
 
 const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
 const status = ["Pending", "Active", "Banned"];
-const actions = ["ACTIVE", "BAN", "UNBAN"];
+const actions = ["ACTIVE", "BAN", "UNBAN", "DELETE"];
 export default function AccountListTab() {
   const [accounts, setAccounts] = useState([
     {
@@ -104,27 +104,42 @@ export default function AccountListTab() {
     const updatedAccounts = accounts.map((account) => {
       return account.userId === userId ? {...account, status: 'Active'} : account;
     });
+    const updatedFilteredAccounts = filteredAccounts.filter((account) => account.userId !== userId);
     setAccounts(updatedAccounts);
+    setFilteredAccounts(updatedFilteredAccounts);
   }
   function handleBanClick(userId) {
     const updatedAccounts = accounts.map((account) => {
       return account.userId === userId ? {...account, status: 'Banned'} : account;
     });
+    const updatedFilteredAccounts = filteredAccounts.filter((account) => account.userId !== userId);
     setAccounts(updatedAccounts);
+    setFilteredAccounts(updatedFilteredAccounts);
   }
   function handleUnbanClick(userId) {
     const updatedAccounts = accounts.map((account) => {
       return account.userId === userId ? {...account, status: 'Active'} : account;
     });
+    const updatedFilteredAccounts = filteredAccounts.filter((account) => account.userId !== userId);
     setAccounts(updatedAccounts);
+    setFilteredAccounts(updatedFilteredAccounts);
+  }
+  function handleDeleteClick(userId) {
+    const updatedAccounts = accounts.filter((account) => account.userId !== userId);
+    const updatedFilteredAccounts = filteredAccounts.filter((account) => account.userId !== userId);
+    setAccounts(updatedAccounts);
+    setFilteredAccounts(updatedFilteredAccounts);
   }
   function renderAccountList(accounts) {
     const sortedAccounts = [...accounts].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
     return sortedAccounts.map((account) => (
-      <AccountItem user={account}
-                   onActiveClick={() => handleActiveClick(account.userId)}
-                   onBanClick={() => handleBanClick(account.userId)}
-                   onUnbanClick={() => handleUnbanClick(account.userId)} />
+      <AccountItem
+        user={account}
+        onActiveClick={() => handleActiveClick(account.userId)}
+        onBanClick={() => handleBanClick(account.userId)}
+        onUnbanClick={() => handleUnbanClick(account.userId)}
+        onDeleteClick={() => handleDeleteClick(account.userId)}
+      />
     ));
   }
   function handleSearchClick() {
@@ -150,6 +165,7 @@ export default function AccountListTab() {
     setIsDisplayClearActionButton(false);
     setFilteredAccounts(filterAccounts(accounts, { status: selectedStatus }));
   }
+
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
@@ -190,8 +206,8 @@ export default function AccountListTab() {
             </TableHead>
             <TableBody>
               {isDisplayClearStatusButton || isDisplayClearActionButton
-                ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFound />
-                : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFound />}
+                ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFoundItem />
+                : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFoundItem />}
             </TableBody>
           </Table>
         </TableContainer>

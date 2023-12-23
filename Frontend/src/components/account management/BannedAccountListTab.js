@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import React, {useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
-import BannedAccountItem from "./table item/BannedAccountItem";
+import BannedAccountItem from "./table item/account item/BannedAccountItem";
 import SearchBar from "../search and filter/SearchBar";
 
 const titleNames = [ "User ID", "User Info", "Start Time", "End Time", "Action", "Details" ];
@@ -114,9 +114,11 @@ export default function BannedAccountListTab() {
   function renderAccountList(accounts) {
     const sortedAccounts = [...accounts].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
     return sortedAccounts.map((account) => (
-      <BannedAccountItem user={account}
-                         onUnbanClick={() => handleUnbanClick(account.userId)}
-                         onDeleteClick={() => handleDeleteClick(account.userId)} />
+      <BannedAccountItem
+        user={account}
+        onUnbanClick={() => handleUnbanClick(account.userId)}
+        onDeleteClick={() => handleDeleteClick(account.userId)}
+      />
     ));
   }
   function handleSearchClick() {
