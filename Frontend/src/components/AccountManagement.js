@@ -3,17 +3,18 @@ import {Route, Routes, useLocation, useNavigate} from "react-router-dom";
 import Box from "@mui/material/Box";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import BlockIcon from '@mui/icons-material/Block';
-import AccountListTab from "./account management/AccountListTab";
-import PendingAccountListTab from "./account management/PendingAccountListTab";
-import ActivatedAccountListTab from "./account management/ActivatedAccountListTab";
-import BannedAccountListTab from "./account management/BannedAccountListTab";
+import AccountListTab from "./admin pages/account management/AccountListTab";
+import PendingAccountListTab from "./admin pages/account management/PendingAccountListTab";
+import ActivatedAccountListTab from "./admin pages/account management/ActivatedAccountListTab";
+import BannedAccountListTab from "./admin pages/account management/BannedAccountListTab";
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import MainContent from "./tab and sidebar/MainContent";
-import UserDetailsTab from "./account management/UserDetailsTab";
+import UserDetailsTab from "./admin pages/account management/UserDetailsTab";
 import Sidebar from "./Sidebar";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import Admin from "./Admin";
+import {useEffect, useState} from "react";
 
 const accountListTabs = [
   { text: 'List', path: '/management/account/list', icon: <ManageAccountsIcon />, component: AccountListTab },
@@ -24,6 +25,8 @@ const accountListTabs = [
 ];
 export default function AccountManagement() {
   const [currentTab, setCurrentTab] = React.useState('/management/account/list');
+  const [isFirstLoading, setIsFirstLoading] = useState(true);
+  const [isBack, setIsBack] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isDetailsPage = location.pathname.includes("/details/");
@@ -32,6 +35,24 @@ export default function AccountManagement() {
     setCurrentTab(path);
     navigate(path);
   };
+  useEffect(() => {
+    if (location.pathname === "/management/account") {
+      if (isFirstLoading) {
+        setIsFirstLoading(false);
+      } else if (isBack) {
+        setIsBack(false);
+        navigate(currentTab);
+      } else {
+        setCurrentTab("/management/account/list");
+      }
+    } else {
+      if (isDetailsPage) {
+        setIsBack(true);
+      } else {
+        setCurrentTab(location.pathname);
+      }
+    }
+  }, [location.pathname]);
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>

@@ -9,8 +9,8 @@ import React, {useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
 import AccountItem from "./table item/account item/AccountItem";
 import NoResultsFoundItem from "./table item/NoResultsFoundItem";
-import SearchBar from "../search and filter/SearchBar";
-import Filter from "../search and filter/Filter";
+import SearchBar from "../../search and filter/SearchBar";
+import Filter from "../../search and filter/Filter";
 
 const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
 const status = ["Pending", "Active", "Banned"];

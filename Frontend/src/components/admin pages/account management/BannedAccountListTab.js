@@ -10,7 +10,7 @@ import {
 import React, {useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
 import BannedAccountItem from "./table item/account item/BannedAccountItem";
-import SearchBar from "../search and filter/SearchBar";
+import SearchBar from "../../search and filter/SearchBar";
 
 const titleNames = [ "User ID", "User Info", "Start Time", "End Time", "Action", "Details" ];
 export default function BannedAccountListTab() {

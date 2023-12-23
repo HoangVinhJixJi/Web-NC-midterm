@@ -1,11 +1,11 @@
-import {Container, Grid, Table, TableBody, TableContainer, TableHead, TableRow} from "@mui/material";
-import SearchBar from "../../search and filter/SearchBar";
 import React, {useState} from "react";
 import RenderFunctions from "../table functions/RenderFunctions";
-import TeachingClassItem from "../table item/class item/TeachingClassItem";
+import {Container, Grid, Table, TableBody, TableContainer, TableHead, TableRow} from "@mui/material";
+import SearchBar from "../../../search and filter/SearchBar";
+import JoinedClassItem from "../table item/class item/JoinedClassItem";
 
-const titleNames = ["Class Name", "Creator", "Time of Participation", "Details"];
-export default function TeachingClassListTab() {
+const titleNames = ["Class Name", "Creator", "Time of Enrolling", "Details"];
+export default function JoinedClassListTab() {
   const [classes, setClasses] = useState([
     {
       classInfo: {
@@ -18,7 +18,7 @@ export default function TeachingClassListTab() {
         },
       },
       user: {
-        timeOfParticipation: "Sat Dec 23 2023 11:23:03 GMT+0700 (Indochina Time)",
+        timeOfEnrolling: "Sat Dec 23 2023 11:23:03 GMT+0700 (Indochina Time)",
       }
     }
   ]);
@@ -38,7 +38,7 @@ export default function TeachingClassListTab() {
   function renderAccountList(classes) {
     const sortedClasses = [...classes].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
     return sortedClasses.map((_class) => (
-      <TeachingClassItem _class={_class} />
+      <JoinedClassItem _class={_class} />
     ));
   }
   function handleSearchClick() {
