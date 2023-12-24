@@ -5,7 +5,7 @@ import {
   TableHead,
   TableRow
 } from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
 import AccountItem from "./table item/account item/AccountItem";
 import NoResultsFoundItem from "./table item/NoResultsFoundItem";
@@ -166,6 +166,10 @@ export default function AccountListTab() {
     setIsDisplayClearActionButton(false);
     setFilteredAccounts(filterAccounts(accounts, { status: selectedStatus }));
   }
+
+  useEffect(() => {
+
+  }, []);
 
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

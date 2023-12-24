@@ -14,6 +14,7 @@ import { ClassesModule } from './modules/classes/classes.module';
 import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/roles/roles.guard';
+import { AccountModule } from './modules/admin/management/account/account.module';
 
 @Module({
   imports: [
@@ -38,12 +39,9 @@ import { RolesGuard } from './auth/roles/roles.guard';
     EnrollmentsModule,
     ClassesModule,
     PendingInvitesModule,
+    AccountModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    AuthService,
-    { provide: APP_GUARD, useClass: RolesGuard },
-  ],
+  providers: [AppService, AuthService],
 })
 export class AppModule {}

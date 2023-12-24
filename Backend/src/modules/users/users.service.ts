@@ -5,6 +5,7 @@ import { User } from './schema/user.schema';
 import { UserInterface } from './interface/user.interface';
 import * as bcrypt from 'bcrypt';
 import { CreateFbUserDto } from './dto/create-fb-user.dto';
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private usersModel: Model<User>) {}
@@ -130,5 +131,19 @@ export class UsersService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async getUserListByPage(param: { take: number; skip: number }) {
+    const total = await this.usersModel.countDocuments({
+      role: { $ne: 'admin' },
+    });
+    if (total === 0 || param.skip >= total) {
+      return [];
+    }
+    return await this.usersModel
+      .find({ role: { $ne: 'admin' } })
+      .skip(param.skip)
+      .limit(param.take)
+      .exec();
   }
 }
