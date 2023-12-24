@@ -1,7 +1,6 @@
 import {
   Container,
-  Grid,
-  Table,
+  Grid, Table,
   TableBody,
   TableContainer,
   TableHead,
@@ -11,6 +10,7 @@ import React, {useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
 import BannedAccountItem from "./table item/account item/BannedAccountItem";
 import SearchBar from "../../search and filter/SearchBar";
+import AdminPagination from "./AdminPagination";
 
 const titleNames = [ "User ID", "User Info", "Start Time", "End Time", "Action", "Details" ];
 export default function BannedAccountListTab() {
@@ -135,7 +135,7 @@ export default function BannedAccountListTab() {
           onSearchClick={handleSearchClick}
         />
       </Container>
-      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
+      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -149,6 +149,7 @@ export default function BannedAccountListTab() {
           </Table>
         </TableContainer>
       </Grid>
+      <AdminPagination count={10} />
     </Container>
   );
 }

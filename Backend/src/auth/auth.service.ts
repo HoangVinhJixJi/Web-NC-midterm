@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../modules/users/schema/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
+import { Role } from '../enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -34,17 +35,24 @@ export class AuthService {
         sub: user._id.toString(),
         username: user.username,
         email: user.email,
+        role: user.role,
       };
       return {
         userData: {
           fullName: user.fullName,
           avatar: user.avatar,
+          role: user.role,
         },
         access_token: await this.jwtService.signAsync(payload),
       };
     } else {
       throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
     }
+  }
+  respondSignIn(user: any, role: Role) {
+    return user.userData.role === role
+      ? user
+      : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
   //Handle profile user Facebook
   handleUserFacebook(fbUser: any) {
@@ -74,12 +82,14 @@ export class AuthService {
           sub: newUser['_id'].toString(),
           username: newUser['username'],
           email: newUser['email'],
+          role: newUser.role,
         };
         console.log('payload(newUser) in sigInFacebook auth-service:', payload);
         return {
           userData: {
             fullName: newUser.fullName,
             avatar: newUser.avatar,
+            role: newUser.role,
           },
           access_token: await this.jwtService.signAsync(payload),
         };
@@ -105,12 +115,14 @@ export class AuthService {
         sub: curUser['_id'].toString(),
         username: curUser['username'],
         email: curUser['email'],
+        role: curUser.role,
       };
       //console.log('payload in sigInFacebook auth-service: ', payload);
       return {
         userData: {
           fullName: curUser.fullName,
           avatar: curUser.avatar,
+          role: curUser.role,
         },
         access_token: await this.jwtService.signAsync(payload),
       };
@@ -131,11 +143,13 @@ export class AuthService {
     const hashedPassword = await this.usersService.hashPassword(password);
     const activationToken = uuidv4();
     const resetPasswordToken = null;
+    const role = Role.User;
     return await this.usersService.create({
       password: hashedPassword,
       isActivated: false,
       activationToken,
       resetPasswordToken,
+      role,
       ...otherData,
     });
   }
@@ -279,11 +293,13 @@ export class AuthService {
         sub: newUser._id.toString(),
         username: newUser.username,
         email: newUser.email,
+        role: newUser.role,
       };
       return {
         userData: {
           fullName: newUser.fullName,
           avatar: newUser.avatar,
+          role: newUser.role,
         },
         access_token: this.jwtService.sign(payload, {
           secret: this.configService.get<string>('jwt.secret'),
@@ -309,11 +325,13 @@ export class AuthService {
       sub: curUser._id.toString(),
       username: curUser.username,
       email: curUser.email,
+      role: curUser.role,
     };
     return {
       userData: {
         fullName: curUser.fullName,
         avatar: curUser.avatar,
+        role: curUser.role,
       },
       access_token: this.jwtService.sign(payload, {
         secret: this.configService.get<string>('jwt.secret'),

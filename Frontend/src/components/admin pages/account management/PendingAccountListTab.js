@@ -1,7 +1,6 @@
 import {
   Container,
-  Grid,
-  Table,
+  Grid, Table,
   TableBody,
   TableContainer,
   TableHead,
@@ -11,7 +10,7 @@ import React, {useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
 import PendingAccountItem from "./table item/account item/PendingAccountItem";
 import SearchBar from "../../search and filter/SearchBar";
-import Filter from "../../search and filter/Filter";
+import AdminPagination from "./AdminPagination";
 
 const titleNames = [ "User ID", "User Info", "Action", "Details" ];
 export default function PendingAccountListTab() {
@@ -110,7 +109,7 @@ export default function PendingAccountListTab() {
           onSearchClick={handleSearchClick}
         />
       </Container>
-      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
+      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -124,6 +123,7 @@ export default function PendingAccountListTab() {
           </Table>
         </TableContainer>
       </Grid>
+      <AdminPagination count={10} />
     </Container>
   );
 }

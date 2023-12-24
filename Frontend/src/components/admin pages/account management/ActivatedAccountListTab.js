@@ -1,7 +1,6 @@
 import {
   Container,
-  Grid,
-  Table, TableBody,
+  Grid, Table, TableBody,
   TableContainer, TableHead,
   TableRow
 } from "@mui/material";
@@ -9,6 +8,7 @@ import RenderFunctions from "./table functions/RenderFunctions";
 import React, {useState} from "react";
 import ActivatedAccountItem from "./table item/account item/ActivatedAccountItem";
 import SearchBar from "../../search and filter/SearchBar";
+import AdminPagination from "./AdminPagination";
 
 const titleNames = [ "User ID", "User Info", "Action", "Details" ];
 export default function ActivatedAccountListTab() {
@@ -107,7 +107,7 @@ export default function ActivatedAccountListTab() {
           onSearchClick={handleSearchClick}
         />
       </Container>
-      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
+      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -121,6 +121,7 @@ export default function ActivatedAccountListTab() {
           </Table>
         </TableContainer>
       </Grid>
+      <AdminPagination count={10} />
     </Container>
   );
 }

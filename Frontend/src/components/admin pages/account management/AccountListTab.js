@@ -11,6 +11,7 @@ import AccountItem from "./table item/account item/AccountItem";
 import NoResultsFoundItem from "./table item/NoResultsFoundItem";
 import SearchBar from "../../search and filter/SearchBar";
 import Filter from "../../search and filter/Filter";
+import AdminPagination from "./AdminPagination";
 
 const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
 const status = ["Pending", "Active", "Banned"];
@@ -196,7 +197,7 @@ export default function AccountListTab() {
           </>
         }
       </Container>
-      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
+      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
         <TableContainer>
           <Table>
             <TableHead>
@@ -206,12 +207,13 @@ export default function AccountListTab() {
             </TableHead>
             <TableBody>
               {isDisplayClearStatusButton || isDisplayClearActionButton
-                ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFoundItem />
-                : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFoundItem />}
+                ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFoundItem colSpan={5} />
+                : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFoundItem colSpan={5} />}
             </TableBody>
           </Table>
         </TableContainer>
       </Grid>
+      <AdminPagination count={10} />
     </Container>
   );
 }

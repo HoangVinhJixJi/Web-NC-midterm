@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
   const [emailRegistration, setEmailRegistration] = useState('');
 
@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = (token, userData) => {
     setIsLoggedIn(true);
+    setIsAdmin(userData.role === "admin");
     setUser(userData);
 
     // Lưu thông tin đăng nhập vào localStorage

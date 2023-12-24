@@ -6,7 +6,7 @@ import {useAuth as useAuthContext} from "../api/AuthContext";
 import api from "../api/api";
 
 export default function AdminSignIn() {
-  const { login, isLoggedIn } = useAuthContext();
+  const { login, isLoggedIn, isAdmin } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); // State for password visibility
@@ -15,46 +15,39 @@ export default function AdminSignIn() {
 
   useEffect(() => {
     // Kiểm tra trạng thái đăng nhập
-    if (isLoggedIn) {
+    if (isLoggedIn && isAdmin) {
       // Nếu đã đăng nhập, điều hướng về trang Admin
       navigate('/admin');
     }
   }, [isLoggedIn, navigate]);
 
   const handleSignIn = async (event) => {
-    navigate('/admin');
-    // try {
-    //   event.preventDefault();
-    //
-    //   // Validate inputs
-    //   if (!username || !password) {
-    //     setMessage('Please enter both username and password.');
-    //     return;
-    //   }
-    //
-    //   const u = {
-    //     username: username,
-    //     password: password,
-    //   };
-    //
-    //   console.log(u);
-    //
-    //   // Call the login API from the backend
-    //   const response = await api.post('/auth/admin-login', u);
-    //
-    //   // Handle API response
-    //   if (response.data) {
-    //     navigate('/admin');
-    //     console.log(response.data);
-    //     const { userData, access_token } = response.data;
-    //
-    //     // Save user information and token to localStorage or sessionStorage
-    //     login(access_token, userData);
-    //   }
-    // } catch (error) {
-    //   setMessage('Sign in failed. Try again!');
-    //   console.error('Sign in failed:', error);
-    // }
+    try {
+      event.preventDefault();
+      // Validate inputs
+      if (!username || !password) {
+        setMessage('Please enter both username and password.');
+        return;
+      }
+      const u = {
+        username: username,
+        password: password,
+      };
+      console.log(u);
+      // Call the login API from the backend
+      const response = await api.post('/auth/login?role=admin', u);
+      // Handle API response
+      if (response.data) {
+        navigate('/admin');
+        console.log(response.data);
+        const { userData, access_token } = response.data;
+        // Save user information and token to localStorage or sessionStorage
+        login(access_token, userData);
+      }
+    } catch (error) {
+      setMessage('Sign in failed. Try again!');
+      console.error('Sign in failed:', error);
+    }
   };
   return (
     <Container maxWidth="sm">
