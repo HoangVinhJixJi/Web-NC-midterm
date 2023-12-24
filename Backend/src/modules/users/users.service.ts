@@ -138,12 +138,14 @@ export class UsersService {
       role: { $ne: 'admin' },
     });
     if (total === 0 || param.skip >= total) {
-      return [];
+      return { totalPages: total, accounts: [] };
     }
-    return await this.usersModel
+    const totalPages = Math.ceil(total / param.take);
+    const users = await this.usersModel
       .find({ role: { $ne: 'admin' } })
       .skip(param.skip)
       .limit(param.take)
       .exec();
+    return { totalPages, users };
   }
 }

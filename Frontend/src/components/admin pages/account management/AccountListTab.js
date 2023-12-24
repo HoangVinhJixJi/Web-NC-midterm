@@ -12,76 +12,15 @@ import NoResultsFoundItem from "./table item/NoResultsFoundItem";
 import SearchBar from "../../search and filter/SearchBar";
 import Filter from "../../search and filter/Filter";
 import AdminPagination from "./AdminPagination";
+import {useNavigate} from "react-router-dom";
+import api, {setAuthToken} from "../../../api/api";
+import LoadingDataItem from "./table item/LoadingDataItem";
 
 const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
 const status = ["Pending", "Active", "Banned"];
 const actions = ["ACTIVE", "BAN", "UNBAN", "DELETE"];
 export default function AccountListTab() {
-  const [accounts, setAccounts] = useState([
-    {
-      userId: "182130350350365060",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Anh",
-      status: "Pending",
-      username: "nht2610"
-    },
-    {
-      userId: "182130350350214054",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Bình",
-      status: "Active",
-      username: "nht2002"
-    },
-    {
-      userId: "182130350350362391",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Cảnh",
-      status: "Banned",
-      username: "huutruc26"
-    },
-    {
-      userId: "182130350350210458",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Anh",
-      status: "Pending",
-      username: "nht2610"
-    },
-    {
-      userId: "182130748502140542",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Bình",
-      status: "Active",
-      username: "nht2002"
-    },
-    {
-      userId: "182130310550195391",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Cảnh",
-      status: "Banned",
-      username: "huutruc26"
-    },
-    {
-      userId: "182130151180365060",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Anh",
-      status: "Pending",
-      username: "nht2610"
-    },
-    {
-      userId: "182116050350247054",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Bình",
-      status: "Active",
-      username: "nht2002"
-    },
-    {
-      userId: "182156750240361191",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Cảnh",
-      status: "Banned",
-      username: "huutruc26"
-    }
-  ]);
+  const [accounts, setAccounts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDisplayFilterSide, setIsDisplayFilterSide] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -92,6 +31,10 @@ export default function AccountListTab() {
   const { renderTableColumnTitle, sortTable, filterAccounts } = RenderFunctions();
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
+  const navigate = useNavigate();
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   function handleSort(columnName) {
     if (sortedBy === columnName) {
@@ -166,10 +109,31 @@ export default function AccountListTab() {
     setIsDisplayClearActionButton(false);
     setFilteredAccounts(filterAccounts(accounts, { status: selectedStatus }));
   }
+  function handlePageChange(page) {
+    setCurrentPage(page);
+  }
 
   useEffect(() => {
-
-  }, []);
+    const fetchData = async (page) => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('Error fetching user data:', Error);
+          navigate('/admin-signin');
+        }
+        setAuthToken(token);
+        const response = await api.get(`/admin/management/account?page=${page}`);
+        console.log('response.data: ', response.data);
+        setAccounts(response.data['accounts']);
+        setFilteredAccounts(response.data['accounts']);
+        setTotalPages(response.data['totalPages']);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("Error fetching data: ", error);
+      }
+    };
+    fetchData(currentPage);
+  }, [currentPage]);
 
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -210,14 +174,15 @@ export default function AccountListTab() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {isDisplayClearStatusButton || isDisplayClearActionButton
-                ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFoundItem colSpan={5} />
-                : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFoundItem colSpan={5} />}
+              {isLoading ? <LoadingDataItem colSpan={5} />
+                : isDisplayClearStatusButton || isDisplayClearActionButton
+                  ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFoundItem colSpan={5} />
+                  : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFoundItem colSpan={5} />}
             </TableBody>
           </Table>
         </TableContainer>
       </Grid>
-      <AdminPagination count={10} />
+      <AdminPagination count={totalPages} onPageChange={handlePageChange} />
     </Container>
   );
 }

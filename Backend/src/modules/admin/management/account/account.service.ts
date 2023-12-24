@@ -7,11 +7,11 @@ export class AccountService {
 
   async getAccounts(page: number = 1, pageSize: number = 8) {
     const skip = (page - 1) * pageSize;
-    const users = await this.usersService.getUserListByPage({
+    const result = await this.usersService.getUserListByPage({
       skip,
       take: pageSize,
     });
-    return users.map((user) => {
+    const accounts = result.users.map((user) => {
       return {
         userId: user._id,
         username: user.username,
@@ -20,5 +20,6 @@ export class AccountService {
         status: user.isActivated ? 'Active' : 'Pending',
       };
     });
+    return { totalPages: result.totalPages, accounts };
   }
 }
