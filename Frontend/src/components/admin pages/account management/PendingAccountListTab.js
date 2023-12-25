@@ -6,74 +6,27 @@ import {
   TableHead,
   TableRow
 } from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import RenderFunctions from "./table functions/RenderFunctions";
 import PendingAccountItem from "./table item/account item/PendingAccountItem";
 import SearchBar from "../../search and filter/SearchBar";
 import AdminPagination from "./AdminPagination";
+import {useNavigate} from "react-router-dom";
+import api, {setAuthToken} from "../../../api/api";
+import LoadingDataItem from "./table item/LoadingDataItem";
+import NoResultsFoundItem from "./table item/NoResultsFoundItem";
 
 const titleNames = [ "User ID", "User Info", "Action", "Details" ];
 export default function PendingAccountListTab() {
-  const [accounts, setAccounts] = useState([
-    {
-      userId: "182130350350365060",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Anh",
-      username: "nht2610"
-    },
-    {
-      userId: "182130350350214054",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Bình",
-      username: "nht2002"
-    },
-    {
-      userId: "182130350350362391",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Cảnh",
-      username: "huutruc26"
-    },
-    {
-      userId: "182130350350210458",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Anh",
-      username: "nht2610"
-    },
-    {
-      userId: "182130748502140542",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Bình",
-      username: "nht2002"
-    },
-    {
-      userId: "182130310550195391",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Cảnh",
-      username: "huutruc26"
-    },
-    {
-      userId: "182130151180365060",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Anh",
-      username: "nht2610"
-    },
-    {
-      userId: "182116050350247054",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Bình",
-      username: "nht2002"
-    },
-    {
-      userId: "182156750240361191",
-      avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-      fullName: "Nguyễn Văn Cảnh",
-      username: "huutruc26"
-    }
-  ]);
+  const [accounts, setAccounts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { renderTableColumnTitle, sortTable } = RenderFunctions();
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
+  const navigate = useNavigate();
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   function handleSort(columnName) {
     if (sortedBy === columnName) {
@@ -98,6 +51,31 @@ export default function PendingAccountListTab() {
   function handleSearchClick() {
 
   }
+  function handlePageChange(page) {
+    setCurrentPage(page);
+  }
+
+  useEffect(() => {
+    const fetchData = async (page) => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('Error fetching user data:', Error);
+          navigate('/admin-signin');
+        }
+        setAuthToken(token);
+        const response = await api.get(`/admin/management/account?page=${page}&status=Pending`);
+        console.log('response.data: ', response.data);
+        setAccounts(response.data['accounts']);
+        setTotalPages(response.data['totalPages']);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("Error fetching data: ", error);
+      }
+    };
+    fetchData(currentPage);
+  }, [currentPage]);
 
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -118,12 +96,15 @@ export default function PendingAccountListTab() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {renderAccountList(accounts)}
+              {isLoading ? <LoadingDataItem colSpan={titleNames.length} />
+                : accounts.length > 0
+                  ? renderAccountList(accounts)
+                  : <NoResultsFoundItem colSpan={titleNames.length} />}
             </TableBody>
           </Table>
         </TableContainer>
       </Grid>
-      <AdminPagination count={10} />
+      <AdminPagination count={totalPages} onPageChange={handlePageChange} />
     </Container>
   );
 }

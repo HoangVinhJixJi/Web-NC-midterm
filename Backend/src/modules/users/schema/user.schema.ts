@@ -23,6 +23,8 @@ export class User extends mongoose.Document {
   facebookId: string;
   @Prop({ default: false })
   isActivated: boolean;
+  @Prop({ default: false })
+  isBanned: boolean;
   @Prop({ default: null })
   activationToken: string;
   @Prop({ default: null })

@@ -116,6 +116,7 @@ export default function AccountListTab() {
   useEffect(() => {
     const fetchData = async (page) => {
       try {
+        setIsLoading(true);
         const token = localStorage.getItem('token');
         if (!token) {
           console.error('Error fetching user data:', Error);
@@ -174,10 +175,10 @@ export default function AccountListTab() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {isLoading ? <LoadingDataItem colSpan={5} />
+              {isLoading ? <LoadingDataItem colSpan={titleNames.length} />
                 : isDisplayClearStatusButton || isDisplayClearActionButton
-                  ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFoundItem colSpan={5} />
-                  : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFoundItem colSpan={5} />}
+                  ? filteredAccounts.length > 0 ? renderAccountList(filteredAccounts) : <NoResultsFoundItem colSpan={titleNames.length} />
+                  : accounts.length > 0 ? renderAccountList(accounts) : <NoResultsFoundItem colSpan={titleNames.length} />}
             </TableBody>
           </Table>
         </TableContainer>

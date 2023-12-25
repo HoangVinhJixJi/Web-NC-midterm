@@ -133,16 +133,30 @@ export class UsersService {
     }
   }
 
-  async getUserListByPage(param: { take: number; skip: number }) {
-    const total = await this.usersModel.countDocuments({
-      role: { $ne: 'admin' },
-    });
+  async getUserListByPage(
+    param: { take: number; skip: number },
+    filter: any = {},
+  ) {
+    let condition: any = { role: { $ne: 'admin' } };
+    if (filter && Object.keys(filter).length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { status, ...rest } = filter;
+      switch (filter['status']) {
+        case 'Active':
+          filter = { ...rest, isActivated: true };
+          break;
+        case 'Pending':
+          filter = { ...rest, isActivated: false };
+      }
+      condition = { ...condition, ...filter };
+    }
+    const total = await this.usersModel.countDocuments(condition);
     if (total === 0 || param.skip >= total) {
       return { totalPages: total, accounts: [] };
     }
     const totalPages = Math.ceil(total / param.take);
     const users = await this.usersModel
-      .find({ role: { $ne: 'admin' } })
+      .find(condition)
       .skip(param.skip)
       .limit(param.take)
       .exec();
