@@ -90,6 +90,24 @@ function renderActionButtonIcon(action) {
       return null;
   }
 }
+function formatDateTime(dateTimeString) {
+  const options = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    timeZoneName: 'short',
+  };
+  const dateTime = new Date(dateTimeString);
+  if (isNaN(dateTime.getTime())) {
+    console.error('Invalid date:', dateTimeString);
+    return '';
+  }
+  const locale = navigator.language;
+  return new Date(dateTime).toLocaleString(locale, options);
+}
 export default function RenderFunctions() {
   return {
     renderTableColumnTitle,
@@ -98,5 +116,6 @@ export default function RenderFunctions() {
     filterAccounts,
     renderActionButtonColor,
     renderActionButtonIcon,
+    formatDateTime,
   };
 }

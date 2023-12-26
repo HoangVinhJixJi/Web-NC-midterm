@@ -6,8 +6,8 @@ import ActionButton from "../item widgets/ActionButton";
 
 export default function PendingAccountItem({ user, onActiveClick }) {
   return (
-    <TableRow key={user.userId}>
-      <TableCell>{user.userId}</TableCell>
+    <TableRow key={user['userId']}>
+      <TableCell>{user['userId']}</TableCell>
       <TableCell>
         <UserInfo
           linkTo={`/management/account/details/${user.username}`}

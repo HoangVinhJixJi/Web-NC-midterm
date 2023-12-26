@@ -18,11 +18,13 @@ const titleNames = [ "User ID", "User Info", "Action", "Details" ];
 export default function ActivatedAccountListTab() {
   const [accounts, setAccounts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchEnabled, setIsSearchEnabled] = useState(false);
+  const [isSearchClick, setIsSearchClick] = useState(false);
   const { renderTableColumnTitle, sortTable } = RenderFunctions();
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
   const navigate = useNavigate();
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -36,25 +38,36 @@ export default function ActivatedAccountListTab() {
   }
   function handleBanClick(userId) {
     const updatedAccounts = accounts.map((account) => {
-      return account.userId === userId ? {...account, status: 'Banned'} : account;
-    }).filter((account) => account.userId !== userId);
+      return account['userId'] === userId ? {...account, status: 'Banned'} : account;
+    }).filter((account) => account['userId'] !== userId);
     setAccounts(updatedAccounts);
   }
   function renderAccountList(accounts) {
     const sortedAccounts = [...accounts].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
     return sortedAccounts.map((account) => (
-      <ActivatedAccountItem user={account} onBanClick={() => handleBanClick(account.userId)} />
+      <ActivatedAccountItem user={account} onBanClick={() => handleBanClick(account['userId'])} />
     ));
   }
+  function handleSearchChange(event) {
+    setSearchTerm(event.target.value);
+    if (event.target.value === '') {
+      setIsSearchEnabled(false);
+      setCurrentPage(1);
+      setTotalPages(0);
+    } else {
+      setIsSearchEnabled(true);
+    }
+  }
   function handleSearchClick() {
-
+    setIsSearchClick(isSearchClick => !isSearchClick);
+    setCurrentPage(1);
   }
   function handlePageChange(page) {
     setCurrentPage(page);
   }
 
   useEffect(() => {
-    const fetchData = async (page) => {
+    const fetchData = async (searchTerm, page) => {
       try {
         setIsLoading(true);
         const token = localStorage.getItem('token');
@@ -63,7 +76,13 @@ export default function ActivatedAccountListTab() {
           navigate('/admin-signin');
         }
         setAuthToken(token);
-        const response = await api.get(`/admin/management/account?page=${page}&status=Active`);
+        let url = `/admin/management/account?`;
+        let query = `status=Active&&page=${page}`;
+        if (searchTerm !== '') {
+          query = query + `&&searchTerm=${searchTerm}`;
+        }
+        url = url + query;
+        const response = await api.get(url);
         console.log('response.data: ', response.data);
         setAccounts(response.data['accounts']);
         setTotalPages(response.data['totalPages']);
@@ -72,16 +91,17 @@ export default function ActivatedAccountListTab() {
         console.log("Error fetching data: ", error);
       }
     };
-    fetchData(currentPage);
-  }, [currentPage]);
+    fetchData(searchTerm, currentPage);
+  }, [currentPage, isSearchClick]);
 
   return (
-    <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '60em' }}>
       <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
         <SearchBar
           placeholder="Search User ID, Name"
           searchTerm={searchTerm}
-          onSearchTermChange={(e) => setSearchTerm(e.target.value)}
+          onSearchTermChange={handleSearchChange}
+          isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
         />
       </Container>

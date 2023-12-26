@@ -2,7 +2,7 @@ import {Button, InputAdornment, TextField} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import React from "react";
 
-export default function SearchBar({ placeholder, searchTerm, onSearchTermChange, onSearchClick }) {
+export default function SearchBar({ placeholder, searchTerm, onSearchTermChange, isButtonSearchEnabled, onSearchClick }) {
   return (
     <TextField
       sx={{ marginRight: 4, width: "25em" }}
@@ -15,7 +15,7 @@ export default function SearchBar({ placeholder, searchTerm, onSearchTermChange,
           </InputAdornment>),
         endAdornment: (
           <InputAdornment position="end">
-            <Button variant="contained" color="primary" onClick={onSearchClick}>
+            <Button variant="contained" color="primary" disabled={!isButtonSearchEnabled} onClick={onSearchClick}>
               Search
             </Button>
           </InputAdornment>

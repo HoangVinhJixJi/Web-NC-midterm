@@ -53,9 +53,9 @@ export default function UserDetailsTab() {
       {/* Main Content */}
       <MainContent>
         <Routes>
-          <Route path="/" element={<PersonalInfoTab />} />
-          <Route path="/personal-info" element={<PersonalInfoTab />} />
-          <Route path="/account-info" element={<AccountInfoTab />} />
+          <Route path="/" element={<PersonalInfoTab username={username} />} />
+          <Route path="/personal-info" element={<PersonalInfoTab username={username} />} />
+          <Route path="/account-info" element={<AccountInfoTab username={username} />} />
           <Route path="/teaching-class" element={<TeachingClassListTab />} />
           <Route path="/joined-class" element={<JoinedClassListTab />} />
         </Routes>

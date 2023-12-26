@@ -3,28 +3,13 @@ import React from "react";
 import DetailsLink from "../item widgets/DetailsLink";
 import UserInfo from "../item widgets/UserInfo";
 import ActionButton from "../item widgets/ActionButton";
+import RenderFunctions from '../../table functions/RenderFunctions';
 
-const OPTIONS = {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  timeZoneName: 'short',
-};
 export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick }) {
+  const { formatDateTime } = RenderFunctions();
+
   function renderTotalDaysBannedUnit(day) {
     return day === 1 ? 'day' : 'days';
-  }
-  function formatDateTime(dateTimeString) {
-    const dateTime = new Date(dateTimeString);
-    if (isNaN(dateTime.getTime())) {
-      console.error('Invalid date:', dateTimeString);
-      return '';
-    }
-    const locale = navigator.language;
-    return new Date(dateTime).toLocaleString(locale, OPTIONS);
   }
 
   return (
