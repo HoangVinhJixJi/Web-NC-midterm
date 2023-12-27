@@ -56,6 +56,9 @@ export default function AccountInfoTab({ username }) {
             {user.status === "Banned" && (
               <>
                 <Typography variant="subtitle1" gutterBottom>
+                  <b>Reason:</b> {user['bannedReason'] ?? NO_DATA}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
                   <b>Number of days banned:</b> {user['numOfDaysBanned'] ?? NO_DATA}
                 </Typography>
                 <Typography variant="subtitle1" gutterBottom>

@@ -7,5 +7,9 @@ export class BanUserDto {
 
   @IsString()
   @IsNotEmpty()
+  reason: string;
+
+  @IsString()
+  @IsNotEmpty()
   numOfDaysBanned: string;
 }

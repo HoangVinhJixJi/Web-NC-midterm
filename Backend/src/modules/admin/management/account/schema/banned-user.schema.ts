@@ -9,6 +9,8 @@ export class BannedUser extends mongoose.Document {
   @Prop()
   username: string;
   @Prop()
+  bannedReason: string;
+  @Prop()
   numOfDaysBanned: number;
   @Prop()
   bannedStartTime: Date;

@@ -13,7 +13,6 @@ import { Roles } from '../../../../auth/roles/roles.decorator';
 import { Role } from '../../../../enums/role.enum';
 import { AccountService } from './account.service';
 import { BanUserDto } from './dto/ban-user.dto';
-import { use } from 'passport';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -64,6 +63,7 @@ export class AccountController {
   ) {
     return this.accountService.banAccount(
       userData.userId,
+      userData.reason,
       userData.numOfDaysBanned,
     );
   }

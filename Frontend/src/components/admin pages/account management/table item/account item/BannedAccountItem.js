@@ -13,13 +13,13 @@ export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick })
   }
 
   return (
-    <TableRow key={user.userInfo['_id']}>
-      <TableCell>{user.userInfo['_id']}</TableCell>
+    <TableRow key={user['userInfo']['_id']}>
+      <TableCell>{user['userInfo']['_id']}</TableCell>
       <TableCell>
         <UserInfo
-          linkTo={`/management/account/details/${user.userInfo.username}`}
-          avatar={user.userInfo.avatar}
-          fullName={user.userInfo.fullName}
+          linkTo={`/management/account/details/${user['userInfo'].username}`}
+          avatar={user['userInfo'].avatar}
+          fullName={user['userInfo'].fullName}
         />
       </TableCell>
       <TableCell>
@@ -36,7 +36,7 @@ export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick })
         <ActionButton action="DELETE" handler={onDeleteClick} />
       </TableCell>
       <TableCell>
-        <DetailsLink linkTo={`/management/account/details/${user.userInfo.username}`} />
+        <DetailsLink linkTo={`/management/account/details/${user['userInfo'].username}`} />
       </TableCell>
     </TableRow>
   );

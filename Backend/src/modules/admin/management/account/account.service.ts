@@ -62,7 +62,7 @@ export class AccountService {
     });
     return { totalPages: result.totalPages, accounts };
   }
-  async banAccount(userId: string, numOfDaysBanned: any) {
+  async banAccount(userId: string, reason: string, numOfDaysBanned: any) {
     const user = await this.usersService.updateUserByField(userId, {
       isActivated: false,
       isBanned: true,
@@ -70,8 +70,10 @@ export class AccountService {
     if (user && !user.isActivated && user.isBanned) {
       console.log(user);
       const username = user.username;
+      const bannedReason = reason;
       const currentTimes = new Date();
-      const bannedDaysNumber = parseInt(numOfDaysBanned, 10) || 'Forever';
+      const bannedDaysNumber =
+        parseInt(numOfDaysBanned, 10) || FOREVER_BAN_DAYS;
       let expiredBans: any = null;
       if (typeof bannedDaysNumber === 'number') {
         expiredBans = dayjs(currentTimes)
@@ -82,6 +84,7 @@ export class AccountService {
       const newBannedUser = {
         userId,
         username,
+        bannedReason,
         numOfDaysBanned,
         bannedStartTime: currentTimes,
         bannedEndTime: expiredBans,
@@ -132,16 +135,19 @@ export class AccountService {
       .skip(param.skip)
       .limit(param.take)
       .exec();
-    const accounts = bannedUsers.map((user) => {
-      return {
-        userInfo: user.userId,
-        bannedInfo: {
-          numOfDaysBanned: user.numOfDaysBanned,
-          bannedStartTime: user.bannedStartTime,
-          bannedEndTime: user.bannedEndTime,
-        },
-      };
-    });
+    const accounts = bannedUsers
+      .map((user) => {
+        return {
+          userInfo: user.userId,
+          bannedInfo: {
+            bannedReason: user.bannedReason,
+            numOfDaysBanned: user.numOfDaysBanned,
+            bannedStartTime: user.bannedStartTime,
+            bannedEndTime: user.bannedEndTime,
+          },
+        };
+      })
+      .filter((user) => user.userInfo !== null);
     const totalPages = Math.ceil(accounts.length / param.take) || 0;
     return { totalPages, accounts };
   }
@@ -178,6 +184,7 @@ export class AccountService {
         .exec();
       responseData = {
         ...responseData,
+        bannedReason: bannedInfo.bannedReason,
         numOfDaysBanned: bannedInfo.numOfDaysBanned,
         bannedStartTime: bannedInfo.bannedStartTime,
         bannedEndTime: bannedInfo.bannedEndTime,
