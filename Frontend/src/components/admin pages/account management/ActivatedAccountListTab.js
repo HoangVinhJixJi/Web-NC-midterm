@@ -52,6 +52,7 @@ export default function ActivatedAccountListTab() {
     setSearchTerm(event.target.value);
     if (event.target.value === '') {
       setIsSearchEnabled(false);
+      setIsSearchClick(isSearchClick => !isSearchClick);
       setCurrentPage(1);
       setTotalPages(0);
     } else {

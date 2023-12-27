@@ -16,6 +16,7 @@ import {useNavigate} from "react-router-dom";
 import api, {setAuthToken} from "../../../api/api";
 import LoadingDataItem from "./table item/LoadingDataItem";
 import BanAccountDialog from './dialogs/BanAccountDialog';
+import UnbanAccountDialog from './dialogs/UnbanAccountDialog';
 
 const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
 const status = ["Pending", "Active", "Banned"];
@@ -39,6 +40,7 @@ export default function AccountListTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpenBanAccountDialog, setIsOpenBanAccountDialog] = useState(false);
+  const [isOpenUnbanAccountDialog, setIsOpenUnbanAccountDialog] = useState(false);
   const [actionUserId, setActionUserId] = useState('');
   const [actionUsername, setActionUsername] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -67,13 +69,10 @@ export default function AccountListTab() {
     setActionUsername(username);
     setIsOpenBanAccountDialog(true);
   }
-  function handleUnbanClick(userId) {
-    const updatedAccounts = accounts.map((account) => {
-      return account['userId'] === userId ? {...account, status: 'Active'} : account;
-    });
-    const updatedFilteredAccounts = filteredAccounts.filter((account) => account['userId'] !== userId);
-    setAccounts(updatedAccounts);
-    setFilteredAccounts(updatedFilteredAccounts);
+  function handleUnbanClick(userId, username) {
+    setActionUserId(userId);
+    setActionUsername(username);
+    setIsOpenUnbanAccountDialog(true);
   }
   function handleDeleteClick(userId) {
     const updatedAccounts = accounts.filter((account) => account['userId'] !== userId);
@@ -88,7 +87,7 @@ export default function AccountListTab() {
         user={account}
         onActiveClick={() => handleActiveClick(account['userId'])}
         onBanClick={() => handleBanClick(account['userId'], account['username'])}
-        onUnbanClick={() => handleUnbanClick(account['userId'])}
+        onUnbanClick={() => handleUnbanClick(account['userId'], account['username'])}
         onDeleteClick={() => handleDeleteClick(account['userId'])}
       />
     ));
@@ -99,6 +98,7 @@ export default function AccountListTab() {
       setIsDisplayClearStatusButton(false);
       setIsDisplayClearActionButton(false);
       setIsSearchEnabled(false);
+      setIsSearchClick(isSearchClick => !isSearchClick);
       setCurrentPage(1);
       setTotalPages(0);
     } else {
@@ -134,14 +134,20 @@ export default function AccountListTab() {
     setCurrentPage(page);
   }
   function handleCloseBanAccountDialog(userId) {
-    console.log(userId);
     setIsOpenBanAccountDialog(false);
     if (isSuccess) {
-      console.log(isSuccess);
       const updatedAccounts = accounts.map((account) => {
-        console.log(account['userId']);
-        console.log(account['userId'] === userId);
         return account['userId'] === userId ? {...account, status: 'Banned'} : account;
+      });
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
+  }
+  function handleCloseUnbanAccountDialog(userId) {
+    setIsOpenUnbanAccountDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.map((account) => {
+        return account['userId'] === userId ? {...account, status: 'Active'} : account;
       });
       setAccounts(updatedAccounts);
     }
@@ -241,6 +247,13 @@ export default function AccountListTab() {
         username={actionUsername}
         isOpenBanAccountDialog={isOpenBanAccountDialog}
         onCloseBanAccountDialog={handleCloseBanAccountDialog}
+        setIsSuccess={setIsSuccess}
+      />
+      <UnbanAccountDialog
+        userId={actionUserId}
+        username={actionUsername}
+        isOpenUnbanAccountDialog={isOpenUnbanAccountDialog}
+        onCloseUnbanAccountDialog={handleCloseUnbanAccountDialog}
         setIsSuccess={setIsSuccess}
       />
     </Container>

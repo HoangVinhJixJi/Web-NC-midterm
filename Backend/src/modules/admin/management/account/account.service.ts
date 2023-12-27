@@ -100,6 +100,18 @@ export class AccountService {
       HttpStatus.EXPECTATION_FAILED,
     );
   }
+  async unbanAccount(userId: string) {
+    const unbanUser = await this.bannedUserModel.findOneAndDelete({
+      userId: userId,
+    });
+    if (unbanUser) {
+      return this.usersService.updateUserByField(userId, {
+        isActivated: true,
+        isBanned: false,
+      });
+    }
+    return null;
+  }
   async getBannedAccounts(
     page: number = PAGE_NUMBER_DEFAULT,
     pageSize: number = PAGE_SIZE_NUMBER_DEFAULT,

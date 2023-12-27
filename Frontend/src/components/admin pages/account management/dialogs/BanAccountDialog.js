@@ -59,7 +59,6 @@ export default function BanAccountDialog(
         setMessageColor("error");
         return;
       }
-      let newMessageColor;
       setIsDisabled(true);
       const data = {
         userId: userId,
@@ -69,15 +68,14 @@ export default function BanAccountDialog(
       const response = await api.post('/admin/management/account/ban', data);
       console.log('Banned account info: ', response.data);
       if (response.data) {
+        setMessageColor("success");
         setMessage(`The account with username ${username} has been successfully banned`);
-        newMessageColor = "success";
         setIsSuccess(true);
       } else {
+        setMessageColor("error");
         setMessage(`Account ban failed, please try again.`);
-        newMessageColor = "error";
         setIsSuccess(false);
       }
-      setMessageColor(newMessageColor);
       setIsDisplayCloseButton(true);
     } catch (error) {
       console.log("Banning account error: ", error);
@@ -121,6 +119,10 @@ export default function BanAccountDialog(
             <MenuItem value={FOREVER_BAN_DAYS}>Forever</MenuItem>
           </Select>
         </FormControl>
+        <Typography>
+          {`By clicking the confirmation button below, you will lock the account for this user for ${days} days`}
+          A locked account will not be able to log in and operate on the website application.
+        </Typography>
         <Typography color={messageColor}>{message}</Typography>
       </DialogContent>
       <DialogActions>

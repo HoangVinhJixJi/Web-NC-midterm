@@ -79,7 +79,9 @@ export default function BannedAccountListTab() {
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
     if (event.target.value === '') {
+      setIsDisplayClearTDBButton(false);
       setIsSearchEnabled(false);
+      setIsSearchClick(isSearchClick => !isSearchClick);
       setCurrentPage(1);
       setTotalPages(0);
     } else {

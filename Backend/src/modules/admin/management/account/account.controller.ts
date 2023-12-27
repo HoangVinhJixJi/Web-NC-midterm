@@ -13,6 +13,7 @@ import { Roles } from '../../../../auth/roles/roles.decorator';
 import { Role } from '../../../../enums/role.enum';
 import { AccountService } from './account.service';
 import { BanUserDto } from './dto/ban-user.dto';
+import { UnbanUserDto } from './dto/unban-user.dto';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -66,6 +67,12 @@ export class AccountController {
       userData.reason,
       userData.numOfDaysBanned,
     );
+  }
+  @Post('unban')
+  async unbanAccount(
+    @Body(new ValidationPipe({ transform: true })) userData: UnbanUserDto,
+  ) {
+    return this.accountService.unbanAccount(userData.userId);
   }
   @Get('personal-info')
   async getPersonalInfo(@Query('username') username: string) {
