@@ -24,4 +24,7 @@ export class BannedUsersService {
       await this.accountService.unbanAccount(ban.userId.toString());
     }
   }
+  async getOneById(userId: any) {
+    return this.bannedUserModel.findOne({ userId: userId }).exec();
+  }
 }

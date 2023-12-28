@@ -149,4 +149,7 @@ export class UsersService {
       .exec();
     return { totalPages, users };
   }
+  async findOneById(userId: any) {
+    return this.usersModel.findOne({ _id: userId }).exec();
+  }
 }

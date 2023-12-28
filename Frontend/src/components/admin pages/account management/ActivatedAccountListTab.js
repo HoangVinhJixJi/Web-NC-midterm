@@ -13,6 +13,7 @@ import {useNavigate} from "react-router-dom";
 import api, {setAuthToken} from "../../../api/api";
 import LoadingDataItem from "./table item/LoadingDataItem";
 import NoResultsFoundItem from "./table item/NoResultsFoundItem";
+import BanAccountDialog from './dialogs/BanAccountDialog';
 
 const titleNames = [ "User ID", "User Info", "Action", "Details" ];
 export default function ActivatedAccountListTab() {
@@ -27,6 +28,10 @@ export default function ActivatedAccountListTab() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenBanAccountDialog, setIsOpenBanAccountDialog] = useState(false);
+  const [actionUserId, setActionUserId] = useState('');
+  const [actionUsername, setActionUsername] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
     if (sortedBy === columnName) {
@@ -36,16 +41,15 @@ export default function ActivatedAccountListTab() {
     }
     setSortedBy(columnName);
   }
-  function handleBanClick(userId) {
-    const updatedAccounts = accounts.map((account) => {
-      return account['userId'] === userId ? {...account, status: 'Banned'} : account;
-    }).filter((account) => account['userId'] !== userId);
-    setAccounts(updatedAccounts);
+  function handleBanClick(userId, username) {
+    setActionUserId(userId);
+    setActionUsername(username);
+    setIsOpenBanAccountDialog(true);
   }
   function renderAccountList(accounts) {
     const sortedAccounts = [...accounts].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
     return sortedAccounts.map((account) => (
-      <ActivatedAccountItem user={account} onBanClick={() => handleBanClick(account['userId'])} />
+      <ActivatedAccountItem user={account} onBanClick={() => handleBanClick(account['userId'], account['username'])} />
     ));
   }
   function handleSearchChange(event) {
@@ -65,6 +69,14 @@ export default function ActivatedAccountListTab() {
   }
   function handlePageChange(page) {
     setCurrentPage(page);
+  }
+  function handleCloseBanAccountDialog(userId) {
+    setIsOpenBanAccountDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.filter((account) => account['userId'] !== userId);
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
   }
 
   useEffect(() => {
@@ -124,6 +136,13 @@ export default function ActivatedAccountListTab() {
         </TableContainer>
       </Grid>
       <AdminPagination count={totalPages} onPageChange={handlePageChange} />
+      <BanAccountDialog
+        userId={actionUserId}
+        username={actionUsername}
+        isOpenBanAccountDialog={isOpenBanAccountDialog}
+        onCloseBanAccountDialog={handleCloseBanAccountDialog}
+        setIsSuccess={setIsSuccess}
+      />
     </Container>
   );
 }

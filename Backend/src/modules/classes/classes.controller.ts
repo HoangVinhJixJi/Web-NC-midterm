@@ -23,6 +23,7 @@ import { UsersService } from '../users/users.service';
 import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
 
 @Controller('classes')
 export class ClassesController {
@@ -35,7 +36,7 @@ export class ClassesController {
     private readonly configService: ConfigService,
   ) {}
   @Get('/')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard)
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, null, 'active');

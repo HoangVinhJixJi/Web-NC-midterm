@@ -8,6 +8,7 @@ import { User } from '../modules/users/schema/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
 import { Role } from '../enums/role.enum';
+import { BannedUsersService } from '../modules/admin/management/account/banned-users/banned-users.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
+    private bannedUsersService: BannedUsersService,
   ) {}
   async signIn(username: string, pass: string) {
     const user = await this.usersService.findOneByUsername(username);
@@ -23,10 +25,23 @@ export class AuthService {
       throw new HttpException('Username not found', HttpStatus.BAD_REQUEST);
     }
     if (!user.isActivated) {
-      throw new HttpException(
-        'Account has not been activated',
-        HttpStatus.UNAUTHORIZED,
-      );
+      if (!user.isBanned) {
+        throw new HttpException(
+          'Account has not been activated',
+          HttpStatus.UNAUTHORIZED,
+        );
+      } else {
+        const bannedInfo = await this.bannedUsersService.getOneById(user._id);
+        throw new HttpException(
+          {
+            bannedReason: bannedInfo.bannedReason,
+            numOfDaysBanned: bannedInfo.numOfDaysBanned,
+            bannedStartTime: bannedInfo.bannedStartTime,
+            bannedEndTime: bannedInfo.bannedEndTime,
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
     }
     const { password } = user;
     const isMatch = await bcrypt.compare(pass, password);

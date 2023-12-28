@@ -16,6 +16,7 @@ import LoadingDataItem from "./table item/LoadingDataItem";
 import NoResultsFoundItem from "./table item/NoResultsFoundItem";
 import api, {setAuthToken} from "../../../api/api";
 import Filter from '../../search and filter/Filter';
+import UnbanAccountDialog from './dialogs/UnbanAccountDialog';
 
 const titleNames = [ "User ID", "User Info", "Total Days Banned", "Start Time", "End Time", "Action", "Details" ];
 const totalDaysBanned = ["1 day", "7 days", "30 days", "Forever"];
@@ -34,6 +35,10 @@ export default function BannedAccountListTab() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenUnbanAccountDialog, setIsOpenUnbanAccountDialog] = useState(false);
+  const [actionUserId, setActionUserId] = useState('');
+  const [actionUsername, setActionUsername] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
     if (sortedBy === columnName) {
@@ -46,14 +51,13 @@ export default function BannedAccountListTab() {
   function handleFilterSwitchChange() {
     setIsDisplayFilterSide(isDisplayFilterSide => !isDisplayFilterSide);
   }
-  function handleUnbanClick(userId) {
-    const updatedAccounts = accounts.map((account) => {
-      return account['userId'] === userId ? {...account, status: 'Active'} : account;
-    }).filter((account) => account['userId'] !== userId);
-    setAccounts(updatedAccounts);
+  function handleUnbanClick(userId, username) {
+    setActionUserId(userId);
+    setActionUsername(username);
+    setIsOpenUnbanAccountDialog(true);
   }
   function handleDeleteClick(userId) {
-    const updatedAccounts = accounts.filter((account) => account['userId'] !== userId);
+    const updatedAccounts = accounts.filter((account) => account['userInfo']['_id'] !== userId);
     setAccounts(updatedAccounts);
   }
   function renderAccountList(accounts) {
@@ -61,8 +65,8 @@ export default function BannedAccountListTab() {
     return sortedAccounts.map((account) => (
       <BannedAccountItem
         user={account}
-        onUnbanClick={() => handleUnbanClick(account['userId'])}
-        onDeleteClick={() => handleDeleteClick(account['userId'])}
+        onUnbanClick={() => handleUnbanClick(account['userInfo']['_id'], account['userInfo']['username'])}
+        onDeleteClick={() => handleDeleteClick(account['userInfo']['_id'])}
       />
     ));
   }
@@ -95,6 +99,14 @@ export default function BannedAccountListTab() {
   }
   function handlePageChange(page) {
     setCurrentPage(page);
+  }
+  function handleCloseUnbanAccountDialog(userId) {
+    setIsOpenUnbanAccountDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.filter((account) => account['userInfo']['_id'] !== userId);
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
   }
 
   useEffect(() => {
@@ -174,6 +186,13 @@ export default function BannedAccountListTab() {
         </TableContainer>
       </Grid>
       <AdminPagination count={totalPages} onPageChange={handlePageChange} />
+      <UnbanAccountDialog
+        userId={actionUserId}
+        username={actionUsername}
+        isOpenUnbanAccountDialog={isOpenUnbanAccountDialog}
+        onCloseUnbanAccountDialog={handleCloseUnbanAccountDialog}
+        setIsSuccess={setIsSuccess}
+      />
     </Container>
   );
 }
