@@ -4,6 +4,8 @@ import { AccountController } from './account.controller';
 import { UsersModule } from '../../../users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BannedUserSchema } from './schema/banned-user.schema';
+import { BannedUsersService } from './banned-users/banned-users.service';
+import { BannedUsersModule } from './banned-users/banned-users.module';
 
 @Module({
   imports: [
