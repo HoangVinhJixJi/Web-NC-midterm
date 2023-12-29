@@ -12,6 +12,8 @@ import { MailModule } from './mail/mail.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { ClassesModule } from './modules/classes/classes.module';
 import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.module';
+import { AssignmentsModule } from './modules/assignments/assignments.module';
+import { GradesModule } from './modules/grades/grades.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.mo
     EnrollmentsModule,
     ClassesModule,
     PendingInvitesModule,
+    AssignmentsModule,
+    GradesModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],

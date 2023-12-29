@@ -14,15 +14,15 @@ export class AssignmentsService {
     private readonly jwtService: JwtService,
   ) {}
   async create(assignmentData: CreateAssignmentDto): Promise<Assignment> {
-    const newClassData = {
+    const newAssignmentData = {
       assignmentName: assignmentData.assignmentName,
-      assignmentcontent: assignmentData.assignmentContent,
+      assignmentContent: assignmentData.assignmentContent,
       maxScore: assignmentData.maxScore,
       createAt: new Date().toString(),
       classId: assignmentData.classId,
       gradeStructureId: assignmentData.gradeStructureId,
     };
-    const createAssignment = new this.assignmentsModel(newClassData);
+    const createAssignment = new this.assignmentsModel(newAssignmentData);
     const newAssignment = await createAssignment.save();
     return newAssignment;
   }
