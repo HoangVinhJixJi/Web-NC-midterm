@@ -4,8 +4,7 @@ import { AccountController } from './account.controller';
 import { UsersModule } from '../../../users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BannedUserSchema } from './schema/banned-user.schema';
-import { BannedUsersService } from './banned-users/banned-users.service';
-import { BannedUsersModule } from './banned-users/banned-users.module';
+import { ClassesModule } from '../../../classes/classes.module';
 
 @Module({
   imports: [
@@ -13,6 +12,7 @@ import { BannedUsersModule } from './banned-users/banned-users.module';
       { name: 'BannedUser', schema: BannedUserSchema },
     ]),
     UsersModule,
+    ClassesModule,
   ],
   providers: [AccountService],
   controllers: [AccountController],

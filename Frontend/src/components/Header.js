@@ -25,6 +25,7 @@ function Header() {
     const [anchorElManagement, setAnchorElManagement] = React.useState(null);
     const navigate = useNavigate();
     const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
+    console.log(isAdmin);
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };

@@ -4,6 +4,7 @@ import mongoose, { Model } from 'mongoose';
 import { BannedUser } from './schema/banned-user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import * as dayjs from 'dayjs';
+import { ClassesService } from '../../../classes/classes.service';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -14,6 +15,7 @@ export class AccountService {
   constructor(
     @InjectModel('BannedUser') private bannedUserModel: Model<BannedUser>,
     private usersService: UsersService,
+    private classesService: ClassesService,
   ) {}
 
   async getAccounts(
@@ -287,5 +289,32 @@ export class AccountService {
       else match = { fullName: { $regex: searchTerm, $options: 'i' } };
     }
     return { filter: filter.length !== 0 ? { $and: filter } : {}, match };
+  }
+  async getUserClasses(
+    username: any,
+    classType: string,
+    searchTerm: string = '',
+    page: number = PAGE_NUMBER_DEFAULT,
+    pageSize: number = PAGE_SIZE_NUMBER_DEFAULT,
+  ) {
+    const role = classType.toLowerCase() === 'teaching' ? 'teacher' : 'student';
+    const user = await this.usersService.findOneByUsername(username);
+    if (user) {
+      const classes = await this.classesService.getUserClassesForAdmin(
+        user._id,
+        role,
+        'active',
+        searchTerm,
+      );
+      const totalPages = Math.ceil(classes.length / pageSize);
+      if (page > totalPages) {
+        return { totalPages, classes: [] };
+      }
+      const skip = (page - 1) * pageSize;
+      const end =
+        skip + pageSize > classes.length ? classes.length : skip + pageSize;
+      return { totalPages, classes: classes.slice(skip, end) };
+    }
+    return null;
   }
 }

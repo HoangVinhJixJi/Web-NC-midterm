@@ -82,4 +82,22 @@ export class AccountController {
   async getAccountInfo(@Query('username') username: string) {
     return this.accountService.getAccountInfo(username);
   }
+  @Get('user-classes')
+  async getUserClasses(
+    @Query('username') username: string,
+    @Query('classType') classType: string,
+    @Query('searchTerm') searchTerm: string,
+    @Query('page') page: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    const pageNumber = parseInt(page, 10) || PAGE_NUMBER_DEFAULT;
+    const pageSizeNumber = parseInt(pageSize, 10) || PAGE_SIZE_NUMBER_DEFAULT;
+    return this.accountService.getUserClasses(
+      username,
+      classType,
+      searchTerm,
+      pageNumber,
+      pageSizeNumber,
+    );
+  }
 }

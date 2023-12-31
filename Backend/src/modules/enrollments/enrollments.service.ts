@@ -60,11 +60,13 @@ export class EnrollmentsService {
     populate: string,
     role: string,
     status: string,
+    classId: string = '',
   ) {
+    const extraFilter = classId !== '' ? { classId } : {};
     try {
       return role !== null
         ? await this.enrollmentsModel
-            .find({ userId, role })
+            .find({ userId, role, ...extraFilter })
             .populate({ path: populate, match: { status: status } })
         : await this.enrollmentsModel
             .find({ userId })
@@ -142,5 +144,8 @@ export class EnrollmentsService {
       classId: classId,
       userId: rmvId,
     });
+  }
+  async findEnrollments(filter: any = {}) {
+    return this.enrollmentsModel.find(filter).exec();
   }
 }

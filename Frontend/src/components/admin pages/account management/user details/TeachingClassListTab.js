@@ -1,31 +1,27 @@
 import {Container, Grid, Table, TableBody, TableContainer, TableHead, TableRow} from "@mui/material";
 import SearchBar from "../../../search and filter/SearchBar";
-import React, {useState} from "react";
+import React, {useEffect, useState} from 'react';
 import RenderFunctions from "../table functions/RenderFunctions";
 import TeachingClassItem from "../table item/class item/TeachingClassItem";
+import AdminPagination from '../AdminPagination';
+import LoadingDataItem from '../table item/LoadingDataItem';
+import NoResultsFoundItem from '../table item/NoResultsFoundItem';
+import api, {setAuthToken} from '../../../../api/api';
+import {useNavigate} from 'react-router-dom';
 
-const titleNames = ["Class Name", "Creator", "Time of Participation", "Details"];
-export default function TeachingClassListTab() {
-  const [classes, setClasses] = useState([
-    {
-      classInfo: {
-        classId: "862188350134365060",
-        className: "Lớp học tình thương",
-        creator: {
-          username: "nht2610",
-          fullName: "Nguyễn Hữu Trực",
-          avatar: "https://nhadepso.com/wp-content/uploads/2023/03/cap-nhat-99-hinh-anh-avatar-gau-cute-de-thuong-ngo-nghinh_1.jpg",
-        },
-      },
-      user: {
-        timeOfParticipation: "Sat Dec 23 2023 11:23:03 GMT+0700 (Indochina Time)",
-      }
-    }
-  ]);
+const titleNames = ["Class ID", "Creator", "Time of Participation", "Details"];
+export default function TeachingClassListTab({ username }) {
+  const [classes, setClasses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchEnabled, setIsSearchEnabled] = useState(false);
+  const [isSearchClick, setIsSearchClick] = useState(false);
   const { renderTableColumnTitle, sortTable } = RenderFunctions();
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
+  const navigate = useNavigate();
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   function handleSort(columnName) {
     if (sortedBy === columnName) {
@@ -35,23 +31,67 @@ export default function TeachingClassListTab() {
     }
     setSortedBy(columnName);
   }
-  function renderAccountList(classes) {
+  function renderClassList(classes) {
     const sortedClasses = [...classes].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
     return sortedClasses.map((_class) => (
       <TeachingClassItem _class={_class} />
     ));
   }
-  function handleSearchClick() {
-
+  function handlePageChange(page) {
+    setCurrentPage(page);
   }
+  function handleSearchChange(event) {
+    setSearchTerm(event.target.value);
+    if (event.target.value === '') {
+      setIsSearchEnabled(false);
+      setIsSearchClick(isSearchClick => !isSearchClick);
+      setCurrentPage(1);
+      setTotalPages(0);
+    } else {
+      setIsSearchEnabled(true);
+    }
+  }
+  function handleSearchClick() {
+    setIsSearchClick(isSearchClick => !isSearchClick);
+    setCurrentPage(1);
+  }
+
+  useEffect(() => {
+    const fetchData = async (searchTerm, page) => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('Error fetching user data:', Error);
+          navigate('/admin-signin');
+        }
+        setAuthToken(token);
+        let url = `/admin/management/account/user-classes?username=${username}&&classType=teaching`;
+        let query = `&&page=${page}`;
+        if (searchTerm !== '') {
+          query = query + `&&searchTerm=${searchTerm}`;
+        }
+        url = url + query;
+        const response = await api.get(url);
+        console.log('response.data: ', response.data);
+        setClasses(response.data['classes']);
+        setTotalPages(response.data['totalPages']);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("Error fetching data: ", error);
+      }
+    };
+    fetchData(searchTerm, currentPage);
+  }, [currentPage, isSearchClick]);
 
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '55em' }}>
       <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
         <SearchBar
-          placeholder="Search Class Name, Creator"
+          placeholder="Search Class ID"
           searchTerm={searchTerm}
-          onSearchTermChange={(e) => setSearchTerm(e.target.value)}
+          onSearchTermChange={handleSearchChange}
+          isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
         />
       </Container>
@@ -64,11 +104,15 @@ export default function TeachingClassListTab() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {renderAccountList(classes)}
+              {isLoading
+                ? <LoadingDataItem colSpan={titleNames.length} />
+                : classes.length > 0
+                  ? renderClassList(classes) : <NoResultsFoundItem colSpan={titleNames.length} />}
             </TableBody>
           </Table>
         </TableContainer>
       </Grid>
+      <AdminPagination count={totalPages} onPageChange={handlePageChange} />
     </Container>
   );
 }

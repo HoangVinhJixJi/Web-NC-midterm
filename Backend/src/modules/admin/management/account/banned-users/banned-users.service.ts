@@ -3,13 +3,13 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BannedUser } from '../schema/banned-user.schema';
-import { AccountService } from '../account.service';
+import { UsersService } from '../../../../users/users.service';
 
 @Injectable()
 export class BannedUsersService {
   constructor(
     @InjectModel('BannedUser') private bannedUserModel: Model<BannedUser>,
-    private accountService: AccountService,
+    private usersService: UsersService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -21,7 +21,18 @@ export class BannedUsersService {
       .exec();
     console.log(expiredBans.length);
     for (const ban of expiredBans) {
-      await this.accountService.unbanAccount(ban.userId.toString());
+      const unbanUser = await this.bannedUserModel.findOneAndDelete({
+        userId: ban.userId,
+      });
+      if (unbanUser) {
+        return this.usersService.updateUserByField(
+          unbanUser.userId.toString(),
+          {
+            isActivated: true,
+            isBanned: false,
+          },
+        );
+      }
     }
   }
   async getOneById(userId: any) {

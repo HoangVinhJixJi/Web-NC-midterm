@@ -15,9 +15,11 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
+      const userInfo = JSON.parse(storedUser);
+      console.log(userInfo.role);
       setIsLoggedIn(true);
-      setIsAdmin(storedUser.role === "admin");
-      setUser(JSON.parse(storedUser));
+      setIsAdmin(userInfo.role === "admin");
+      setUser(userInfo);
     }
   }, []);
 

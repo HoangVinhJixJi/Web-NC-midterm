@@ -1,7 +1,7 @@
 import { HttpStatus, HttpException, Injectable } from '@nestjs/common';
 import { Class } from './schema/class.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { PendingInvitesService } from '../pendingInvites/pendingInvites.service';
 import { PendingInvite } from '../pendingInvites/schema/pendingInvite.schema';
 import { JwtService } from '@nestjs/jwt';
@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class ClassesService {
@@ -20,6 +21,7 @@ export class ClassesService {
     private mailService: MailService,
     private pendingInvitesService: PendingInvitesService,
     private enrollmentsService: EnrollmentsService,
+    private usersService: UsersService,
     @InjectModel('Class') private classesModel: Model<Class>,
   ) {}
   async create(userData: CreateClassDto, userId: any): Promise<Class> {
@@ -45,7 +47,9 @@ export class ClassesService {
           role,
           status,
         );
-      return enrollments.map((enrollment) => enrollment['classId']);
+      return enrollments
+        .map((enrollment) => enrollment['classId'])
+        .filter((enrollment) => enrollment !== null);
     } catch (error) {
       throw new Error(error);
     }
@@ -310,5 +314,57 @@ export class ClassesService {
       };
     }
     throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+  }
+  async getUserClassesForAdmin(
+    userId: any,
+    role: string,
+    status: string,
+    searchTerm: any = '',
+  ) {
+    try {
+      const isValidObjectId = mongoose.Types.ObjectId.isValid(searchTerm);
+      const enrollments =
+        await this.enrollmentsService.getEnrollmentsPopulatedUser(
+          userId,
+          'classId',
+          role,
+          status,
+          isValidObjectId ? searchTerm : '',
+        );
+      return Promise.all(
+        enrollments.map(async (enrollment) => {
+          const user = { timeOfParticipation: enrollment.joinAt };
+          const classObject: any = enrollment.classId;
+          const classId = classObject._id;
+          let creatorInfo: any;
+          if (enrollment.isCreator) {
+            creatorInfo = await this.usersService.findOneById(
+              enrollment.userId,
+            );
+          } else {
+            const creator = await this.enrollmentsService.findEnrollments({
+              classId: enrollment.classId,
+              isCreator: true,
+            });
+            creatorInfo = await this.usersService.findOneById(
+              creator[0].userId,
+            );
+          }
+          return {
+            classInfo: {
+              classId,
+              creator: {
+                username: creatorInfo.username,
+                fullName: creatorInfo.fullName,
+                avatar: creatorInfo.avatar,
+              },
+            },
+            user,
+          };
+        }),
+      );
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }
