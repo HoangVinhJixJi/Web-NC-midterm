@@ -7,14 +7,14 @@ import {
   TableRow
 } from "@mui/material";
 import React, {useEffect, useState} from "react";
-import RenderFunctions from "./table functions/RenderFunctions";
+import RenderFunctions from "../table functions/RenderFunctions";
 import PendingAccountItem from "./table item/account item/PendingAccountItem";
 import SearchBar from "../../search and filter/SearchBar";
-import AdminPagination from "./AdminPagination";
+import AdminPagination from "../AdminPagination";
 import {useNavigate} from "react-router-dom";
 import api, {setAuthToken} from "../../../api/api";
-import LoadingDataItem from "./table item/LoadingDataItem";
-import NoResultsFoundItem from "./table item/NoResultsFoundItem";
+import LoadingDataItem from "../LoadingDataItem";
+import NoResultsFoundItem from "../NoResultsFoundItem";
 
 const titleNames = [ "User ID", "User Info", "Action", "Details" ];
 export default function PendingAccountListTab() {
@@ -22,21 +22,30 @@ export default function PendingAccountListTab() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
   const [isSearchClick, setIsSearchClick] = useState(false);
-  const { renderTableColumnTitle, sortTable } = RenderFunctions();
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
-  const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
+  const { renderTableColumnTitle } = RenderFunctions();
+  const [sortedTitleMap, setSortedTitleMap] = useState({
+    sortByUserId: { name: 'User ID', query: 'userId', order: 'asc' },
+    sortByUserInfo: { name: 'User Info', query: 'fullName', order: '' },
+  });
+  const [sortOrder, setSortOrder] = useState(sortedTitleMap.sortByUserId.order); // 'asc' hoặc 'desc'
+  const [sortedBy, setSortedBy] = useState(sortedTitleMap.sortByUserId.query);
   const navigate = useNavigate();
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   function handleSort(columnName) {
-    if (sortedBy === columnName) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortOrder('asc');
-    }
-    setSortedBy(columnName);
+    const updatedTitleMap = { ...sortedTitleMap };
+    Object.keys(updatedTitleMap).forEach((key) => {
+      if (updatedTitleMap[key].name === columnName) {
+        updatedTitleMap[key].order = updatedTitleMap[key].order === 'asc' ? 'desc' : 'asc';
+        setSortOrder(updatedTitleMap[key].order);
+        setSortedBy(updatedTitleMap[key].query);
+      } else {
+        updatedTitleMap[key].order = '';
+      }
+    });
+    setSortedTitleMap(updatedTitleMap);
   }
   function handleActiveClick(userId) {
     const updatedAccounts = accounts.map((account) => {
@@ -45,8 +54,7 @@ export default function PendingAccountListTab() {
     setAccounts(updatedAccounts);
   }
   function renderAccountList(accounts) {
-    const sortedAccounts = [...accounts].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
-    return sortedAccounts.map((account) => (
+    return accounts.map((account) => (
       <PendingAccountItem user={account} onActiveClick={() => handleActiveClick(account['userId'])} />
     ));
   }
@@ -70,7 +78,7 @@ export default function PendingAccountListTab() {
   }
 
   useEffect(() => {
-    const fetchData = async (searchTerm, page) => {
+    const fetchData = async (searchTerm, page, sortedBy, sortOrder) => {
       try {
         setIsLoading(true);
         const token = localStorage.getItem('token');
@@ -79,8 +87,8 @@ export default function PendingAccountListTab() {
           navigate('/admin-signin');
         }
         setAuthToken(token);
-        let url = `/admin/management/account?`;
-        let query = `status=Pending&&page=${page}`;
+        let url = `/admin/management/account?sortedBy=${sortedBy}&&sortOrder=${sortOrder}`;
+        let query = `&&status=Pending&&page=${page}`;
         if (searchTerm !== '') {
           query = query + `&&searchTerm=${searchTerm}`;
         }
@@ -94,8 +102,8 @@ export default function PendingAccountListTab() {
         console.log("Error fetching data: ", error);
       }
     };
-    fetchData(searchTerm, currentPage);
-  }, [currentPage, isSearchClick]);
+    fetchData(searchTerm, currentPage, sortedBy, sortOrder);
+  }, [currentPage, isSearchClick, sortedBy, sortOrder]);
 
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '60em' }}>
@@ -113,7 +121,7 @@ export default function PendingAccountListTab() {
           <Table>
             <TableHead>
               <TableRow>
-                {renderTableColumnTitle(titleNames, handleSort)}
+                {renderTableColumnTitle(titleNames, sortedTitleMap, handleSort)}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -125,7 +133,7 @@ export default function PendingAccountListTab() {
           </Table>
         </TableContainer>
       </Grid>
-      <AdminPagination count={totalPages} onPageChange={handlePageChange} />
+      <AdminPagination count={totalPages} curPage={currentPage} onPageChange={handlePageChange} />
     </Container>
   );
 }

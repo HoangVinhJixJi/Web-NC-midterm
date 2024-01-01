@@ -12,7 +12,12 @@ import { EnrollmentsService } from '../enrollments/enrollments.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { UsersService } from '../users/users.service';
+import { SortOrderEnum } from '../../enums/sort-order.enum';
 
+const ClassStatus = {
+  active: 'active',
+  archivated: 'archivated',
+};
 @Injectable()
 export class ClassesService {
   constructor(
@@ -29,7 +34,7 @@ export class ClassesService {
       className: userData.className,
       classCode: uuidv4(),
       description: userData.description,
-      status: 'active',
+      status: ClassStatus.active,
       createAt: new Date().toString(),
     };
     const createClass = new this.classesModel(newClassData);
@@ -229,7 +234,7 @@ export class ClassesService {
       return member.role === 'teacher'
         ? await this.classesModel.findOneAndUpdate(
             { _id: classId },
-            { status: 'archive' },
+            { status: ClassStatus.archivated },
             { new: true },
           )
         : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -242,7 +247,7 @@ export class ClassesService {
       return member.role === 'teacher'
         ? await this.classesModel.findOneAndUpdate(
             { _id: classId },
-            { status: 'active' },
+            { status: ClassStatus.active },
             { new: true },
           )
         : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -299,7 +304,7 @@ export class ClassesService {
   }
   private async isArchived(classId: string) {
     const { status } = await this.classesModel.findOne({ _id: classId }).exec();
-    return status !== null && status === 'archive';
+    return status !== null && status === ClassStatus.archivated;
   }
   async getClassInfoAndUserJoinedStatus(userId: any, classCode: string) {
     const _class = await this.classesModel.findOne({ classCode: classCode });
@@ -366,5 +371,91 @@ export class ClassesService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+  async getClassListByPage(
+    param: { take: number; skip: number },
+    filter: any = {},
+    sort: { sortedBy: string; sortOrder: string },
+  ) {
+    const total = await this.classesModel.countDocuments(filter);
+    if (total === 0 || param.skip >= total) {
+      return { totalPages: total, classes: [] };
+    }
+    const totalPages = Math.ceil(total / param.take);
+    let sortCondition: any = {};
+    switch (sort.sortedBy.toLowerCase()) {
+      case 'classid':
+        sortCondition = {
+          ...sortCondition,
+          classId:
+            sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
+        };
+        break;
+      case 'classname':
+        sortCondition = {
+          ...sortCondition,
+          className:
+            sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
+        };
+        break;
+      case 'creator.fullname':
+        break;
+      default:
+        sortCondition = { ...sortCondition, classId: 1 };
+    }
+    if (Object.keys(sortCondition).length !== 0) {
+      const classes = await this.classesModel
+        .find(filter)
+        .sort(sortCondition)
+        .skip(param.skip)
+        .limit(param.take)
+        .exec();
+      const classesWithCreator = await Promise.all(
+        classes.map(async (_class) => {
+          return {
+            classId: _class._id,
+            className: _class.className,
+            creator: await this.findClassCreator(_class._id),
+            status: _class.status,
+          };
+        }),
+      );
+      return { totalPages, classes: classesWithCreator };
+    } else {
+      const classes = await this.classesModel.find(filter).exec();
+      const classesWithCreator = await Promise.all(
+        classes.map(async (_class) => {
+          return {
+            classId: _class._id,
+            className: _class.className,
+            creator: await this.findClassCreator(_class._id),
+            status: _class.status,
+          };
+        }),
+      );
+      const sortedClasses = classesWithCreator.sort((a, b) => {
+        const lastNameA = a.creator.fullName.split(' ').pop().toLowerCase();
+        const lastNameB = b.creator.fullName.split(' ').pop().toLowerCase();
+        return sort.sortOrder.toLowerCase() === SortOrderEnum.Increase
+          ? lastNameA.localeCompare(lastNameB)
+          : lastNameB.localeCompare(lastNameA);
+      });
+      const finalClasses = sortedClasses.slice(
+        param.skip,
+        param.skip + param.take,
+      );
+      return { totalPages, classes: finalClasses };
+    }
+  }
+  private async findClassCreator(classId: any) {
+    const enrollment = await this.enrollmentsService.findEnrollments({
+      classId: classId,
+    });
+    const creator = await this.usersService.findOneById(enrollment[0].userId);
+    return {
+      username: creator.username,
+      fullName: creator.fullName,
+      avatar: creator.avatar,
+    };
   }
 }

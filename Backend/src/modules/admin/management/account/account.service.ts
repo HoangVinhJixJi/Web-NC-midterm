@@ -5,6 +5,7 @@ import { BannedUser } from './schema/banned-user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import * as dayjs from 'dayjs';
 import { ClassesService } from '../../../classes/classes.service';
+import { SortOrderEnum } from '../../../../enums/sort-order.enum';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -24,6 +25,8 @@ export class AccountService {
     searchTerm: string = '',
     status: string = '',
     action: string = '',
+    sortedBy: string = 'userId',
+    sortOrder: string = SortOrderEnum.Increase,
   ) {
     const skip = (page - 1) * pageSize;
     const filter = this.createFilterForGettingAccounts(
@@ -35,11 +38,9 @@ export class AccountService {
       return { totalPages: 0, accounts: [] };
     }
     const result = await this.usersService.getUserListByPage(
-      {
-        skip,
-        take: pageSize,
-      },
+      { skip, take: pageSize },
       filter,
+      { sortedBy, sortOrder },
     );
     const accounts = result.users.map((user) => {
       let resUser: any = {
@@ -119,6 +120,8 @@ export class AccountService {
     pageSize: number = PAGE_SIZE_NUMBER_DEFAULT,
     searchTerm: string = '',
     totalDaysBanned: string = '',
+    sortedBy: string = 'userId',
+    sortOrder: string = SortOrderEnum.Increase,
   ) {
     const skip = (page - 1) * pageSize;
     const result = this.createFilterForGettingBannedAccounts(
@@ -132,38 +135,104 @@ export class AccountService {
       },
       result.filter,
       result.match,
+      { sortedBy, sortOrder },
     );
   }
   private async getBannedAccountListByPage(
     param: { take: number; skip: number },
     filter: any = {},
     match: any = {},
+    sort: { sortedBy: string; sortOrder: string },
   ) {
-    const bannedUsers = await this.bannedUserModel
-      .find(filter)
-      .populate({
-        path: 'userId',
-        match: match,
-        select: 'username fullName avatar',
-      })
-      .skip(param.skip)
-      .limit(param.take)
-      .exec();
-    const accounts = bannedUsers
-      .map((user) => {
-        return {
-          userInfo: user.userId,
-          bannedInfo: {
-            bannedReason: user.bannedReason,
-            numOfDaysBanned: user.numOfDaysBanned,
-            bannedStartTime: user.bannedStartTime,
-            bannedEndTime: user.bannedEndTime,
-          },
+    const total = await this.bannedUserModel.countDocuments(filter);
+    if (total === 0 || param.skip >= total) {
+      return { totalPages: total, accounts: [] };
+    }
+    const totalPages = Math.ceil(total / param.take);
+    let sortCondition: any = {};
+    switch (sort.sortedBy.toLowerCase()) {
+      case 'userid':
+        sortCondition = {
+          ...sortCondition,
+          userId:
+            sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
         };
-      })
-      .filter((user) => user.userInfo !== null);
-    const totalPages = Math.ceil(accounts.length / param.take) || 0;
-    return { totalPages, accounts };
+        break;
+      case 'numofdaysbanned':
+        sortCondition = {
+          ...sortCondition,
+          numOfDaysBanned:
+            sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
+        };
+        break;
+      case 'fullname':
+        break;
+      default:
+        sortCondition = { ...sortCondition, userId: 1 };
+    }
+    console.log(sortCondition);
+    if (Object.keys(sortCondition).length !== 0) {
+      const bannedUsers = await this.bannedUserModel
+        .find(filter)
+        .sort(sortCondition)
+        .populate({
+          path: 'userId',
+          match: match,
+          select: 'username fullName avatar',
+        })
+        .skip(param.skip)
+        .limit(param.take)
+        .exec();
+      const accounts = bannedUsers
+        .map((user) => {
+          return {
+            userInfo: user.userId,
+            bannedInfo: {
+              bannedReason: user.bannedReason,
+              numOfDaysBanned: user.numOfDaysBanned,
+              bannedStartTime: user.bannedStartTime,
+              bannedEndTime: user.bannedEndTime,
+            },
+          };
+        })
+        .filter((user) => user.userInfo !== null);
+      return { totalPages, accounts };
+    } else {
+      const bannedUsers = await this.bannedUserModel
+        .find(filter)
+        .populate({
+          path: 'userId',
+          match: match,
+          select: 'username fullName avatar',
+        })
+        .exec();
+      const accounts = bannedUsers
+        .map((user) => {
+          return {
+            userInfo: user.userId,
+            bannedInfo: {
+              bannedReason: user.bannedReason,
+              numOfDaysBanned: user.numOfDaysBanned,
+              bannedStartTime: user.bannedStartTime,
+              bannedEndTime: user.bannedEndTime,
+            },
+          };
+        })
+        .filter((user) => user.userInfo !== null);
+      const sortedAccounts = accounts.sort((a, b) => {
+        const userInfoObjA: any = a.userInfo;
+        const userInfoObjB: any = b.userInfo;
+        const lastNameA = userInfoObjA.fullName.split(' ').pop().toLowerCase();
+        const lastNameB = userInfoObjB.fullName.split(' ').pop().toLowerCase();
+        return sort.sortOrder.toLowerCase() === SortOrderEnum.Increase
+          ? lastNameA.localeCompare(lastNameB)
+          : lastNameB.localeCompare(lastNameA);
+      });
+      return {
+        totalPages,
+        accounts: sortedAccounts.slice(param.skip, param.skip + param.take),
+      };
+    }
   }
   async getPersonalInfo(username: string) {
     const user = await this.usersService.findOneByUsername(username);

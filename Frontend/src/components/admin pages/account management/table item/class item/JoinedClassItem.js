@@ -1,6 +1,6 @@
 import {TableCell, TableRow} from "@mui/material";
-import UserInfo from "../item widgets/UserInfo";
-import DetailsLink from "../item widgets/DetailsLink";
+import UserInfo from "../../../item widgets/UserInfo";
+import DetailsLink from "../../../item widgets/DetailsLink";
 import React from "react";
 
 export default function JoinedClassItem({ _class }) {

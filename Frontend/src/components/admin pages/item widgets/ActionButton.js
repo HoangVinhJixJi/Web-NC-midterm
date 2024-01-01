@@ -1,6 +1,6 @@
 import {Button, ListItemIcon, Stack} from "@mui/material";
 import React from "react";
-import RenderFunctions from "../../table functions/RenderFunctions";
+import RenderFunctions from "../table functions/RenderFunctions";
 
 export default function ActionButton({ action, handler, sx }) {
   const { renderActionButtonColor, renderActionButtonIcon } = RenderFunctions();
@@ -15,7 +15,7 @@ export default function ActionButton({ action, handler, sx }) {
         <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
           {renderActionButtonIcon(action)}
         </ListItemIcon>
-        {action}
+        {action.toUpperCase()}
       </Stack>
     </Button>
   );

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Container, CssBaseline, Box } from '@mui/material';
 import { AuthProvider } from './api/AuthContext';
 import Header from './components/Header'; 
@@ -18,8 +18,8 @@ import ForgotPassword from "./components/ForgotPassword";
 import Classroom from './components/Classroom';
 import AdminSignIn from "./components/AdminSignIn";
 import Admin from "./components/Admin";
-import AccountManagement from "./components/AccountManagement";
-import ClassManagement from "./components/ClassManagement";
+import AdminAccountManagement from "./components/AdminAccountManagement";
+import AdminClassManagement from './components/AdminClassManagement';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -46,8 +46,8 @@ const App = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/admin-signin" element={<AdminSignIn />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="/management/account/*" element={<AccountManagement />} />
-            <Route path="/management/class/*" element={<ClassManagement />} />
+            <Route path="/management/account/*" element={<AdminAccountManagement />} />
+            <Route path="/management/class/*" element={<AdminClassManagement />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />

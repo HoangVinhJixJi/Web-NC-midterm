@@ -1,30 +1,26 @@
-import {Button, Menu, TableCell, TableRow} from "@mui/material";
-import React, {useState} from "react";
-import RenderFunctions from "../../../table functions/RenderFunctions";
+import {Button, Menu, TableCell, TableRow} from '@mui/material';
+import UserInfo from '../../item widgets/UserInfo';
 import SettingsIcon from '@mui/icons-material/Settings';
-import MenuItem from "@mui/material/MenuItem";
-import DetailsLink from "../../../item widgets/DetailsLink";
-import UserInfo from "../../../item widgets/UserInfo";
-import ActionButton from "../../../item widgets/ActionButton";
+import DetailsLink from '../../item widgets/DetailsLink';
+import React, {useState} from 'react';
+import MenuItem from '@mui/material/MenuItem';
+import ActionButton from '../../item widgets/ActionButton';
+import RenderFunctions from '../../table functions/RenderFunctions';
 
 const Actions = {
-  pending: ["ACTIVE"],
-  active: ["BAN"],
-  banned: ["UNBAN", "DELETE"]
+  archivated: ["RESTORE", "DELETE"],
+  active: ["ARCHIVE"],
 }
-export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanClick, onDeleteClick }) {
+export default function ClassItem({ _class, onArchiveClick, onRestoreClick, onDeleteClick }) {
   const { renderStatus } = RenderFunctions();
   const [anchorElActions, setAnchorElActions] = useState(null);
-
   function renderActionButtonHandler(action) {
-    switch (action) {
-      case "ACTIVE":
-        return onActiveClick;
-      case "BAN":
-        return onBanClick;
-      case "UNBAN":
-        return onUnbanClick;
-      case "DELETE":
+    switch (action.toLowerCase()) {
+      case "archive":
+        return onArchiveClick;
+      case "restore":
+        return onRestoreClick;
+      case "delete":
         return onDeleteClick;
       default:
         return null;
@@ -45,17 +41,18 @@ export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanCl
   }
 
   return (
-    <TableRow key={user.userId}>
-      <TableCell>{user.userId}</TableCell>
+    <TableRow key={_class['classId']}>
+      <TableCell>{_class['classId']}</TableCell>
+      <TableCell>{_class['className']}</TableCell>
       <TableCell>
         <UserInfo
-          linkTo={`/management/account/details/${user.username}`}
-          avatar={user.avatar}
-          fullName={user.fullName}
+          linkTo={`/management/account/details/${_class['creator']['username']}`}
+          avatar={_class['creator']['avatar']}
+          fullName={_class['creator']['fullName']}
         />
       </TableCell>
       <TableCell>
-        {renderStatus(user.status)}
+        {renderStatus(_class['status'])}
       </TableCell>
       <TableCell>
         <Button
@@ -78,13 +75,12 @@ export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanCl
           open={Boolean(anchorElActions)}
           onClose={handleCloseActionMenu}
         >
-          {user.status === "Pending" && renderActionMenu(Actions.pending)}
-          {user.status === "Active" && renderActionMenu(Actions.active)}
-          {user.status === "Banned" && renderActionMenu(Actions.banned)}
+          {_class['status'] === "active" && renderActionMenu(Actions.active)}
+          {_class['status'] === "archivated" && renderActionMenu(Actions.archivated)}
         </Menu>
       </TableCell>
       <TableCell>
-        <DetailsLink linkTo={`/management/account/details/${user.username}`} />
+        <DetailsLink linkTo={`/management/class/details/${_class['classId']}`} />
       </TableCell>
     </TableRow>
   );

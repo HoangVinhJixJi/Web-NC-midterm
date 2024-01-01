@@ -31,6 +31,8 @@ export class AccountController {
     @Query('searchTerm') searchTerm: string,
     @Query('status') status: string,
     @Query('action') action: string,
+    @Query('sortedBy') sortedBy: string,
+    @Query('sortOrder') sortOrder: string,
   ) {
     const pageNumber = parseInt(page, 10) || PAGE_NUMBER_DEFAULT;
     const pageSizeNumber = parseInt(pageSize, 10) || PAGE_SIZE_NUMBER_DEFAULT;
@@ -40,6 +42,8 @@ export class AccountController {
       searchTerm,
       status,
       action,
+      sortedBy,
+      sortOrder,
     );
   }
   @Get('banned')
@@ -48,6 +52,8 @@ export class AccountController {
     @Query('pageSize') pageSize: string,
     @Query('searchTerm') searchTerm: string,
     @Query('totalDaysBanned') totalDaysBanned: string,
+    @Query('sortedBy') sortedBy: string,
+    @Query('sortOrder') sortOrder: string,
   ) {
     const pageNumber = parseInt(page, 10) || PAGE_NUMBER_DEFAULT;
     const pageSizeNumber = parseInt(pageSize, 10) || PAGE_SIZE_NUMBER_DEFAULT;
@@ -56,6 +62,8 @@ export class AccountController {
       pageSizeNumber,
       searchTerm,
       totalDaysBanned,
+      sortedBy,
+      sortOrder,
     );
   }
   @Post('ban')

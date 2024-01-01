@@ -2,13 +2,13 @@ import * as React from "react";
 import {Route, Routes, useLocation, useNavigate} from "react-router-dom";
 import Box from "@mui/material/Box";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import BlockIcon from '@mui/icons-material/Block';
+import LockIcon from '@mui/icons-material/Lock';
 import AccountListTab from "./admin pages/account management/AccountListTab";
 import PendingAccountListTab from "./admin pages/account management/PendingAccountListTab";
 import ActivatedAccountListTab from "./admin pages/account management/ActivatedAccountListTab";
 import BannedAccountListTab from "./admin pages/account management/BannedAccountListTab";
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PendingIcon from '@mui/icons-material/Pending';
 import MainContent from "./tab and sidebar/MainContent";
 import UserDetailsTab from "./admin pages/account management/UserDetailsTab";
 import Sidebar from "./Sidebar";
@@ -18,12 +18,12 @@ import {useEffect, useState} from "react";
 
 const accountListTabs = [
   { text: 'List', path: '/management/account/list', icon: <ManageAccountsIcon />, component: AccountListTab },
-  { text: 'Pending', path: '/management/account/pending', icon: <PendingOutlinedIcon />, component: PendingAccountListTab },
-  { text: 'Active', path: '/management/account/active', icon: <CheckCircleOutlinedIcon />, component: ActivatedAccountListTab },
-  { text: 'Banned', path: '/management/account/banned',icon: <BlockIcon />, component: BannedAccountListTab },
+  { text: 'Pending', path: '/management/account/pending', icon: <PendingIcon />, component: PendingAccountListTab },
+  { text: 'Active', path: '/management/account/active', icon: <CheckCircleIcon />, component: ActivatedAccountListTab },
+  { text: 'Banned', path: '/management/account/banned',icon: <LockIcon />, component: BannedAccountListTab },
   { text: 'Back', path: '/admin', icon: <KeyboardBackspaceIcon />, component: Admin }
 ];
-export default function AccountManagement() {
+export default function AdminAccountManagement() {
   const [currentTab, setCurrentTab] = React.useState('/management/account/list');
   const [isFirstLoading, setIsFirstLoading] = useState(true);
   const [isBack, setIsBack] = useState(false);

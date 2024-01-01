@@ -15,6 +15,7 @@ import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.mo
 import { AccountModule } from './modules/admin/management/account/account.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BannedUsersModule } from './modules/admin/management/account/banned-users/banned-users.module';
+import { ClassModule } from './modules/admin/management/class/class.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { BannedUsersModule } from './modules/admin/management/account/banned-use
     PendingInvitesModule,
     AccountModule,
     BannedUsersModule,
+    ClassModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],

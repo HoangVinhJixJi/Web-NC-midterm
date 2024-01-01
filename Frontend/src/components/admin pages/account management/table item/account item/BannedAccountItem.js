@@ -1,9 +1,9 @@
 import {TableCell, TableRow} from "@mui/material";
 import React from "react";
-import DetailsLink from "../item widgets/DetailsLink";
-import UserInfo from "../item widgets/UserInfo";
-import ActionButton from "../item widgets/ActionButton";
-import RenderFunctions from '../../table functions/RenderFunctions';
+import DetailsLink from "../../../item widgets/DetailsLink";
+import UserInfo from "../../../item widgets/UserInfo";
+import ActionButton from "../../../item widgets/ActionButton";
+import RenderFunctions from '../../../table functions/RenderFunctions';
 
 export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick }) {
   const { formatDateTime } = RenderFunctions();

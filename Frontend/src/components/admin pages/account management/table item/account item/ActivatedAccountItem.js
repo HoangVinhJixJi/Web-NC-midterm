@@ -1,8 +1,8 @@
 import {TableCell, TableRow} from "@mui/material";
 import React from "react";
-import UserInfo from "../item widgets/UserInfo";
-import DetailsLink from "../item widgets/DetailsLink";
-import ActionButton from "../item widgets/ActionButton";
+import UserInfo from "../../../item widgets/UserInfo";
+import DetailsLink from "../../../item widgets/DetailsLink";
+import ActionButton from "../../../item widgets/ActionButton";
 
 export default function ActivatedAccountItem({ user, onBanClick }) {
   return (

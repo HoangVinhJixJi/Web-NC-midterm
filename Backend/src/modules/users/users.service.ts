@@ -5,6 +5,7 @@ import { User } from './schema/user.schema';
 import { UserInterface } from './interface/user.interface';
 import * as bcrypt from 'bcrypt';
 import { CreateFbUserDto } from './dto/create-fb-user.dto';
+import { SortOrderEnum } from '../../enums/sort-order.enum';
 
 @Injectable()
 export class UsersService {
@@ -136,18 +137,48 @@ export class UsersService {
   async getUserListByPage(
     param: { take: number; skip: number },
     filter: any = {},
+    sort: { sortedBy: string; sortOrder: string },
   ) {
     const total = await this.usersModel.countDocuments(filter);
     if (total === 0 || param.skip >= total) {
       return { totalPages: total, users: [] };
     }
     const totalPages = Math.ceil(total / param.take);
-    const users = await this.usersModel
-      .find(filter)
-      .skip(param.skip)
-      .limit(param.take)
-      .exec();
-    return { totalPages, users };
+    let sortCondition: any = {};
+    switch (sort.sortedBy.toLowerCase()) {
+      case 'userid':
+        sortCondition = {
+          ...sortCondition,
+          _id: sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
+        };
+        break;
+      case 'fullname':
+        break;
+      default:
+        sortCondition = { ...sortCondition, _id: 1 };
+    }
+    if (Object.keys(sortCondition).length !== 0) {
+      const users = await this.usersModel
+        .find(filter)
+        .sort(sortCondition)
+        .skip(param.skip)
+        .limit(param.take)
+        .exec();
+      return { totalPages, users };
+    } else {
+      const users = await this.usersModel.find(filter).exec();
+      const sortedUsers = users.sort((a, b) => {
+        const lastNameA = a.fullName.split(' ').pop().toLowerCase();
+        const lastNameB = b.fullName.split(' ').pop().toLowerCase();
+        return sort.sortOrder === SortOrderEnum.Increase
+          ? lastNameA.localeCompare(lastNameB)
+          : lastNameB.localeCompare(lastNameA);
+      });
+      return {
+        totalPages,
+        users: sortedUsers.slice(param.skip, param.skip + param.take),
+      };
+    }
   }
   async findOneById(userId: any) {
     return this.usersModel.findOne({ _id: userId }).exec();

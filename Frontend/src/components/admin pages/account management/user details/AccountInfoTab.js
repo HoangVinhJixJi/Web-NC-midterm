@@ -1,7 +1,7 @@
 import {Avatar, Box, Container, Grid, IconButton, Typography} from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import {useEffect, useState} from "react";
-import RenderFunctions from "../table functions/RenderFunctions";
+import RenderFunctions from "../../table functions/RenderFunctions";
 import {useNavigate} from "react-router-dom";
 import api, {setAuthToken} from "../../../../api/api";
 

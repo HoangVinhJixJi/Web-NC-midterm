@@ -12,7 +12,7 @@ import JoinedClassListTab from "./user details/JoinedClassListTab";
 import SchoolIcon from "@mui/icons-material/School";
 import Sidebar from "../../Sidebar";
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import AccountManagement from "../../AccountManagement";
+import AdminAccountManagement from "../../AdminAccountManagement";
 import {useEffect, useState} from "react";
 
 export default function UserDetailsTab() {
@@ -26,7 +26,7 @@ export default function UserDetailsTab() {
     { text: 'Account Info', path: `/management/account/details/${username}/account-info`, icon: <AdminPanelSettingsIcon />, component: AccountInfoTab },
     { text: 'Teaching Class', path: `/management/account/details/${username}/teaching-class`, icon: <SupervisorAccountIcon />, component: TeachingClassListTab },
     { text: 'Joined Class', path: `/management/account/details/${username}/joined-class`, icon: <SchoolIcon />, component: JoinedClassListTab },
-    { text: 'Back', path: '/management/account', icon: <KeyboardBackspaceIcon />, component: AccountManagement }
+    { text: 'Back', path: '/management/account', icon: <KeyboardBackspaceIcon />, component: AdminAccountManagement }
   ];
 
   const handleTabChange = (path) => {

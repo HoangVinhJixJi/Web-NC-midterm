@@ -1,11 +1,11 @@
 import {Container, Grid, Table, TableBody, TableContainer, TableHead, TableRow} from "@mui/material";
 import SearchBar from "../../../search and filter/SearchBar";
 import React, {useEffect, useState} from 'react';
-import RenderFunctions from "../table functions/RenderFunctions";
+import RenderFunctions from "../../table functions/RenderFunctions";
 import TeachingClassItem from "../table item/class item/TeachingClassItem";
-import AdminPagination from '../AdminPagination';
-import LoadingDataItem from '../table item/LoadingDataItem';
-import NoResultsFoundItem from '../table item/NoResultsFoundItem';
+import AdminPagination from '../../AdminPagination';
+import LoadingDataItem from '../../LoadingDataItem';
+import NoResultsFoundItem from '../../NoResultsFoundItem';
 import api, {setAuthToken} from '../../../../api/api';
 import {useNavigate} from 'react-router-dom';
 
@@ -112,7 +112,7 @@ export default function TeachingClassListTab({ username }) {
           </Table>
         </TableContainer>
       </Grid>
-      <AdminPagination count={totalPages} onPageChange={handlePageChange} />
+      <AdminPagination count={totalPages} curPage={currentPage} onPageChange={handlePageChange} />
     </Container>
   );
 }

@@ -1,44 +1,56 @@
 import React, {useEffect, useState} from 'react';
-import RenderFunctions from "../../table functions/RenderFunctions";
-import {Container, Grid, Table, TableBody, TableContainer, TableHead, TableRow} from "@mui/material";
-import SearchBar from "../../../search and filter/SearchBar";
-import JoinedClassItem from "../table item/class item/JoinedClassItem";
+import RenderFunctions from '../table functions/RenderFunctions';
 import {useNavigate} from 'react-router-dom';
-import LoadingDataItem from '../../LoadingDataItem';
-import NoResultsFoundItem from '../../NoResultsFoundItem';
-import AdminPagination from '../../AdminPagination';
-import api, {setAuthToken} from '../../../../api/api';
+import api, {setAuthToken} from '../../../api/api';
+import {
+  Container,
+  Grid,
+  Table,
+  TableBody,
+  TableContainer,
+  TableHead,
+  TableRow
+} from '@mui/material';
+import SearchBar from '../../search and filter/SearchBar';
+import LoadingDataItem from '../LoadingDataItem';
+import NoResultsFoundItem from '../NoResultsFoundItem';
+import AdminPagination from '../AdminPagination';
+import ActiveClassItem from './table item/ActiveClassItem';
 
-const titleNames = ["Class Name", "Creator", "Time of Enrolling", "Details"];
-export default function JoinedClassListTab({ username }) {
+const titleNames = ['Class ID', 'Class Name', 'Creator', 'Action', 'Details'];
+export default function ActiveClassListTab() {
   const [classes, setClasses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
   const [isSearchClick, setIsSearchClick] = useState(false);
-  const { renderTableColumnTitle, sortTable } = RenderFunctions();
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
-  const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
+  const { renderTableColumnTitle } = RenderFunctions();
+  const [sortedTitleMap, setSortedTitleMap] = useState({
+    sortByClassId: { name: 'Class ID', query: 'classId', order: 'asc' },
+    sortByClassName: { name: 'Class Name', query: 'className', order: '' },
+    sortByCreator: { name: 'Creator', query: 'creator.fullName', order: '' },
+  });
+  const [sortOrder, setSortOrder] = useState(sortedTitleMap.sortByClassId.order); // 'asc' hoặc 'desc'
+  const [sortedBy, setSortedBy] = useState(sortedTitleMap.sortByClassId.query);
   const navigate = useNavigate();
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   function handleSort(columnName) {
-    if (sortedBy === columnName) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortOrder('asc');
-    }
-    setSortedBy(columnName);
+    const updatedTitleMap = { ...sortedTitleMap };
+    Object.keys(updatedTitleMap).forEach((key) => {
+      if (updatedTitleMap[key].name === columnName) {
+        updatedTitleMap[key].order = updatedTitleMap[key].order === 'asc' ? 'desc' : 'asc';
+        setSortOrder(updatedTitleMap[key].order);
+        setSortedBy(updatedTitleMap[key].query);
+      } else {
+        updatedTitleMap[key].order = '';
+      }
+    });
+    setSortedTitleMap(updatedTitleMap);
   }
   function renderClassList(classes) {
-    const sortedClasses = [...classes].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
-    return sortedClasses.map((_class) => (
-      <JoinedClassItem _class={_class} />
-    ));
-  }
-  function handlePageChange(page) {
-    setCurrentPage(page);
+    return classes.map((_class) => (<ActiveClassItem _class={_class} />));
   }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -55,9 +67,12 @@ export default function JoinedClassListTab({ username }) {
     setIsSearchClick(isSearchClick => !isSearchClick);
     setCurrentPage(1);
   }
+  function handlePageChange(page) {
+    setCurrentPage(page);
+  }
 
   useEffect(() => {
-    const fetchData = async (searchTerm, page) => {
+    const fetchData = async (searchTerm, page, sortedBy, sortOrder) => {
       try {
         setIsLoading(true);
         const token = localStorage.getItem('token');
@@ -66,7 +81,7 @@ export default function JoinedClassListTab({ username }) {
           navigate('/admin-signin');
         }
         setAuthToken(token);
-        let url = `/admin/management/account/user-classes?username=${username}&&classType=joined`;
+        let url = `/admin/management/class?status=active&&pageSize=10&&sortedBy=${sortedBy}&&sortOrder=${sortOrder}`;
         let query = `&&page=${page}`;
         if (searchTerm !== '') {
           query = query + `&&searchTerm=${searchTerm}`;
@@ -81,26 +96,26 @@ export default function JoinedClassListTab({ username }) {
         console.log("Error fetching data: ", error);
       }
     };
-    fetchData(searchTerm, currentPage);
-  }, [currentPage, isSearchClick]);
+    fetchData(searchTerm, currentPage, sortedBy, sortOrder);
+  }, [currentPage, isSearchClick, sortedBy, sortOrder]);
 
   return (
-    <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '55em' }}>
-      <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
+    <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '60em' }}>
+      <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', gap: 1.5 }}>
         <SearchBar
-          placeholder="Search Class ID"
+          placeholder="Search Class ID, Name"
           searchTerm={searchTerm}
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
         />
       </Container>
-      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
+      <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
-                {renderTableColumnTitle(titleNames, handleSort)}
+                {renderTableColumnTitle(titleNames, sortedTitleMap, handleSort)}
               </TableRow>
             </TableHead>
             <TableBody>

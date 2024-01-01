@@ -1,28 +1,30 @@
 import {
-  Container, FormControlLabel,
-  Grid, Switch, Table, TableBody,
+  Container,
+  FormControlLabel,
+  Grid,
+  Switch,
+  Table,
+  TableBody,
   TableContainer,
   TableHead,
   TableRow
 } from '@mui/material';
-import React, {useEffect, useState} from "react";
-import RenderFunctions from "../table functions/RenderFunctions";
-import AccountItem from "./table item/account item/AccountItem";
-import NoResultsFoundItem from "../NoResultsFoundItem";
-import SearchBar from "../../search and filter/SearchBar";
-import Filter from "../../search and filter/Filter";
-import AdminPagination from "../AdminPagination";
-import {useNavigate} from "react-router-dom";
-import api, {setAuthToken} from "../../../api/api";
-import LoadingDataItem from "../LoadingDataItem";
-import BanAccountDialog from './dialogs/BanAccountDialog';
-import UnbanAccountDialog from './dialogs/UnbanAccountDialog';
+import SearchBar from '../../search and filter/SearchBar';
+import Filter from '../../search and filter/Filter';
+import LoadingDataItem from '../LoadingDataItem';
+import NoResultsFoundItem from '../NoResultsFoundItem';
+import AdminPagination from '../AdminPagination';
+import React, {useEffect, useState} from 'react';
+import RenderFunctions from '../table functions/RenderFunctions';
+import {useNavigate} from 'react-router-dom';
+import ClassItem from './table item/ClassItem';
+import api, {setAuthToken} from '../../../api/api';
 
-const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
-const status = ["Pending", "Active", "Banned"];
-const actions = ["ACTIVE", "BAN", "UNBAN", "DELETE"];
-export default function AccountListTab() {
-  const [accounts, setAccounts] = useState([]);
+const titleNames = ['Class ID', 'Class Name', 'Creator', 'Status', 'Action', 'Details'];
+const status = ["Active", "Archivated"];
+const actions = ["RESTORE", "ARCHIVE", "DELETE"];
+export default function ClassListTab() {
+  const [classes, setClasses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
   const [isSearchClick, setIsSearchClick] = useState(false);
@@ -31,23 +33,18 @@ export default function AccountListTab() {
   const [isDisplayClearStatusButton, setIsDisplayClearStatusButton] = useState(false);
   const [selectedAction, setSelectedAction] = useState("");
   const [isDisplayClearActionButton, setIsDisplayClearActionButton] = useState(false);
-  const [filteredAccounts, setFilteredAccounts] = useState([]);
   const { renderTableColumnTitle } = RenderFunctions();
   const [sortedTitleMap, setSortedTitleMap] = useState({
-    sortByUserId: { name: 'User ID', query: 'userId', order: 'asc' },
-    sortByUserInfo: { name: 'User Info', query: 'fullName', order: '' },
+    sortByClassId: { name: 'Class ID', query: 'classId', order: 'asc' },
+    sortByClassName: { name: 'Class Name', query: 'className', order: '' },
+    sortByCreator: { name: 'Creator', query: 'creator.fullName', order: '' },
   });
-  const [sortOrder, setSortOrder] = useState(sortedTitleMap.sortByUserId.order); // 'asc' hoặc 'desc'
-  const [sortedBy, setSortedBy] = useState(sortedTitleMap.sortByUserId.query);
+  const [sortOrder, setSortOrder] = useState(sortedTitleMap.sortByClassId.order); // 'asc' hoặc 'desc'
+  const [sortedBy, setSortedBy] = useState(sortedTitleMap.sortByClassId.query);
   const navigate = useNavigate();
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [isOpenBanAccountDialog, setIsOpenBanAccountDialog] = useState(false);
-  const [isOpenUnbanAccountDialog, setIsOpenUnbanAccountDialog] = useState(false);
-  const [actionUserId, setActionUserId] = useState('');
-  const [actionUsername, setActionUsername] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
     const updatedTitleMap = { ...sortedTitleMap };
@@ -65,40 +62,8 @@ export default function AccountListTab() {
   function handleFilterSwitchChange() {
     setIsDisplayFilterSide(isDisplayFilterSide => !isDisplayFilterSide);
   }
-  function handleActiveClick(userId) {
-    const updatedAccounts = accounts.map((account) => {
-      return account['userId'] === userId ? {...account, status: 'Active'} : account;
-    });
-    const updatedFilteredAccounts = filteredAccounts.filter((account) => account['userId'] !== userId);
-    setAccounts(updatedAccounts);
-    setFilteredAccounts(updatedFilteredAccounts);
-  }
-  function handleBanClick(userId, username) {
-    setActionUserId(userId);
-    setActionUsername(username);
-    setIsOpenBanAccountDialog(true);
-  }
-  function handleUnbanClick(userId, username) {
-    setActionUserId(userId);
-    setActionUsername(username);
-    setIsOpenUnbanAccountDialog(true);
-  }
-  function handleDeleteClick(userId) {
-    const updatedAccounts = accounts.filter((account) => account['userId'] !== userId);
-    const updatedFilteredAccounts = filteredAccounts.filter((account) => account['userId'] !== userId);
-    setAccounts(updatedAccounts);
-    setFilteredAccounts(updatedFilteredAccounts);
-  }
-  function renderAccountList(accounts) {
-    return accounts.map((account) => (
-      <AccountItem
-        user={account}
-        onActiveClick={() => handleActiveClick(account['userId'])}
-        onBanClick={() => handleBanClick(account['userId'], account['username'])}
-        onUnbanClick={() => handleUnbanClick(account['userId'], account['username'])}
-        onDeleteClick={() => handleDeleteClick(account['userId'])}
-      />
-    ));
+  function renderClassList(classes) {
+    return classes.map((_class) => (<ClassItem _class={_class} />));
   }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -141,26 +106,6 @@ export default function AccountListTab() {
   function handlePageChange(page) {
     setCurrentPage(page);
   }
-  function handleCloseBanAccountDialog(userId) {
-    setIsOpenBanAccountDialog(false);
-    if (isSuccess) {
-      const updatedAccounts = accounts.map((account) => {
-        return account['userId'] === userId ? {...account, status: 'Banned'} : account;
-      });
-      setAccounts(updatedAccounts);
-    }
-    setIsSuccess(false);
-  }
-  function handleCloseUnbanAccountDialog(userId) {
-    setIsOpenUnbanAccountDialog(false);
-    if (isSuccess) {
-      const updatedAccounts = accounts.map((account) => {
-        return account['userId'] === userId ? {...account, status: 'Active'} : account;
-      });
-      setAccounts(updatedAccounts);
-    }
-    setIsSuccess(false);
-  }
 
   useEffect(() => {
     const fetchData = async (searchTerm, selectedStatus, selectedAction, page, sortedBy, sortOrder) => {
@@ -172,7 +117,7 @@ export default function AccountListTab() {
           navigate('/admin-signin');
         }
         setAuthToken(token);
-        let url = `/admin/management/account?sortedBy=${sortedBy}&&sortOrder=${sortOrder}`;
+        let url = `/admin/management/class?pageSize=10&&sortedBy=${sortedBy}&&sortOrder=${sortOrder}`;
         let query = `&&page=${page}`;
         if (searchTerm !== '') {
           query = query + `&&searchTerm=${searchTerm}`;
@@ -186,7 +131,7 @@ export default function AccountListTab() {
         url = url + query;
         const response = await api.get(url);
         console.log('response.data: ', response.data);
-        setAccounts(response.data['accounts']);
+        setClasses(response.data['classes']);
         setTotalPages(response.data['totalPages']);
         setIsLoading(false);
       } catch (error) {
@@ -205,7 +150,7 @@ export default function AccountListTab() {
           sx={{ marginLeft: 0 }}
         />
         <SearchBar
-          placeholder="Search User ID, Name"
+          placeholder="Search Class ID, Name"
           searchTerm={searchTerm}
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
@@ -243,27 +188,13 @@ export default function AccountListTab() {
             <TableBody>
               {isLoading
                 ? <LoadingDataItem colSpan={titleNames.length} />
-                : accounts.length > 0
-                  ? renderAccountList(accounts) : <NoResultsFoundItem colSpan={titleNames.length} />}
+                : classes.length > 0
+                  ? renderClassList(classes) : <NoResultsFoundItem colSpan={titleNames.length} />}
             </TableBody>
           </Table>
         </TableContainer>
       </Grid>
       <AdminPagination count={totalPages} curPage={currentPage} onPageChange={handlePageChange} />
-      <BanAccountDialog
-        userId={actionUserId}
-        username={actionUsername}
-        isOpenBanAccountDialog={isOpenBanAccountDialog}
-        onCloseBanAccountDialog={handleCloseBanAccountDialog}
-        setIsSuccess={setIsSuccess}
-      />
-      <UnbanAccountDialog
-        userId={actionUserId}
-        username={actionUsername}
-        isOpenUnbanAccountDialog={isOpenUnbanAccountDialog}
-        onCloseUnbanAccountDialog={handleCloseUnbanAccountDialog}
-        setIsSuccess={setIsSuccess}
-      />
     </Container>
   );
 }

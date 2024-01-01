@@ -1,7 +1,7 @@
 import {TableCell, TableRow} from "@mui/material";
 import React from "react";
-import UserInfo from "../item widgets/UserInfo";
-import DetailsLink from "../item widgets/DetailsLink";
+import UserInfo from "../../../item widgets/UserInfo";
+import DetailsLink from "../../../item widgets/DetailsLink";
 
 export default function TeachingClassItem({ _class }) {
   return (
