@@ -11,6 +11,7 @@ import api, { setAuthToken } from '../../api/api';
 import ClassInfoTab from './ClassInfoTab';
 import TeacherListTab from './TeacherListTab';
 import StudentListTab from './StudentListTab';
+import GradeStructureTab from './GradeStructureTab';
 
 const ClassDetailTab = () => {
   const [currentTab, setCurrentTab] = useState(0);
@@ -73,6 +74,7 @@ const ClassDetailTab = () => {
         <Tab label="Class Information" />
         <Tab label="Teacher List" />
         <Tab label="Student List" />
+        <Tab label="Grade Structure" />
       </Tabs>
 
       {/* Tab Panels */}
@@ -84,6 +86,9 @@ const ClassDetailTab = () => {
       </TabPanel>
       <TabPanel value={currentTab} index={2}>
         <StudentListTab classId={classId} isTeaching={isTeaching} />
+      </TabPanel>
+      <TabPanel value={currentTab} index={3}>
+        <GradeStructureTab classId={classId} isTeaching={isTeaching} />
       </TabPanel>
     </Box>
   );
