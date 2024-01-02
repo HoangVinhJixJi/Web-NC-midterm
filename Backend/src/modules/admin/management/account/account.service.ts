@@ -6,6 +6,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as dayjs from 'dayjs';
 import { ClassesService } from '../../../classes/classes.service';
 import { SortOrderEnum } from '../../../../enums/sort-order.enum';
+import { AccountStatusEnum } from '../../../../enums/account-status.enum';
+import { AccountActionEnum } from '../../../../enums/account-action.enum';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -53,10 +55,10 @@ export class AccountService {
         resUser = {
           ...resUser,
           status: user.isActivated
-            ? 'Active'
+            ? AccountStatusEnum.Active
             : user.isBanned
-              ? 'Banned'
-              : 'Pending',
+              ? AccountStatusEnum.Banned
+              : AccountStatusEnum.Pending,
         };
       } else {
         return { ...resUser, status };
@@ -279,11 +281,13 @@ export class AccountService {
     return (
       status === '' ||
       action === '' ||
-      (status.toLowerCase() === 'active' && action.toLowerCase() === 'ban') ||
-      (status.toLowerCase() === 'pending' &&
-        action.toLowerCase() === 'active') ||
-      (status.toLowerCase() === 'banned' &&
-        (action.toLowerCase() === 'unban' || action.toLowerCase() === 'delete'))
+      (status.toLowerCase() === AccountStatusEnum.Active &&
+        action.toLowerCase() === AccountActionEnum.BAN) ||
+      (status.toLowerCase() === AccountStatusEnum.Pending &&
+        action.toLowerCase() === AccountActionEnum.ACTIVE) ||
+      (status.toLowerCase() === AccountStatusEnum.Banned &&
+        (action.toLowerCase() === AccountActionEnum.UNBAN ||
+          action.toLowerCase() === AccountActionEnum.DELETE))
     );
   }
   private createFilterForGettingAccounts(
@@ -309,29 +313,29 @@ export class AccountService {
     if (this.isMatchStatusAndAction(status, action)) {
       if (status !== '') {
         switch (status.toLowerCase()) {
-          case 'active':
+          case AccountStatusEnum.Active:
             return {
               $and: [...filter, { isActivated: true }],
             };
-          case 'pending':
+          case AccountStatusEnum.Pending:
             return {
               $and: [...filter, { isActivated: false, isBanned: false }],
             };
-          case 'banned':
+          case AccountStatusEnum.Banned:
             return {
               $and: [...filter, { isActivated: false, isBanned: true }],
             };
         }
       } else if (action !== '') {
         switch (action.toLowerCase()) {
-          case 'active':
+          case AccountActionEnum.ACTIVE:
             return {
               $and: [...filter, { isActivated: false, isBanned: false }],
             };
-          case 'ban':
+          case AccountActionEnum.BAN:
             return { $and: [...filter, { isActivated: true }] };
-          case 'unban':
-          case 'delete':
+          case AccountActionEnum.UNBAN:
+          case AccountActionEnum.DELETE:
             return {
               $and: [...filter, { isActivated: false, isBanned: true }],
             };

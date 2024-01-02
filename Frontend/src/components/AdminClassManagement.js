@@ -5,21 +5,19 @@ import {Route, Routes, useLocation, useNavigate} from 'react-router-dom';
 import * as React from 'react';
 import ClassListTab from './admin pages/class management/ClassListTab';
 import ActiveClassListTab from './admin pages/class management/ActiveClassListTab';
-import ArchivatedClassListTab from './admin pages/class management/ArchivatedClassListTab';
+import ArchivedClassListTab from './admin pages/class management/ArchivedClassListTab';
 import ClassDetailsTab from './admin pages/class management/ClassDetailsTab';
 import {useEffect, useState} from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ActivatedAccountListTab from './admin pages/account management/ActivatedAccountListTab';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import BannedAccountListTab from './admin pages/account management/BannedAccountListTab';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import ClassIcon from '@mui/icons-material/Class';
 import Admin from './Admin';
 
 const classListTabs = [
   { text: 'List', path: '/management/class/list', icon: <ClassIcon />, component: ClassListTab },
-  { text: 'Active', path: '/management/class/active', icon: <CheckCircleIcon />, component: ActivatedAccountListTab },
-  { text: 'Archivated', path: '/management/class/archivated',icon: <InventoryIcon />, component: BannedAccountListTab },
+  { text: 'Active', path: '/management/class/active', icon: <CheckCircleIcon />, component: ActiveClassListTab },
+  { text: 'Archived', path: '/management/class/archived',icon: <InventoryIcon />, component: ArchivedClassListTab },
   { text: 'Back', path: '/admin', icon: <KeyboardBackspaceIcon />, component: Admin }
 ];
 export default function AdminClassManagement() {
@@ -71,7 +69,7 @@ export default function AdminClassManagement() {
           <Route path="/" element={<ClassListTab />} />
           <Route path="/list" element={<ClassListTab />} />
           <Route path="/active" element={<ActiveClassListTab />} />
-          <Route path="/archivated" element={<ArchivatedClassListTab />} />
+          <Route path="/archived" element={<ArchivedClassListTab />} />
           <Route path="/details/:classId/*" element={<ClassDetailsTab />} />
         </Routes>
       </MainContent>

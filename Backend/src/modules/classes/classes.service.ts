@@ -13,11 +13,7 @@ import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { UsersService } from '../users/users.service';
 import { SortOrderEnum } from '../../enums/sort-order.enum';
-
-const ClassStatus = {
-  active: 'active',
-  archivated: 'archivated',
-};
+import { ClassStatusEnum } from '../../enums/class-status.enum';
 @Injectable()
 export class ClassesService {
   constructor(
@@ -34,7 +30,7 @@ export class ClassesService {
       className: userData.className,
       classCode: uuidv4(),
       description: userData.description,
-      status: ClassStatus.active,
+      status: ClassStatusEnum.Active,
       createAt: new Date().toString(),
     };
     const createClass = new this.classesModel(newClassData);
@@ -234,7 +230,7 @@ export class ClassesService {
       return member.role === 'teacher'
         ? await this.classesModel.findOneAndUpdate(
             { _id: classId },
-            { status: ClassStatus.archivated },
+            { status: ClassStatusEnum.Archived },
             { new: true },
           )
         : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -247,7 +243,7 @@ export class ClassesService {
       return member.role === 'teacher'
         ? await this.classesModel.findOneAndUpdate(
             { _id: classId },
-            { status: ClassStatus.active },
+            { status: ClassStatusEnum.Active },
             { new: true },
           )
         : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -256,7 +252,7 @@ export class ClassesService {
   }
   async delete(userId: any, classId: string) {
     const isArchived = await this.isArchived(classId);
-    if (!isArchived) {
+    if (isArchived) {
       const member = await this.enrollmentsService.getOne(classId, userId);
       if (member !== null) {
         if (member.isCreator) {
@@ -304,7 +300,7 @@ export class ClassesService {
   }
   private async isArchived(classId: string) {
     const { status } = await this.classesModel.findOne({ _id: classId }).exec();
-    return status !== null && status === ClassStatus.archivated;
+    return status !== null && status === ClassStatusEnum.Archived;
   }
   async getClassInfoAndUserJoinedStatus(userId: any, classCode: string) {
     const _class = await this.classesModel.findOne({ classCode: classCode });
@@ -387,8 +383,7 @@ export class ClassesService {
       case 'classid':
         sortCondition = {
           ...sortCondition,
-          classId:
-            sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
+          _id: sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
         };
         break;
       case 'classname':
@@ -401,7 +396,7 @@ export class ClassesService {
       case 'creator.fullname':
         break;
       default:
-        sortCondition = { ...sortCondition, classId: 1 };
+        sortCondition = { ...sortCondition, _id: 1 };
     }
     if (Object.keys(sortCondition).length !== 0) {
       const classes = await this.classesModel
@@ -457,5 +452,29 @@ export class ClassesService {
       fullName: creator.fullName,
       avatar: creator.avatar,
     };
+  }
+  async adminArchive(classId: string) {
+    return this.classesModel.findOneAndUpdate(
+      { _id: classId },
+      { status: ClassStatusEnum.Archived },
+      { new: true },
+    );
+  }
+  async adminRestore(classId: string) {
+    return this.classesModel.findOneAndUpdate(
+      { _id: classId },
+      { status: ClassStatusEnum.Active },
+      { new: true },
+    );
+  }
+  async adminDelete(classId: string) {
+    const isArchived = await this.isArchived(classId);
+    if (isArchived) {
+      const result = await this.enrollmentsService.deleteMembers(classId);
+      if (result.acknowledged) {
+        return this.classesModel.findByIdAndDelete(classId);
+      }
+    }
+    return Promise.resolve(undefined);
   }
 }

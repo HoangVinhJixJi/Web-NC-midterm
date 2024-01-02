@@ -1,4 +1,4 @@
-import {TableCell, TableRow} from "@mui/material";
+import {Stack, TableCell, TableRow} from '@mui/material';
 import React from "react";
 import DetailsLink from "../../../item widgets/DetailsLink";
 import UserInfo from "../../../item widgets/UserInfo";
@@ -32,8 +32,10 @@ export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick })
         {formatDateTime(user['bannedInfo']['bannedEndTime'])}
       </TableCell>
       <TableCell>
-        <ActionButton action="UNBAN" handler={onUnbanClick} sx={{marginBottom: 1}} />
-        <ActionButton action="DELETE" handler={onDeleteClick} />
+        <Stack>
+          <ActionButton action="UNBAN" handler={onUnbanClick} sx={{marginBottom: 1}} />
+          <ActionButton action="DELETE" handler={onDeleteClick} />
+        </Stack>
       </TableCell>
       <TableCell>
         <DetailsLink linkTo={`/management/account/details/${user['userInfo'].username}`} />

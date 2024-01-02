@@ -7,9 +7,12 @@ import SearchBar from '../../search and filter/SearchBar';
 import LoadingDataItem from '../LoadingDataItem';
 import NoResultsFoundItem from '../NoResultsFoundItem';
 import AdminPagination from '../AdminPagination';
+import ArchivedClassItem from './table item/ArchivedClassItem';
+import RestoreClassDialog from './dialogs/RestoreClassDialog';
+import DeleteClassDialog from './dialogs/DeleteClassDialog';
 
 const titleNames = ['Class ID', 'Class Name', 'Creator', 'Action', 'Details'];
-export default function ArchivatedClassListTab() {
+export default function ArchivedClassListTab() {
   const [classes, setClasses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
@@ -26,6 +29,11 @@ export default function ArchivatedClassListTab() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenRestoreClassDialog, setIsOpenRestoreClassDialog] = useState(false);
+  const [isOpenDeleteClassDialog, setIsOpenDeleteClassDialog] = useState(false);
+  const [actionClassId, setActionClassId] = useState('');
+  const [actionClassName, setActionClassName] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
     const updatedTitleMap = { ...sortedTitleMap };
@@ -40,8 +48,40 @@ export default function ArchivatedClassListTab() {
     });
     setSortedTitleMap(updatedTitleMap);
   }
+  function handleRestoreClick(classId, className) {
+    setActionClassId(classId);
+    setActionClassName(className);
+    setIsOpenRestoreClassDialog(true);
+  }
+  function handleCloseRestoreClassDialog(classId) {
+    setIsOpenRestoreClassDialog(false);
+    if (isSuccess) {
+      const updatedClasses = classes.filter(_class => _class['classId'] !== classId);
+      setClasses(updatedClasses);
+    }
+    setIsSuccess(false);
+  }
+  function handleDeleteClick(classId, className) {
+    setActionClassId(classId);
+    setActionClassName(className);
+    setIsOpenDeleteClassDialog(true);
+  }
+  function handleCloseDeleteClassDialog(classId) {
+    setIsOpenDeleteClassDialog(false);
+    if (isSuccess) {
+      const updatedClasses = classes.filter(_class => _class['classId'] !== classId);
+      setClasses(updatedClasses);
+    }
+    setIsSuccess(false);
+  }
   function renderClassList(classes) {
-    return classes.map((_class) => (<ArchivatedClassListTab _class={_class} />));
+    return classes.map((_class) => (
+      <ArchivedClassItem
+        _class={_class}
+        onRestoreClick={() => handleRestoreClick(_class['classId'], _class['className'])}
+        onDeleteClick={() => handleDeleteClick(_class['classId'], _class['className'])}
+      />
+    ));
   }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -72,7 +112,7 @@ export default function ArchivatedClassListTab() {
           navigate('/admin-signin');
         }
         setAuthToken(token);
-        let url = `/admin/management/class?status=archivated&&pageSize=10&&sortedBy=${sortedBy}&&sortOrder=${sortOrder}`;
+        let url = `/admin/management/class?status=archived&&pageSize=10&&sortedBy=${sortedBy}&&sortOrder=${sortOrder}`;
         let query = `&&page=${page}`;
         if (searchTerm !== '') {
           query = query + `&&searchTerm=${searchTerm}`;
@@ -119,6 +159,20 @@ export default function ArchivatedClassListTab() {
         </TableContainer>
       </Grid>
       <AdminPagination count={totalPages} curPage={currentPage} onPageChange={handlePageChange} />
+      <RestoreClassDialog
+        classId={actionClassId}
+        className={actionClassName}
+        isOpenRestoreClassDialog={isOpenRestoreClassDialog}
+        onCloseRestoreClassDialog={handleCloseRestoreClassDialog}
+        setIsSuccess={setIsSuccess}
+      />
+      <DeleteClassDialog
+        classId={actionClassId}
+        className={actionClassName}
+        isOpenDeleteClassDialog={isOpenDeleteClassDialog}
+        onCloseDeleteClassDialog={handleCloseDeleteClassDialog}
+        setIsSuccess={setIsSuccess}
+      />
     </Container>
   );
 }

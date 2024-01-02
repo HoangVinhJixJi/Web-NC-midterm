@@ -1,10 +1,7 @@
-import RenderFunctions from '../../table functions/RenderFunctions';
-import React, {useState} from 'react';
-import MenuItem from '@mui/material/MenuItem';
+import React from 'react';
 import ActionButton from '../../item widgets/ActionButton';
-import {Button, Menu, TableCell, TableRow} from '@mui/material';
+import {TableCell, TableRow} from '@mui/material';
 import UserInfo from '../../item widgets/UserInfo';
-import SettingsIcon from '@mui/icons-material/Settings';
 import DetailsLink from '../../item widgets/DetailsLink';
 
 export default function ActiveClassItem({ _class, onArchiveClick }) {

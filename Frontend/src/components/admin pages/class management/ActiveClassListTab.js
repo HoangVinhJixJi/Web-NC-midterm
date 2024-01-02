@@ -16,6 +16,7 @@ import LoadingDataItem from '../LoadingDataItem';
 import NoResultsFoundItem from '../NoResultsFoundItem';
 import AdminPagination from '../AdminPagination';
 import ActiveClassItem from './table item/ActiveClassItem';
+import ArchiveClassDialog from './dialogs/ArchiveClassDialog';
 
 const titleNames = ['Class ID', 'Class Name', 'Creator', 'Action', 'Details'];
 export default function ActiveClassListTab() {
@@ -35,6 +36,10 @@ export default function ActiveClassListTab() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenArchiveClassDialog, setIsOpenArchiveClassDialog] = useState(false);
+  const [actionClassId, setActionClassId] = useState('');
+  const [actionClassName, setActionClassName] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
     const updatedTitleMap = { ...sortedTitleMap };
@@ -49,8 +54,26 @@ export default function ActiveClassListTab() {
     });
     setSortedTitleMap(updatedTitleMap);
   }
+  function handleArchiveClick(classId, className) {
+    setActionClassId(classId);
+    setActionClassName(className);
+    setIsOpenArchiveClassDialog(true);
+  }
+  function handleCloseArchiveClassDialog(classId) {
+    setIsOpenArchiveClassDialog(false);
+    if (isSuccess) {
+      const updatedClasses = classes.filter(_class => _class['classId'] !== classId);
+      setClasses(updatedClasses);
+    }
+    setIsSuccess(false);
+  }
   function renderClassList(classes) {
-    return classes.map((_class) => (<ActiveClassItem _class={_class} />));
+    return classes.map((_class) => (
+      <ActiveClassItem
+        _class={_class}
+        onArchiveClick={() => handleArchiveClick(_class['classId'], _class['className'])}
+      />
+    ));
   }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -128,6 +151,13 @@ export default function ActiveClassListTab() {
         </TableContainer>
       </Grid>
       <AdminPagination count={totalPages} curPage={currentPage} onPageChange={handlePageChange} />
+      <ArchiveClassDialog
+        classId={actionClassId}
+        className={actionClassName}
+        isOpenArchiveClassDialog={isOpenArchiveClassDialog}
+        onCloseArchiveClassDialog={handleCloseArchiveClassDialog}
+        setIsSuccess={setIsSuccess}
+      />
     </Container>
   );
 }

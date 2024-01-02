@@ -2,19 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ClassesService } from '../../../classes/classes.service';
 import mongoose from 'mongoose';
 import { SortOrderEnum } from '../../../../enums/sort-order.enum';
+import { ClassStatusEnum } from '../../../../enums/class-status.enum';
+import { ClassActionEnum } from '../../../../enums/class-action.enum';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
-const ClassStatus = {
-  active: 'active',
-  archivated: 'archivated',
-};
-const Action = {
-  archive: 'archive',
-  restore: 'restore',
-  delete: 'delete',
-};
-
 @Injectable()
 export class ClassService {
   constructor(private classesService: ClassesService) {}
@@ -47,11 +39,11 @@ export class ClassService {
     return (
       status === '' ||
       action === '' ||
-      (status.toLowerCase() === 'active' &&
-        action.toLowerCase() === 'archive') ||
-      (status.toLowerCase() === 'archivated' &&
-        (action.toLowerCase() === 'restore' ||
-          action.toLowerCase() === 'delete'))
+      (status.toLowerCase() === ClassStatusEnum.Active &&
+        action.toLowerCase() === ClassActionEnum.ARCHIVE) ||
+      (status.toLowerCase() === ClassStatusEnum.Archived &&
+        (action.toLowerCase() === ClassActionEnum.RESTORE ||
+          action.toLowerCase() === ClassActionEnum.DELETE))
     );
   }
   private createFilterForGettingClasses(
@@ -79,18 +71,27 @@ export class ClassService {
         return { $and: [...filter, { status: status.toLowerCase() }] };
       } else if (action !== '') {
         switch (action.toLowerCase()) {
-          case Action.archive:
+          case ClassActionEnum.ARCHIVE:
             return {
-              $and: [...filter, { status: ClassStatus.active }],
+              $and: [...filter, { status: ClassStatusEnum.Active }],
             };
-          case Action.restore:
-          case Action.delete:
-            return { $and: [...filter, { status: ClassStatus.archivated }] };
+          case ClassActionEnum.RESTORE:
+          case ClassActionEnum.DELETE:
+            return { $and: [...filter, { status: ClassStatusEnum.Archived }] };
         }
       } else {
         return filter.length !== 0 ? { $and: filter } : {};
       }
     }
     return null;
+  }
+  async archiveClass(classId: string) {
+    return this.classesService.adminArchive(classId);
+  }
+  async restoreClass(classId: string) {
+    return this.classesService.adminRestore(classId);
+  }
+  async deleteClass(classId: string) {
+    return this.classesService.adminDelete(classId);
   }
 }

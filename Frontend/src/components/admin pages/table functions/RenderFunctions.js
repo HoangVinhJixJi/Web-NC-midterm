@@ -58,7 +58,7 @@ function renderStatus(status) {
           statusText={statusText.charAt(0).toUpperCase() + statusText.slice(1)}
         />
       );
-    case 'archivated':
+    case 'archived':
       return (
         <Status
           statusColor="#ffc107"

@@ -8,7 +8,7 @@ import ActionButton from '../../item widgets/ActionButton';
 import RenderFunctions from '../../table functions/RenderFunctions';
 
 const Actions = {
-  archivated: ["RESTORE", "DELETE"],
+  archived: ["RESTORE", "DELETE"],
   active: ["ARCHIVE"],
 }
 export default function ClassItem({ _class, onArchiveClick, onRestoreClick, onDeleteClick }) {
@@ -76,7 +76,7 @@ export default function ClassItem({ _class, onArchiveClick, onRestoreClick, onDe
           onClose={handleCloseActionMenu}
         >
           {_class['status'] === "active" && renderActionMenu(Actions.active)}
-          {_class['status'] === "archivated" && renderActionMenu(Actions.archivated)}
+          {_class['status'] === "archived" && renderActionMenu(Actions.archived)}
         </Menu>
       </TableCell>
       <TableCell>

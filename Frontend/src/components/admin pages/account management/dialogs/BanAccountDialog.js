@@ -69,7 +69,7 @@ export default function BanAccountDialog(
       console.log('Banned account info: ', response.data);
       if (response.data) {
         setMessageColor("success");
-        setMessage(`The account with username ${username} has been successfully banned`);
+        setMessage(`The account with username '${username}' has been successfully banned`);
         setIsSuccess(true);
       } else {
         setMessageColor("error");
@@ -93,7 +93,7 @@ export default function BanAccountDialog(
 
   return (
     <Dialog open={isOpenBanAccountDialog} onClose={() => onCloseBanAccountDialog(userId)}>
-      <DialogTitle><strong>{`Ban account ${username}?`}</strong></DialogTitle>
+      <DialogTitle><strong>{`Ban account '${username}'?`}</strong></DialogTitle>
       <DialogContent>
         <Typography gutterBottom><strong>Reason for banning:</strong></Typography>
         <FormControl component="fieldset">
@@ -123,24 +123,22 @@ export default function BanAccountDialog(
           {`By clicking the confirmation button below, you will lock the account for this user for ${days} days`}
           A locked account will not be able to log in and operate on the website application.
         </Typography>
-        <Typography color={messageColor}>{message}</Typography>
+        <Typography color={messageColor}><i>{message}</i></Typography>
       </DialogContent>
       <DialogActions>
         {!isDisplayCloseButton
           ?
           <>
-            <Button onClick={() => onCloseBanAccountDialog(userId)} disabled={isDisabled}>
+            <Button onClick={() => onCloseBanAccountDialog(userId)} disabled={isDisabled} sx={{ color: "gray" }}>
               <strong>Cancel</strong>
             </Button>
             <Button onClick={handleConfirmClick} disabled={isDisabled}>
-              <strong>Confirm</strong>
+              <strong>{isDisabled ? 'Banning...' : 'Ban'}</strong>
             </Button>
           </>
           :
           <Button onClick={() => onCloseBanAccountDialog(userId)}>
-            <strong>
-              Close
-            </strong>
+            <strong>Close</strong>
           </Button>
         }
       </DialogActions>

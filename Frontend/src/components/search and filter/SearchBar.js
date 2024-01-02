@@ -5,7 +5,7 @@ import React from "react";
 export default function SearchBar({ placeholder, searchTerm, onSearchTermChange, isButtonSearchEnabled, onSearchClick }) {
   return (
     <TextField
-      sx={{ marginRight: 4, width: "25em" }}
+      sx={{ marginRight: 2.5, width: "25em" }}
       variant="outlined" value={searchTerm} placeholder={placeholder ? placeholder : ""}
       onChange={onSearchTermChange}
       InputProps={{

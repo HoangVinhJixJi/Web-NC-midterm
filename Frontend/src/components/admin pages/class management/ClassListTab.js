@@ -19,9 +19,12 @@ import RenderFunctions from '../table functions/RenderFunctions';
 import {useNavigate} from 'react-router-dom';
 import ClassItem from './table item/ClassItem';
 import api, {setAuthToken} from '../../../api/api';
+import ArchiveClassDialog from './dialogs/ArchiveClassDialog';
+import RestoreClassDialog from './dialogs/RestoreClassDialog';
+import DeleteClassDialog from './dialogs/DeleteClassDialog';
 
 const titleNames = ['Class ID', 'Class Name', 'Creator', 'Status', 'Action', 'Details'];
-const status = ["Active", "Archivated"];
+const status = ["Active", "Archived"];
 const actions = ["RESTORE", "ARCHIVE", "DELETE"];
 export default function ClassListTab() {
   const [classes, setClasses] = useState([]);
@@ -45,6 +48,12 @@ export default function ClassListTab() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenArchiveClassDialog, setIsOpenArchiveClassDialog] = useState(false);
+  const [isOpenRestoreClassDialog, setIsOpenRestoreClassDialog] = useState(false);
+  const [isOpenDeleteClassDialog, setIsOpenDeleteClassDialog] = useState(false);
+  const [actionClassId, setActionClassId] = useState('');
+  const [actionClassName, setActionClassName] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
     const updatedTitleMap = { ...sortedTitleMap };
@@ -62,8 +71,58 @@ export default function ClassListTab() {
   function handleFilterSwitchChange() {
     setIsDisplayFilterSide(isDisplayFilterSide => !isDisplayFilterSide);
   }
+  function handleArchiveClick(classId, className) {
+    setActionClassId(classId);
+    setActionClassName(className);
+    setIsOpenArchiveClassDialog(true);
+  }
+  function handleCloseArchiveClassDialog(classId) {
+    setIsOpenArchiveClassDialog(false);
+    if (isSuccess) {
+      const updatedClasses = classes.map(_class => {
+        return _class['classId'] === classId ? {..._class, status: 'archived'} : _class;
+      });
+      setClasses(updatedClasses);
+    }
+    setIsSuccess(false);
+  }
+  function handleRestoreClick(classId, className) {
+    setActionClassId(classId);
+    setActionClassName(className);
+    setIsOpenRestoreClassDialog(true);
+  }
+  function handleCloseRestoreClassDialog(classId) {
+    setIsOpenRestoreClassDialog(false);
+    if (isSuccess) {
+      const updatedClasses = classes.map(_class => {
+        return _class['classId'] === classId ? {..._class, status: 'active'} : _class;
+      });
+      setClasses(updatedClasses);
+    }
+    setIsSuccess(false);
+  }
+  function handleDeleteClick(classId, className) {
+    setActionClassId(classId);
+    setActionClassName(className);
+    setIsOpenDeleteClassDialog(true);
+  }
+  function handleCloseDeleteClassDialog(classId) {
+    setIsOpenDeleteClassDialog(false);
+    if (isSuccess) {
+      const updatedClasses = classes.filter(_class => _class['classId'] !== classId);
+      setClasses(updatedClasses);
+    }
+    setIsSuccess(false);
+  }
   function renderClassList(classes) {
-    return classes.map((_class) => (<ClassItem _class={_class} />));
+    return classes.map((_class) => (
+      <ClassItem
+        _class={_class}
+        onArchiveClick={() => handleArchiveClick(_class['classId'], _class['className'])}
+        onRestoreClick={() => handleRestoreClick(_class['classId'], _class['className'])}
+        onDeleteClick={() => handleDeleteClick(_class['classId'], _class['className'])}
+      />
+    ));
   }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -195,6 +254,27 @@ export default function ClassListTab() {
         </TableContainer>
       </Grid>
       <AdminPagination count={totalPages} curPage={currentPage} onPageChange={handlePageChange} />
+      <ArchiveClassDialog
+        classId={actionClassId}
+        className={actionClassName}
+        isOpenArchiveClassDialog={isOpenArchiveClassDialog}
+        onCloseArchiveClassDialog={handleCloseArchiveClassDialog}
+        setIsSuccess={setIsSuccess}
+      />
+      <RestoreClassDialog
+        classId={actionClassId}
+        className={actionClassName}
+        isOpenRestoreClassDialog={isOpenRestoreClassDialog}
+        onCloseRestoreClassDialog={handleCloseRestoreClassDialog}
+        setIsSuccess={setIsSuccess}
+      />
+      <DeleteClassDialog
+        classId={actionClassId}
+        className={actionClassName}
+        isOpenDeleteClassDialog={isOpenDeleteClassDialog}
+        onCloseDeleteClassDialog={handleCloseDeleteClassDialog}
+        setIsSuccess={setIsSuccess}
+      />
     </Container>
   );
 }
