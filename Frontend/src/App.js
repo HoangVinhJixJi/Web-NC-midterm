@@ -34,7 +34,7 @@ const App = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CssBaseline />
         <Header isLoggedIn={isLoggedIn} handleSignOut={handleSignOut}/>
-        <Container component="main" maxWidth="md" sx={{ flexGrow: 1, mt: 4, mb: 4 }}>
+        <Container component="main" maxWidth="lg" sx={{ flexGrow: 1, mt: 4, mb: 4 }}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/signup" element={<SignUp />} />

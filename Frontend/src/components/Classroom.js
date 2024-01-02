@@ -12,6 +12,8 @@ import MainHomepageTab from './classroom/MainHomepageTab';
 import TeachingTab from './classroom/TeachingTab';
 import JoinedClassTab from './classroom/JoinedClassTab';
 import ClassDetailTab from './classroom/ClassDetailTab';
+import AssignmentDetail from './classroom/AssignmentDetail';
+import GradeReviewDetail from './classroom/GradeReviewDetail';
 
 import { Container } from '@mui/material';
 import NotificationJoinClass from './classroom/NotificationJoinClass';
@@ -54,7 +56,7 @@ const Classroom = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
       <SidebarContainer>
         <Typography variant="h6" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
@@ -89,6 +91,8 @@ const Classroom = () => {
           <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick} />} />
           <Route path="/class-detail/:classId" element={<ClassDetailTab />} />
           <Route path="/class-code/:classCode" element={<NotificationJoinClass />} />
+          <Route path="/class-detail/:classId/assignment/:assignmentId" element={<AssignmentDetail />} />
+          <Route path="/class-detail/:classId/assignment/:assignmentId/gradeReview/:gradeReviewId" element={<GradeReviewDetail />} />
         </Routes>
 
       </MainContent>
