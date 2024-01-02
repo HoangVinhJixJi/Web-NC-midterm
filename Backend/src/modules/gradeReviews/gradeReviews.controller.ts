@@ -51,6 +51,20 @@ export class GradeReviewsController {
     return this.gradeReviewsService.findAllByStudentId(studentId);
   }
   @UseGuards(JwtAuthGuard)
+  @Get(':classId/:assignmentId/:studentId')
+  async getAllByEachStudent(
+    @Request() req: any,
+    @Param('classId') classId: string,
+    @Param('assignmentId') assignmentId: string,
+    @Param('studentId') studentId: string,
+  ) {
+    return this.gradeReviewsService.findAllByEachStudent(
+      classId,
+      assignmentId,
+      studentId,
+    );
+  }
+  @UseGuards(JwtAuthGuard)
   @Post('add/:classId/:assignmentId')
   async addGradeReview(
     @Request() req: any,

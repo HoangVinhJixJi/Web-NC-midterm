@@ -108,10 +108,7 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
                                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                                 Assignment ID: {review.assignmentId}
                                             </Typography>
-                                            <Divider sx={{ my: 2 }} />
-                                            <Typography variant="body2" sx={{ fontWeight: 'bold' }} color="green">
-                                                Status: {review.status.toUpperCase()}
-                                            </Typography>
+                                            <Divider />
                                             <Button variant="outlined" color="primary" startIcon={<Icon>forum</Icon>} sx={{ mt: 2 }} onClick={() => handleDiscussClick(review.id)}>
                                                 Discuss
                                             </Button>
@@ -137,10 +134,7 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
                                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                                 Assignment ID: {review.assignmentId}
                                             </Typography>
-                                            <Divider sx={{ my: 2 }} />
-                                            <Typography variant="body2" sx={{ fontWeight: 'bold' }} color="red">
-                                                Status: {review.status.toUpperCase()}
-                                            </Typography>
+                                            <Divider />
                                             <Button variant="outlined" color="primary" startIcon={<Icon>forum</Icon>} sx={{ mt: 2 }} onClick={() => handleDiscussClick(review.id)}>
                                                 Discuss
                                             </Button>

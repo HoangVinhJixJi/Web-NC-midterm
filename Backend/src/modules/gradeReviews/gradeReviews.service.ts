@@ -59,4 +59,17 @@ export class GradeReviewsService {
   async findAllById(gradeReviewId: string): Promise<GradeReview[]> {
     return await this.gradeReviewsModel.find({ _id: gradeReviewId }).exec();
   }
+  async findAllByEachStudent(
+    classId: string,
+    assignmentId: string,
+    studentId: string,
+  ): Promise<GradeReview[]> {
+    return await this.gradeReviewsModel
+      .find({
+        classId,
+        assignmentId,
+        studentId,
+      })
+      .exec();
+  }
 }
