@@ -6,11 +6,11 @@ import {
   Delete,
   Param,
   Request,
-  // UseGuards,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { GradeStructuresService } from './gradeStructures.service';
-// import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { AddGradeCompositionDto } from './dto/add-gradeCompostion.dto';
 import { UpdateGradeCompositionDto } from './dto/update-gradeCompostion.dto';
 import { GradeStructure } from './schema/gradeStructure.schema';
@@ -20,7 +20,7 @@ export class GradeStructuresController {
   constructor(
     private readonly gradeStructuresService: GradeStructuresService,
   ) {}
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get(':classId')
   async getAllGradeStructures(
     @Request() req: any,
@@ -28,7 +28,7 @@ export class GradeStructuresController {
   ) {
     return this.gradeStructuresService.findAllByClassId(classId);
   }
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('add/:classId')
   async addGradeComposition(
     @Request() req: any,
@@ -38,7 +38,7 @@ export class GradeStructuresController {
   ): Promise<GradeStructure> {
     return this.gradeStructuresService.add(classId, userData);
   }
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete('remove/:gradeStructureId')
   async removeGradeComposition(
     @Request() req: any,
@@ -46,7 +46,7 @@ export class GradeStructuresController {
   ) {
     return this.gradeStructuresService.delete(gradeStructureId);
   }
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('update/:gradeStructureId')
   async updateGradeComposition(
     @Request() req: any,

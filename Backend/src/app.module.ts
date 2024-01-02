@@ -13,6 +13,8 @@ import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { ClassesModule } from './modules/classes/classes.module';
 import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.module';
 import { GradeStructuresModule } from './modules/gradeStructures/gradeStructures.module';
+import { GradeReviewsModule } from './modules/gradeReviews/gradeReviews.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { GradeStructuresModule } from './modules/gradeStructures/gradeStructures
     ClassesModule,
     PendingInvitesModule,
     GradeStructuresModule,
+    GradeReviewsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],
