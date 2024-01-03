@@ -337,10 +337,10 @@ import { Send as SendIcon, Check as CheckIcon } from '@mui/icons-material';
 import api, { setAuthToken } from '../../api/api';
 
 const GradeReviewDetail = () => {
+    const { classId, assignmentId, gradeReviewId } = useParams();
     const [isLoading, setIsLoading] = useState(true);
     const location = useLocation();
-    // const isTeaching = location.state ? location.state.isTeaching : false;
-    const isTeaching = true;
+    const isTeaching = location.state ? location.state.isTeaching : false;
     const [gradeReview, setGradeReview] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -349,36 +349,35 @@ const GradeReviewDetail = () => {
     const [keepOldScore, setKeepOldScore] = useState(true);
     const [message, setMessage] = useState('');
 
-    const userId = '123';
-    const studentScores = {
-        studentId: '20120602',
-        score: 100,
-    };
-    
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(location.state ? location.state.isOpen : false);
 
     useEffect(() => {
         const fetchGradeReviewDetail = async () => {
             try {
-                setFinalScore(100);
-                const sampleGradeReview = {
-                    id: 1,
-                    expectedGrade: 'A',
-                    explanation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat',
-                    status: 'open',
-                };
+                // const sampleGradeReview = {
+                //     id: 1,
+                //     expectedGrade: 'A',
+                //     explanation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat',
+                //     status: 'open',
+                // };
+                // setGradeReview(sampleGradeReview);
 
-                const sampleComments = [
-                    { id: 1, userId: 'teacher1', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', timestamp: '2022-01-07T12:30:45Z' },
-                    { id: 2, userId: 'student123', content: 'Thank you!', timestamp: '2022-01-07T12:45:00Z' },
-                    { id: 3, userId: 'teacher1', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', timestamp: '2022-01-07T12:30:45Z' },
-                    { id: 4, userId: 'teacher1', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', timestamp: '2022-01-07T12:30:45Z' },
-                    { id: 5, userId: 'teacher1', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', timestamp: '2022-01-07T12:30:45Z' },
-                ];
+                const response = await api.get(`/gradeReviews/gradeReviewId/${gradeReviewId}`);
+                setGradeReview(response.data);
+                setFinalScore(response.data.finalGrade);
 
-                setGradeReview(sampleGradeReview);
-                setComments(sampleComments);
+                // const sampleComments = [
+                //     { id: 1, userId: 'teacher1', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', timestamp: '2022-01-07T12:30:45Z' },
+                //     { id: 2, userId: 'student123', content: 'Thank you!', timestamp: '2022-01-07T12:45:00Z' },
+                //     { id: 3, userId: 'teacher1', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', timestamp: '2022-01-07T12:30:45Z' },
+                //     { id: 4, userId: 'teacher1', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', timestamp: '2022-01-07T12:30:45Z' },
+                //     { id: 5, userId: 'teacher1', content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', timestamp: '2022-01-07T12:30:45Z' },
+                // ];
+                // setComments(sampleComments);
 
+                const comments = await api.get(`/comments/gradeReviewId/${gradeReviewId}`);
+                console.log(comments.data);
+                setComments(comments.data);
                 setIsLoading(false);
             } catch (error) {
                 console.error('Error fetching assignment data:', error);
@@ -391,15 +390,19 @@ const GradeReviewDetail = () => {
     const handleAddComment = async () => {
         try {
             // Perform API call to add a new comment
-            const response = await api.post(`/grade-reviews/${gradeReview.id}/comments`, {
-                userId,
-                content: newComment,
-            });
+            const u = await api.get('/auth/profile');
+            console.log(u.data);
+            const userData = {
+                sendId: u.data.userId,
+                sendName: u.data.fullName.toString(),
+                message: newComment
+            }
+            const response = await api.post(`/comments/post/${gradeReviewId}`, userData);
 
             const newCommentData = response.data;
 
             // Update the local state with the new comment
-            setComments([...comments, newCommentData]);
+            setComments((comments)=>[...comments, newCommentData]);
 
             // Clear the new comment input
             setNewComment('');
@@ -428,19 +431,25 @@ const GradeReviewDetail = () => {
 
             // Update the local state based on API response
             // ...
-
-            // Close the dialog
-            setIsOpen(false);
+            const newScore = parseFloat(finalScore);
             console.log(keepOldScore);
             if (!keepOldScore) {
-                const newScore = parseFloat(finalScore);
                 console.log(newScore);
                 if (isNaN(newScore) || newScore < 0 || newScore > 100) {
                     setMessage('Invalid new grade!');
                     return;
                 }
             }
-            setFinalScore(100);
+            const userData = {
+                finalGrade: newScore,
+                status: 'closed',
+            }
+            console.log(userData);
+            const response = await api.post(`/gradeReviews/update/${gradeReviewId}`, userData);
+            setGradeReview(response.data);
+            console.log(response.data);
+            setIsOpen(false)
+            setFinalScore(gradeReview.currentGrade);
             setMessage('');
             handleCloseMarkFinalDecision();
         } catch (error) {
@@ -470,21 +479,21 @@ const GradeReviewDetail = () => {
                                 </TableCell>
                                 <TableCell align="center">
                                     <Typography variant="subtitle1" color="primary" sx={{ fontWeight: 'bold' }}>
-                                        Current Score
+                                        Final Score
                                     </Typography>
                                 </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow key={userId}>
+                            <TableRow key={gradeReview.studentId}>
                                 <TableCell align="center">
                                     <Typography variant="subtitle1" color="secondary">
-                                        {userId}
+                                        {gradeReview.studentId}
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="center">
                                     <Typography variant="subtitle1" color="secondary">
-                                        {studentScores.score}
+                                        {gradeReview.finalGrade}
                                     </Typography>
                                 </TableCell>
                             </TableRow>
@@ -497,10 +506,10 @@ const GradeReviewDetail = () => {
                 <Typography paragraph sx={{ textAlign: 'justify' }}>
                     <strong>Explanation:</strong>
                     <p>
-                        {gradeReview.explanation}
+                        {gradeReview.message}
                     </p>
                 </Typography>
-                {isTeaching && (
+                {isTeaching && isOpen && (
                     <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={handleOpenMarkFinalDecision}>
                         Mark Final Decision
                     </Button>
@@ -510,22 +519,22 @@ const GradeReviewDetail = () => {
                 </Typography>
                 <List sx={{ maxHeight: '70vh', overflowY: 'auto' }}>
                     {comments.map((comment) => (
-                        <ListItem key={comment.id} alignItems="center">
+                        <ListItem key={comment._id} alignItems="center">
                             <ListItemAvatar>
-                                <Avatar alt={comment.userId} />
+                                <Avatar alt={comment.sendId} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={
                                     <React.Fragment>
                                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                                            {comment.userId}
+                                            {comment.sendName}
                                         </Typography>
                                         <Typography variant="body1" sx={{ textAlign: 'justify' }}>
-                                            {comment.content}
+                                            {comment.message}
                                         </Typography>
                                     </React.Fragment>
                                 }
-                                secondary={<Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>{comment.timestamp}</Typography>}
+                                secondary={<Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>{comment.postAt}</Typography>}
                             />
                         </ListItem>
                     ))}
@@ -570,6 +579,7 @@ const GradeReviewDetail = () => {
                             <TextField
                                 fullWidth
                                 label="New Score"
+                                value={finalScore}
                                 onChange={(e) => setFinalScore(e.target.value)}
                                 sx={{ mt: 2 }}
                             />

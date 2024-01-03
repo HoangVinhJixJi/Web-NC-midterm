@@ -18,7 +18,7 @@ import { PostCommentDto } from './dto/post-comment.dto';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
   @UseGuards(JwtAuthGuard)
-  @Get(':gradeReviewId')
+  @Get('gradeReviewId/:gradeReviewId')
   async getAllByGradeReviewId(
     @Request() req: any,
     @Param('gradeReviewId') gradeReviewId: string,
@@ -26,7 +26,7 @@ export class CommentsController {
     return this.commentsService.findAllByGradeReviewId(gradeReviewId);
   }
   @UseGuards(JwtAuthGuard)
-  @Get(':sendId')
+  @Get('sendId/:sendId')
   async getAllBySendId(@Request() req: any, @Param('sendId') sendId: string) {
     return this.commentsService.findAllBySendId(sendId);
   }

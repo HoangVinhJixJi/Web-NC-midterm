@@ -18,7 +18,9 @@ export class CommentsService {
     const newComment = {
       gradeReviewId: gradeReviewId,
       sendId: userData.sendId,
+      sendName: userData.sendName,
       message: userData.message,
+      postAt: new Date().toString(),
     };
     const createComment = new this.commentsModel(newComment);
     return createComment.save();

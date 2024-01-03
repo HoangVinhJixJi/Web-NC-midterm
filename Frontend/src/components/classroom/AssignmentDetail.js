@@ -157,11 +157,8 @@ const AssignmentDetail = () => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const location = useLocation();
     const isTeaching = location.state ? location.state.isTeaching : false;
-    const userId = '123';
-    const studentScores = {
-        studentId: '20120602',
-        score: 100,
-    };
+    const [studentId, setStudentId] = useState(null);
+    const [currentGrade, setCurrentGrade] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -177,16 +174,24 @@ const AssignmentDetail = () => {
                 // Comment out the following line when using actual API calls
                 setAssignment(sampleAssignmentData);
 
-                // Fetch grade reviews for the assignment
-                const sampleGradeReviews = [
-                    { id: 1, expectedGrade: 'A', explanation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', status: 'open' },
-                    { id: 2, expectedGrade: 'B', explanation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', status: 'close' },
-                    // Add more grade reviews if needed
-                ];
+                // // Fetch grade reviews for the assignment
+                // const sampleGradeReviews = [
+                //     { id: 1, expectedGrade: 'A', explanation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', status: 'open' },
+                //     { id: 2, expectedGrade: 'B', explanation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan urna nec vestibulum cursus. Integer euismod justo vitae lacus varius, vel malesuada velit feugiat', status: 'close' },
+                //     // Add more grade reviews if needed
+                // ];
 
-                // Comment out the following line when using actual API calls
-                setGradeReviews(sampleGradeReviews);
-
+                // // Comment out the following line when using actual API calls
+                // setGradeReviews(sampleGradeReviews);
+                const u = await api.get('/auth/profile');
+                console.log(u.data);
+                const _studentId = u.data.studentId ? u.data.studentId : '20120602';
+                const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
+                console.log('res', response);
+                setGradeReviews(response.data);
+                setStudentId(_studentId);
+                setCurrentGrade(100);
+                console.log('STUDENTID', studentId);
                 setIsLoading(false);
             } catch (error) {
                 console.error('Error fetching assignment data:', error);
@@ -195,14 +200,14 @@ const AssignmentDetail = () => {
         };
 
         fetchAssignmentDetail();
-    }, [assignmentId, userId]);
+    }, [assignmentId, studentId]);
 
     const handleGoBack = () => {
         navigate(-1); // Navigate back to the AssignmentList
     };
-    
-    const handleDiscussClick = (gradeReviewId) => {
-        navigate(`/classroom/class-detail/${classId}/assignment/${assignmentId}/gradeReview/${gradeReviewId}`, { state: { isTeaching } });
+
+    const handleDiscussClick = (gradeReviewId, isOpen) => {
+        navigate(`/classroom/class-detail/${classId}/assignment/${assignmentId}/gradeReview/${gradeReviewId}`, { state: { isTeaching, isOpen } });
     }
 
     const handleOpenForm = () => {
@@ -213,30 +218,40 @@ const AssignmentDetail = () => {
         setIsFormOpen(false);
     };
 
-    const handleSubmitForm = () => {
+    const handleSubmitForm = async () => {
         // Handle form submission, e.g., make an API call to submit the grade review
-        const newReview = {
-            id: gradeReviews.length + 1,
-            expectedGrade,
-            explanation,
-            status: 'open'
-        };
-        
+
         const _expectedGrade = parseFloat(expectedGrade);
         if (isNaN(_expectedGrade) || _expectedGrade < 0 || _expectedGrade > 100) {
             setMessage('Invalid expected grade!');
             return;
         }
-        
+
         if (!explanation.trim()) {
             setMessage('Explanation is required!');
             return;
         }
-            
+
+        // const userData = {
+        //     studentId: studentId,
+        //     currentGrade: currentGrade,
+        //     expectedGrade: _expectedGrade,
+        //     message: explanation,
+        //     status: 'open'
+        // };
+        // setGradeReviews([...gradeReviews, userData]);
+
+        const userData = {
+            studentId: studentId.toString(),
+            finalGrade: parseFloat(currentGrade),
+            expectedGrade: _expectedGrade,
+            message: explanation.toString(),
+        };
+        const response = await api.post(`/gradeReviews/add/${classId}/${assignmentId}`, userData);
+        console.log(response);
 
         // Update the gradeReviews state
-        setGradeReviews([...gradeReviews, newReview]);
-
+        setGradeReviews((gradeReviews) => [...gradeReviews, response.data]);
         // Close the form
         setExpectedGrade(null);
         setExplanation('');
@@ -248,9 +263,7 @@ const AssignmentDetail = () => {
         return <CircularProgress />;
     }
 
-    if (!assignment) {
-        return <div>No assignment found.</div>; // Handle the case where the assignment is not found
-    }
+    const openGradeReviews = gradeReviews.filter((review) => review.status === 'open').length > 0 ? true : false;
 
     return (
         <Box m={2} sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -287,15 +300,15 @@ const AssignmentDetail = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow key={userId}>
+                            <TableRow key={studentId}>
                                 <TableCell align="center">
                                     <Typography variant="subtitle1" color="secondary">
-                                        {userId}
+                                        {studentId}
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="center">
                                     <Typography variant="subtitle1" color="secondary">
-                                        {studentScores.score}
+                                        {currentGrade}
                                     </Typography>
                                 </TableCell>
                             </TableRow>
@@ -311,7 +324,7 @@ const AssignmentDetail = () => {
                         </Typography>
                         <Box sx={{ maxHeight: '70vh', overflowY: 'auto' }}>
                             {gradeReviews.map((review) => (
-                                <Card key={review.id} sx={{ marginBottom: '16px' }}>
+                                <Card key={review._id} sx={{ marginBottom: '16px' }}>
                                     <CardContent>
                                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                             Expected Grade: {review.expectedGrade}
@@ -319,14 +332,14 @@ const AssignmentDetail = () => {
                                         <Typography variant="body1" sx={{ textAlign: 'justify' }}>
                                             <strong>Explanation:</strong>
                                             <p>
-                                                {review.explanation}
+                                                {review.message}
                                             </p>
                                         </Typography>
                                         <Divider sx={{ my: 2 }} />
                                         <Typography variant="body2" sx={{ fontWeight: 'bold' }} color={review.status === 'open' ? 'green' : 'red'}>
                                             Status: {review.status.toUpperCase()}
                                         </Typography>
-                                        <Button variant="outlined" color="primary" startIcon={<Icon>forum</Icon>} sx={{ mt: 2 }} onClick={()=>handleDiscussClick(review.id)}>
+                                        <Button variant="outlined" color="primary" startIcon={<Icon>forum</Icon>} sx={{ mt: 2 }} onClick={() => handleDiscussClick(review._id, review.status === 'open' ? true : false)}>
                                             Discuss
                                         </Button>
                                     </CardContent>
@@ -340,9 +353,11 @@ const AssignmentDetail = () => {
                 {/* Form for Submitting Grade Review */}
                 {isTeaching === false && (
                     <div>
-                        <Button variant="contained" color="primary" onClick={handleOpenForm} sx={{ mt: 2 }}>
-                            Request A Grade Review
-                        </Button>
+                        {!openGradeReviews && (
+                            <Button variant="contained" color="primary" onClick={handleOpenForm} sx={{ mt: 2 }}>
+                                Request A Grade Review
+                            </Button>
+                        )}
                         <Dialog open={isFormOpen} onClose={handleCloseForm}>
                             <DialogTitle>Request A Grade Review</DialogTitle>
                             <DialogContent>

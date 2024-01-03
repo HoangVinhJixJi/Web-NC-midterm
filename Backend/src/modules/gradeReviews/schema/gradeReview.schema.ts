@@ -11,8 +11,6 @@ export class GradeReview extends mongoose.Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Class' })
   classId: mongoose.Schema.Types.ObjectId;
   @Prop()
-  currentGrade: number;
-  @Prop()
   expectedGrade: number;
   @Prop({ default: null })
   finalGrade: number;

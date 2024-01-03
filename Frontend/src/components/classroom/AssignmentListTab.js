@@ -31,8 +31,8 @@ const AssignmentListTab = ({ classId, isTeaching }) => {
 
     // Sample assignments data
     const sampleAssignments = [
-        { _id: '1', assignmentName: 'Sample Assignment 1', assignmentContent: 'Sample content 1' },
-        { _id: '2', assignmentName: 'Sample Assignment 2', assignmentContent: 'Sample content 2' },
+        { _id: '65865a7e6a5d990806cf64c5', assignmentName: 'Sample Assignment 1', assignmentContent: 'Sample content 1' },
+        { _id: '65865aca6a5d990806cf64ce', assignmentName: 'Sample Assignment 2', assignmentContent: 'Sample content 2' },
         // Add more sample assignments as needed
     ];
 

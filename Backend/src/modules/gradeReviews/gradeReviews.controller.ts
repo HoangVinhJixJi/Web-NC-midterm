@@ -19,7 +19,7 @@ import { UpdateGradeReviewDto } from './dto/update-gradeReview.dto';
 export class GradeReviewsController {
   constructor(private readonly gradeReviewsService: GradeReviewsService) {}
   @UseGuards(JwtAuthGuard)
-  @Get(':classId')
+  @Get('classId/:classId')
   async getAllByClassId(
     @Request() req: any,
     @Param('classId') classId: string,
@@ -27,7 +27,7 @@ export class GradeReviewsController {
     return this.gradeReviewsService.findAllByClassId(classId);
   }
   @UseGuards(JwtAuthGuard)
-  @Get(':assignmentId')
+  @Get('assignmentId/:assignmentId')
   async getAllByAssignmentId(
     @Request() req: any,
     @Param('assignmentId') assignmentId: string,
@@ -35,15 +35,15 @@ export class GradeReviewsController {
     return this.gradeReviewsService.findAllByAssignmentId(assignmentId);
   }
   @UseGuards(JwtAuthGuard)
-  @Get(':gradeReviewId')
-  async getAllByGradeReviewId(
+  @Get('gradeReviewId/:gradeReviewId')
+  async getOneByGradeReviewId(
     @Request() req: any,
     @Param('gradeReviewId') gradeReviewId: string,
   ) {
-    return this.gradeReviewsService.findAllById(gradeReviewId);
+    return this.gradeReviewsService.findOneById(gradeReviewId);
   }
   @UseGuards(JwtAuthGuard)
-  @Get(':studentId')
+  @Get('studentId/:studentId')
   async getAllByStudentId(
     @Request() req: any,
     @Param('studentId') studentId: string,

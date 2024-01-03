@@ -24,8 +24,9 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AddIcon from '@mui/icons-material/Add';
 
+import api, { setAuthToken } from '../../api/api';
+
 const GradeReviewListTab = ({ classId, isTeaching }) => {
-    const { assignmentId } = useParams();
     const [isAddAssignmentDialogOpen, setIsAddAssignmentDialogOpen] = useState(false);
     const [assignmentName, setAssignmentName] = useState('');
     const [assignmentContent, setAssignmentContent] = useState('');
@@ -38,27 +39,31 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
     useEffect(() => {
         const fetchGradeReviewsData = async () => {
             try {
-                // Simulate API call delay (remove this in the actual implementation)
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // // Simulate API call delay (remove this in the actual implementation)
+                // await new Promise(resolve => setTimeout(resolve, 1000));
 
-                // Fetch grade reviews for the assignment
-                const sampleGradeReviews = [
-                    { id: 1, studentId: '20120602', assignmentId: '1234', status: 'open' },
-                    { id: 2, studentId: '20120602', assignmentId: '1234', status: 'open' },
-                    { id: 2, studentId: '20120602', assignmentId: '1234', status: 'open' },
-                    { id: 2, studentId: '20120602', assignmentId: '1234', status: 'open' },
-                    { id: 2, studentId: '20120602', assignmentId: '1234', status: 'open' },
-                    { id: 3, studentId: '20120602', assignmentId: '1234', status: 'closed' },
-                    { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
-                    { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
-                    { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
-                    { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
-                    { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
-                    // Add more grade reviews if needed
-                ];
+                // // Fetch grade reviews for the assignment
+                // const sampleGradeReviews = [
+                //     { id: 1, studentId: '20120602', assignmentId: '1234', status: 'open' },
+                //     { id: 2, studentId: '20120602', assignmentId: '1234', status: 'open' },
+                //     { id: 2, studentId: '20120602', assignmentId: '1234', status: 'open' },
+                //     { id: 2, studentId: '20120602', assignmentId: '1234', status: 'open' },
+                //     { id: 2, studentId: '20120602', assignmentId: '1234', status: 'open' },
+                //     { id: 3, studentId: '20120602', assignmentId: '1234', status: 'closed' },
+                //     { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
+                //     { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
+                //     { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
+                //     { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
+                //     { id: 4, studentId: '20120602', assignmentId: '1234', status: 'closed' },
+                //     // Add more grade reviews if needed
+                // ];
 
-                // Comment out the following line when using actual API calls
-                setGradeReviews(sampleGradeReviews);
+                // // Comment out the following line when using actual API calls
+                // setGradeReviews(sampleGradeReviews);
+                
+                const response = await api.get(`/gradeReviews/classId/${classId}`);
+                console.log('res', response);
+                setGradeReviews(response.data);
 
                 setIsLoading(false);
             } catch (error) {
@@ -72,8 +77,8 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
     }, []);
 
 
-    const handleDiscussClick = (gradeReviewId) => {
-        navigate(`/classroom/class-detail/${classId}/assignment/${assignmentId}/gradeReview/${gradeReviewId}`, { state: { isTeaching } });
+    const handleDiscussClick = (gradeReviewId, assignmentId, isOpen) => {
+        navigate(`/classroom/class-detail/${classId}/assignment/${assignmentId}/gradeReview/${gradeReviewId}`, { state: { isTeaching, isOpen } });
     };
 
     const openGradeReviews = gradeReviews.filter((review) => review.status === 'open');
@@ -100,7 +105,7 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
                             </Typography>
                             <Box sx={{ maxHeight: '50vh', overflowY: 'auto' }}>
                                 {openGradeReviews.map((review) => (
-                                    <Card key={review.id} sx={{ marginBottom: '16px' }}>
+                                    <Card key={review._id} sx={{ marginBottom: '16px' }}>
                                         <CardContent>
                                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                                 Student ID: {review.studentId}
@@ -109,7 +114,7 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
                                                 Assignment ID: {review.assignmentId}
                                             </Typography>
                                             <Divider />
-                                            <Button variant="outlined" color="primary" startIcon={<Icon>forum</Icon>} sx={{ mt: 2 }} onClick={() => handleDiscussClick(review.id)}>
+                                            <Button variant="outlined" color="primary" startIcon={<Icon>forum</Icon>} sx={{ mt: 2 }} onClick={() => handleDiscussClick(review._id, review.assignmentId, true)}>
                                                 Discuss
                                             </Button>
                                         </CardContent>
@@ -126,7 +131,7 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
                             </Typography>
                             <Box sx={{ maxHeight: '50vh', overflowY: 'auto' }}>
                                 {closedGradeReviews.map((review) => (
-                                    <Card key={review.id} sx={{ marginBottom: '16px' }}>
+                                    <Card key={review._id} sx={{ marginBottom: '16px' }}>
                                         <CardContent>
                                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                                 Student ID: {review.studentId}
@@ -135,7 +140,7 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
                                                 Assignment ID: {review.assignmentId}
                                             </Typography>
                                             <Divider />
-                                            <Button variant="outlined" color="primary" startIcon={<Icon>forum</Icon>} sx={{ mt: 2 }} onClick={() => handleDiscussClick(review.id)}>
+                                            <Button variant="outlined" color="primary" startIcon={<Icon>forum</Icon>} sx={{ mt: 2 }} onClick={() => handleDiscussClick(review._id, review.assignmentId, false)}>
                                                 Discuss
                                             </Button>
                                         </CardContent>

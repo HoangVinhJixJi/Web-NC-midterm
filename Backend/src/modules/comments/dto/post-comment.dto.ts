@@ -7,5 +7,9 @@ export class PostCommentDto {
 
   @IsString()
   @IsNotEmpty()
+  sendName: string;
+
+  @IsString()
+  @IsNotEmpty()
   message: string;
 }

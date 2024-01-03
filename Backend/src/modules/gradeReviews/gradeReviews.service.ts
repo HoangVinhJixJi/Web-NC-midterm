@@ -23,7 +23,7 @@ export class GradeReviewsService {
       classId: classId,
       assignmentId: assignmentId,
       studentId: userData.studentId,
-      currentGrade: userData.currentGrade,
+      finalGrade: userData.finalGrade,
       expectedGrade: userData.expectedGrade,
       message: userData.message,
     };
@@ -56,8 +56,8 @@ export class GradeReviewsService {
   async findAllByAssignmentId(assignmentId: string): Promise<GradeReview[]> {
     return await this.gradeReviewsModel.find({ assignmentId }).exec();
   }
-  async findAllById(gradeReviewId: string): Promise<GradeReview[]> {
-    return await this.gradeReviewsModel.find({ _id: gradeReviewId }).exec();
+  async findOneById(gradeReviewId: string): Promise<GradeReview> {
+    return await this.gradeReviewsModel.findOne({ _id: gradeReviewId }).exec();
   }
   async findAllByEachStudent(
     classId: string,

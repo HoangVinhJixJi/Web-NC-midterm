@@ -7,7 +7,7 @@ export class AddGradeReviewDto {
 
   @IsNumber()
   @IsNotEmpty()
-  currentGrade: number;
+  finalGrade: number;
 
   @IsNumber()
   @IsNotEmpty()
