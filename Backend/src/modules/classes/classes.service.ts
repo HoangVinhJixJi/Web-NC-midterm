@@ -1,4 +1,4 @@
-import { HttpStatus, HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Class } from './schema/class.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -14,6 +14,8 @@ import { UpdateClassDto } from './dto/update-class.dto';
 import { UsersService } from '../users/users.service';
 import { SortOrderEnum } from '../../enums/sort-order.enum';
 import { ClassStatusEnum } from '../../enums/class-status.enum';
+import { AssignStudentIdDto } from '../admin/management/class/dto/assign-student-id.dto';
+
 @Injectable()
 export class ClassesService {
   constructor(
@@ -478,5 +480,68 @@ export class ClassesService {
       }
     }
     return Promise.resolve(undefined);
+  }
+  async adminGetClassInfo(classId: string) {
+    return this.classesModel.findOne({ _id: classId }).exec();
+  }
+  async adminGetClassTeachers(classId: string) {
+    const teachers = await this.enrollmentsService.getEnrollmentsPopulatedClass(
+      classId,
+      'userId',
+      null,
+      'teacher',
+      '_id username fullName avatar',
+    );
+    return teachers.map((teacher) => {
+      const userIdObj: any = teacher.userId;
+      return {
+        userId: userIdObj._id,
+        username: userIdObj.username,
+        fullName: userIdObj.fullName,
+        avatar: userIdObj.avatar,
+        timeOfParticipation: teacher.joinAt,
+        isCreator: teacher.isCreator,
+      };
+    });
+  }
+  async adminGetClassStudents(classId: string) {
+    const students = await this.enrollmentsService.getEnrollmentsPopulatedClass(
+      classId,
+      'userId',
+      null,
+      'student',
+      '_id username fullName avatar',
+    );
+    return students.map((student) => {
+      const userIdObj: any = student.userId;
+      return {
+        userId: userIdObj._id,
+        username: userIdObj.username,
+        fullName: userIdObj.fullName,
+        avatar: userIdObj.avatar,
+        timeOfParticipation: student.joinAt,
+        studentId: student.studentId,
+      };
+    });
+  }
+  async adminAssignStudentId(
+    userId: string,
+    classId: string,
+    studentId: string,
+  ) {
+    const filter = { userId: userId, classId: classId };
+    const updateData = { studentId: studentId };
+    return this.enrollmentsService.adminUpdate(filter, updateData);
+  }
+  async adminAssignStudentIdViaList(importedData: Array<AssignStudentIdDto>) {
+    return Promise.all(
+      importedData.map(async (data) => {
+        return await this.adminAssignStudentId(
+          data.userId,
+          data.classId,
+          data.studentId,
+        );
+      }),
+    );
   }
 }

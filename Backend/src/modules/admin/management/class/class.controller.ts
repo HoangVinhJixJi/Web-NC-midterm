@@ -15,6 +15,8 @@ import { ClassService } from './class.service';
 import { ArchiveClassDto } from './dto/archive-class.dto';
 import { RestoreClassDto } from './dto/restore-class.dto';
 import { DeleteClassDto } from './dto/delete-class.dto';
+import { AssignStudentIdDto } from './dto/assign-student-id.dto';
+import { AssignStudentIdToAllDto } from './dto/assign-student-id-to-all.dto';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -64,5 +66,37 @@ export class ClassController {
     @Body(new ValidationPipe({ transform: true })) userData: DeleteClassDto,
   ) {
     return this.classService.deleteClass(userData.classId);
+  }
+  @Get('class-info')
+  async getClassInfo(@Query('classId') classId: string) {
+    return this.classService.getClassInfo(classId);
+  }
+  @Get('teacher')
+  async getClassTeacers(@Query('classId') classId: string) {
+    return this.classService.getClassTeachers(classId);
+  }
+  @Get('student')
+  async getClassStudents(@Query('classId') classId: string) {
+    return this.classService.getClassStudents(classId);
+  }
+  @Post('assign-student-id')
+  async assignStudentId(
+    @Body(new ValidationPipe({ transform: true })) userData: AssignStudentIdDto,
+  ) {
+    return this.classService.assignStudentId(
+      userData.userId,
+      userData.classId,
+      userData.studentId,
+    );
+  }
+  @Post('assign-student-id-to-all')
+  async assignStudentIdToAll(
+    @Body(new ValidationPipe({ transform: true }))
+    userData: AssignStudentIdToAllDto,
+  ) {
+    return this.classService.assignStudentIdToAll(
+      userData.classId,
+      userData.importedData,
+    );
   }
 }

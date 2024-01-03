@@ -15,7 +15,7 @@ import SearchBar from '../../search and filter/SearchBar';
 import LoadingDataItem from '../LoadingDataItem';
 import NoResultsFoundItem from '../NoResultsFoundItem';
 import AdminPagination from '../AdminPagination';
-import ActiveClassItem from './table item/ActiveClassItem';
+import ActiveClassItem from './table item/class items/ActiveClassItem';
 import ArchiveClassDialog from './dialogs/ArchiveClassDialog';
 
 const titleNames = ['Class ID', 'Class Name', 'Creator', 'Action', 'Details'];

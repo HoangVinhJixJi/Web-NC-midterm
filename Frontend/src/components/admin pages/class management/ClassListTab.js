@@ -17,7 +17,7 @@ import AdminPagination from '../AdminPagination';
 import React, {useEffect, useState} from 'react';
 import RenderFunctions from '../table functions/RenderFunctions';
 import {useNavigate} from 'react-router-dom';
-import ClassItem from './table item/ClassItem';
+import ClassItem from './table item/class items/ClassItem';
 import api, {setAuthToken} from '../../../api/api';
 import ArchiveClassDialog from './dialogs/ArchiveClassDialog';
 import RestoreClassDialog from './dialogs/RestoreClassDialog';

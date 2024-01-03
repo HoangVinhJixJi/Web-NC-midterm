@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { SortOrderEnum } from '../../../../enums/sort-order.enum';
 import { ClassStatusEnum } from '../../../../enums/class-status.enum';
 import { ClassActionEnum } from '../../../../enums/class-action.enum';
+import { AssignStudentIdDto } from './dto/assign-student-id.dto';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -93,5 +94,30 @@ export class ClassService {
   }
   async deleteClass(classId: string) {
     return this.classesService.adminDelete(classId);
+  }
+  async getClassInfo(classId: string) {
+    return this.classesService.adminGetClassInfo(classId);
+  }
+  async getClassTeachers(classId: string) {
+    return this.classesService.adminGetClassTeachers(classId);
+  }
+  async getClassStudents(classId: string) {
+    return this.classesService.adminGetClassStudents(classId);
+  }
+  async assignStudentId(userId: string, classId: string, studentId: string) {
+    return this.classesService.adminAssignStudentId(userId, classId, studentId);
+  }
+  async assignStudentIdToAll(
+    classId: string,
+    importedData: Array<AssignStudentIdDto>,
+  ) {
+    const isCorrectData = importedData.every(
+      (data) => data.classId === classId,
+    );
+    if (isCorrectData) {
+      return this.classesService.adminAssignStudentIdViaList(importedData);
+    } else {
+      return Promise.resolve(undefined);
+    }
   }
 }

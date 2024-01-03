@@ -152,4 +152,12 @@ export class EnrollmentsService {
   async findEnrollments(filter: any = {}) {
     return this.enrollmentsModel.find(filter).exec();
   }
+  async adminUpdate(
+    filter: { classId: string; userId: string },
+    updateData: { studentId: string },
+  ) {
+    return this.enrollmentsModel.findOneAndUpdate(filter, updateData, {
+      new: true,
+    });
+  }
 }

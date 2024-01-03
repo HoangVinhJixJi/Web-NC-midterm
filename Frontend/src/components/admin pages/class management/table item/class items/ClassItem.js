@@ -1,11 +1,11 @@
 import {Button, Menu, TableCell, TableRow} from '@mui/material';
-import UserInfo from '../../item widgets/UserInfo';
+import UserInfo from '../../../item widgets/UserInfo';
 import SettingsIcon from '@mui/icons-material/Settings';
-import DetailsLink from '../../item widgets/DetailsLink';
+import DetailsLink from '../../../item widgets/DetailsLink';
 import React, {useState} from 'react';
 import MenuItem from '@mui/material/MenuItem';
-import ActionButton from '../../item widgets/ActionButton';
-import RenderFunctions from '../../table functions/RenderFunctions';
+import ActionButton from '../../../item widgets/ActionButton';
+import RenderFunctions from '../../../table functions/RenderFunctions';
 import {useLocation} from 'react-router-dom';
 
 const Actions = {

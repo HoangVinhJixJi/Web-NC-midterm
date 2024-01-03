@@ -1,7 +1,7 @@
 import {Stack, TableCell, TableRow} from '@mui/material';
-import UserInfo from '../../item widgets/UserInfo';
-import ActionButton from '../../item widgets/ActionButton';
-import DetailsLink from '../../item widgets/DetailsLink';
+import UserInfo from '../../../item widgets/UserInfo';
+import ActionButton from '../../../item widgets/ActionButton';
+import DetailsLink from '../../../item widgets/DetailsLink';
 import React from 'react';
 import {useLocation} from 'react-router-dom';
 

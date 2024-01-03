@@ -7,7 +7,7 @@ import SearchBar from '../../search and filter/SearchBar';
 import LoadingDataItem from '../LoadingDataItem';
 import NoResultsFoundItem from '../NoResultsFoundItem';
 import AdminPagination from '../AdminPagination';
-import ArchivedClassItem from './table item/ArchivedClassItem';
+import ArchivedClassItem from './table item/class items/ArchivedClassItem';
 import RestoreClassDialog from './dialogs/RestoreClassDialog';
 import DeleteClassDialog from './dialogs/DeleteClassDialog';
 

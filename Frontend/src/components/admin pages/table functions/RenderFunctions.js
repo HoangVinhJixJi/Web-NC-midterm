@@ -12,6 +12,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import RestoreIcon from '@mui/icons-material/Restore';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import SortedColumnTitle from '../SortedColumnTitle';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 
 function isExistColumnName(columnName, sortedTitleMap) {
   return Object.values(sortedTitleMap).some((item) => item.name === columnName);
@@ -81,6 +82,7 @@ function renderStatus(status) {
 function renderActionButtonColor(action) {
   switch (action.toLowerCase()) {
     case "active":
+    case "assign_id":
       return "secondary";
     case "archive":
     case "ban":
@@ -95,6 +97,8 @@ function renderActionButtonIcon(action) {
   switch (action.toLowerCase()) {
     case "active":
       return <HowToRegIcon />;
+    case "assign_id":
+      return <AssignmentIndIcon />;
     case "ban":
       return <LockPersonIcon />;
     case "archive":

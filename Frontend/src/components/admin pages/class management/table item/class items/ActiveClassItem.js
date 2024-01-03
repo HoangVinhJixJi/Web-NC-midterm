@@ -1,8 +1,8 @@
 import React from 'react';
-import ActionButton from '../../item widgets/ActionButton';
+import ActionButton from '../../../item widgets/ActionButton';
 import {TableCell, TableRow} from '@mui/material';
-import UserInfo from '../../item widgets/UserInfo';
-import DetailsLink from '../../item widgets/DetailsLink';
+import UserInfo from '../../../item widgets/UserInfo';
+import DetailsLink from '../../../item widgets/DetailsLink';
 import {useLocation} from 'react-router-dom';
 
 export default function ActiveClassItem({ _class, onArchiveClick }) {
