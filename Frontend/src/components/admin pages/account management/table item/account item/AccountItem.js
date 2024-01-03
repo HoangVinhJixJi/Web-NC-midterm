@@ -6,6 +6,7 @@ import MenuItem from "@mui/material/MenuItem";
 import DetailsLink from "../../../item widgets/DetailsLink";
 import UserInfo from "../../../item widgets/UserInfo";
 import ActionButton from "../../../item widgets/ActionButton";
+import {useLocation} from 'react-router-dom';
 
 const Actions = {
   pending: ["ACTIVE"],
@@ -15,6 +16,7 @@ const Actions = {
 export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanClick, onDeleteClick }) {
   const { renderStatus } = RenderFunctions();
   const [anchorElActions, setAnchorElActions] = useState(null);
+  const location = useLocation();
 
   function renderActionButtonHandler(action) {
     switch (action) {
@@ -50,6 +52,7 @@ export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanCl
       <TableCell>
         <UserInfo
           linkTo={`/management/account/details/${user.username}`}
+          state={{ from: location.pathname }}
           avatar={user.avatar}
           fullName={user.fullName}
         />
@@ -84,7 +87,10 @@ export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanCl
         </Menu>
       </TableCell>
       <TableCell>
-        <DetailsLink linkTo={`/management/account/details/${user.username}`} />
+        <DetailsLink
+          linkTo={`/management/account/details/${user.username}`}
+          state={{ from: location.pathname }}
+        />
       </TableCell>
     </TableRow>
   );

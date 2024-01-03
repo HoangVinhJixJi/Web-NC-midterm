@@ -15,7 +15,7 @@ export default function TeachingClassListTab({ username }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
   const [isSearchClick, setIsSearchClick] = useState(false);
-  const { renderTableColumnTitle, sortTable } = RenderFunctions();
+  const { renderTableColumnTitle } = RenderFunctions();
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(null); // null hoặc tên column đang sắp xếp
   const navigate = useNavigate();
@@ -32,10 +32,7 @@ export default function TeachingClassListTab({ username }) {
     setSortedBy(columnName);
   }
   function renderClassList(classes) {
-    const sortedClasses = [...classes].sort((a, b) => sortTable(a, b, sortedBy, sortOrder));
-    return sortedClasses.map((_class) => (
-      <TeachingClassItem _class={_class} />
-    ));
+    return classes.map((_class) => (<TeachingClassItem _class={_class} />));
   }
   function handlePageChange(page) {
     setCurrentPage(page);

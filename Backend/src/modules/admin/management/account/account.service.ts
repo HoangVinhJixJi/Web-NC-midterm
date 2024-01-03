@@ -376,7 +376,7 @@ export class AccountService {
       const classes = await this.classesService.getUserClassesForAdmin(
         user._id,
         role,
-        'active',
+        '',
         searchTerm,
       );
       const totalPages = Math.ceil(classes.length / pageSize);

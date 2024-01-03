@@ -6,6 +6,7 @@ import React, {useState} from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import ActionButton from '../../item widgets/ActionButton';
 import RenderFunctions from '../../table functions/RenderFunctions';
+import {useLocation} from 'react-router-dom';
 
 const Actions = {
   archived: ["RESTORE", "DELETE"],
@@ -14,6 +15,8 @@ const Actions = {
 export default function ClassItem({ _class, onArchiveClick, onRestoreClick, onDeleteClick }) {
   const { renderStatus } = RenderFunctions();
   const [anchorElActions, setAnchorElActions] = useState(null);
+  const location = useLocation();
+
   function renderActionButtonHandler(action) {
     switch (action.toLowerCase()) {
       case "archive":
@@ -47,6 +50,7 @@ export default function ClassItem({ _class, onArchiveClick, onRestoreClick, onDe
       <TableCell>
         <UserInfo
           linkTo={`/management/account/details/${_class['creator']['username']}`}
+          state={{ from: location.pathname }}
           avatar={_class['creator']['avatar']}
           fullName={_class['creator']['fullName']}
         />
@@ -80,7 +84,10 @@ export default function ClassItem({ _class, onArchiveClick, onRestoreClick, onDe
         </Menu>
       </TableCell>
       <TableCell>
-        <DetailsLink linkTo={`/management/class/details/${_class['classId']}`} />
+        <DetailsLink
+          linkTo={`/management/class/details/${_class['classId']}`}
+          state={{ from: location.pathname }}
+        />
       </TableCell>
     </TableRow>
   );

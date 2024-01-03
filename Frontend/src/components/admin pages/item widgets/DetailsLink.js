@@ -3,10 +3,10 @@ import {Link} from "react-router-dom";
 import React from "react";
 import {ListItemIcon, Stack} from "@mui/material";
 
-export default function DetailsLink({ linkTo }) {
+export default function DetailsLink({ linkTo, state }) {
   return (
     <Link
-      to={linkTo} underline="hover"
+      to={linkTo} state={state} underline="hover"
       style={{ textDecoration: 'none', color: 'inherit' }}
     >
       <Stack direction="row" alignItems="center" sx={{color: "primary.main"}}>

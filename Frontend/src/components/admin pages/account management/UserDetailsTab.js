@@ -13,7 +13,8 @@ import SchoolIcon from "@mui/icons-material/School";
 import Sidebar from "../../Sidebar";
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import AdminAccountManagement from "../../AdminAccountManagement";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from 'react';
+import AdminClassManagement from '../../AdminClassManagement';
 
 export default function UserDetailsTab() {
   const { username } = useParams();
@@ -21,12 +22,14 @@ export default function UserDetailsTab() {
   const [isFirstLoading, setIsFirstLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const isFromAccountManagement = useRef(location.state ? location.state.from.includes('/account') : false);
+  const backPath = isFromAccountManagement.current ? '/management/account' : '/management/class';
   const detailsTabs = [
     { text: 'Personal Info', path: `/management/account/details/${username}/personal-info`, icon: <AccountBoxIcon />, component: PersonalInfoTab },
     { text: 'Account Info', path: `/management/account/details/${username}/account-info`, icon: <AdminPanelSettingsIcon />, component: AccountInfoTab },
     { text: 'Teaching Class', path: `/management/account/details/${username}/teaching-class`, icon: <SupervisorAccountIcon />, component: TeachingClassListTab },
     { text: 'Joined Class', path: `/management/account/details/${username}/joined-class`, icon: <SchoolIcon />, component: JoinedClassListTab },
-    { text: 'Back', path: '/management/account', icon: <KeyboardBackspaceIcon />, component: AdminAccountManagement }
+    { text: 'Back', path: backPath, icon: <KeyboardBackspaceIcon />, component: isFromAccountManagement.current ? AdminAccountManagement : AdminClassManagement}
   ];
 
   const handleTabChange = (path) => {

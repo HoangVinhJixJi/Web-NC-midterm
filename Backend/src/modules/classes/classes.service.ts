@@ -336,15 +336,16 @@ export class ClassesService {
         enrollments.map(async (enrollment) => {
           const user = { timeOfParticipation: enrollment.joinAt };
           const classObject: any = enrollment.classId;
-          const classId = classObject._id;
+          const classId = classObject._id.toString();
           let creatorInfo: any;
           if (enrollment.isCreator) {
             creatorInfo = await this.usersService.findOneById(
               enrollment.userId,
             );
           } else {
+            console.log(classId);
             const creator = await this.enrollmentsService.findEnrollments({
-              classId: enrollment.classId,
+              classId: classId,
               isCreator: true,
             });
             creatorInfo = await this.usersService.findOneById(
@@ -354,6 +355,7 @@ export class ClassesService {
           return {
             classInfo: {
               classId,
+              status: classObject.status,
               creator: {
                 username: creatorInfo.username,
                 fullName: creatorInfo.fullName,

@@ -67,10 +67,14 @@ export class EnrollmentsService {
       return role !== null
         ? await this.enrollmentsModel
             .find({ userId, role, ...extraFilter })
-            .populate({ path: populate, match: { status: status } })
-        : await this.enrollmentsModel
-            .find({ userId })
-            .populate({ path: populate, match: { status: status } });
+            .populate({
+              path: populate,
+              match: status !== '' ? { status: status } : {},
+            })
+        : await this.enrollmentsModel.find({ userId }).populate({
+            path: populate,
+            match: status !== '' ? { status: status } : {},
+          });
     } catch (error) {
       throw new Error(error);
     }

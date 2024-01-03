@@ -26,7 +26,7 @@ export default function AdminClassManagement() {
   const [isBack, setIsBack] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const isDetailsPage = location.pathname.includes("/class/details/");
+  const isDetailsPage = location.pathname.includes("/details/");
 
   const handleTabChange = (path) => {
     setCurrentTab(path);

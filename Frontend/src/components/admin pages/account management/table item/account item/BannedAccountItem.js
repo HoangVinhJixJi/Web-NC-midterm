@@ -4,9 +4,11 @@ import DetailsLink from "../../../item widgets/DetailsLink";
 import UserInfo from "../../../item widgets/UserInfo";
 import ActionButton from "../../../item widgets/ActionButton";
 import RenderFunctions from '../../../table functions/RenderFunctions';
+import {useLocation} from 'react-router-dom';
 
 export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick }) {
   const { formatDateTime } = RenderFunctions();
+  const location = useLocation();
 
   function renderTotalDaysBannedUnit(day) {
     return day === 1 ? 'day' : 'days';
@@ -18,6 +20,7 @@ export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick })
       <TableCell>
         <UserInfo
           linkTo={`/management/account/details/${user['userInfo'].username}`}
+          state={{ from: location.pathname }}
           avatar={user['userInfo'].avatar}
           fullName={user['userInfo'].fullName}
         />
@@ -38,7 +41,10 @@ export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick })
         </Stack>
       </TableCell>
       <TableCell>
-        <DetailsLink linkTo={`/management/account/details/${user['userInfo'].username}`} />
+        <DetailsLink
+          linkTo={`/management/account/details/${user['userInfo'].username}`}
+          state={{ from: location.pathname }}
+        />
       </TableCell>
     </TableRow>
   );
