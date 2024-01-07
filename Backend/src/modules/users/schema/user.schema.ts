@@ -31,5 +31,7 @@ export class User extends mongoose.Document {
   resetPasswordToken: string;
   @Prop({ default: Role.User })
   role: Role;
+  @Prop({ default: null })
+  studentId: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
