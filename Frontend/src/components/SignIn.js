@@ -7,7 +7,7 @@ import api, { setAuthToken } from '../api/api';
 import { useAuth as useAuthContext } from '../api/AuthContext';
 
 const SignIn = () => {
-  const { login, isLoggedIn } = useAuthContext();
+  const { login, isLoggedIn, isAdmin } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); // State for password visibility
@@ -18,9 +18,13 @@ const SignIn = () => {
     // Kiểm tra trạng thái đăng nhập
     if (isLoggedIn) {
       // Nếu đã đăng nhập, điều hướng về trang Home
-      navigate('/home');
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/home');
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, isAdmin, navigate]);
 
   const handleSignIn = async (event) => {
     try {
@@ -40,7 +44,7 @@ const SignIn = () => {
       console.log(u);
 
       // Call the login API from the backend
-      const response = await api.post('/auth/login', u);
+      const response = await api.post('/auth/login?role=user', u);
 
       // Handle API response
       if (response.data) {
@@ -153,6 +157,9 @@ const SignIn = () => {
         </form>
         <Typography variant="body2" color="error" mt={2}>
           {message}
+        </Typography>
+        <Typography variant="body2" mt={2}>
+          <Link to="/admin-signin">Login as Administrator</Link>
         </Typography>
         <Typography variant="body2" mt={2}>
           Don't have an account? <Link to="/signup">Sign Up</Link>

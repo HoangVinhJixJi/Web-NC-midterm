@@ -5,16 +5,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth as useAuthContext } from '../api/AuthContext';
 
 const Landing = () => {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, isAdmin } = useAuthContext();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Kiểm tra trạng thái đăng nhập
     if (isLoggedIn) {
       // Nếu đã đăng nhập, điều hướng về trang Home
-      navigate('/home');
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/home');
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, isAdmin, navigate]);
 
   return (
     <Container maxWidth="lg">
