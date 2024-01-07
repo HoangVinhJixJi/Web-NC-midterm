@@ -11,6 +11,7 @@ import { FacebookStrategy } from './facebook/facebook.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { EnrollmentsModule } from 'src/modules/enrollments/enrollments.module';
 import { PendingInvitesModule } from 'src/modules/pendingInvites/pendingInvites.module';
+import { BannedUsersModule } from '../modules/admin/management/account/banned-users/banned-users.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PendingInvitesModule } from 'src/modules/pendingInvites/pendingInvites.
     PassportModule,
     EnrollmentsModule,
     PendingInvitesModule,
+    BannedUsersModule,
   ],
   controllers: [AuthController],
   providers: [

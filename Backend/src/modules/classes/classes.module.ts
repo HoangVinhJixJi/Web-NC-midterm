@@ -8,6 +8,7 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
 import { PendingInvitesModule } from '../pendingInvites/pendingInvites.module';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { BannedUsersModule } from '../admin/management/account/banned-users/banned-users.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AuthModule } from 'src/auth/auth.module';
     PendingInvitesModule,
     UsersModule,
     AuthModule,
+    BannedUsersModule,
   ],
   providers: [ClassesService],
   exports: [ClassesService],

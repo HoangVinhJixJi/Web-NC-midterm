@@ -12,30 +12,12 @@ import MainHomepageTab from './classroom/MainHomepageTab';
 import TeachingTab from './classroom/TeachingTab';
 import JoinedClassTab from './classroom/JoinedClassTab';
 import ClassDetailTab from './classroom/ClassDetailTab';
+import SidebarContainer from "./tab and sidebar/SidebarContainer";
+import SidebarItem from "./tab and sidebar/SidebarItem";
+import MainContent from "./tab and sidebar/MainContent";
 
 import { Container } from '@mui/material';
 import NotificationJoinClass from './classroom/NotificationJoinClass';
-const SidebarContainer = styled('div')(({ theme }) => ({
-  width: 200,
-  padding: theme.spacing(3),
-  backgroundColor: theme.palette.background.default,
-  borderRight: `1px solid ${theme.palette.divider}`,
-}));
-
-const SidebarItem = styled('div')(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  transition: 'background-color 0.3s ease',
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-    cursor: 'pointer',
-  },
-}));
-
-const MainContent = styled('div')(({ theme }) => ({
-  width: `calc(100% - 200px)`,
-  padding: theme.spacing(3),
-}));
-
 // Tạo các component tương ứng với các tab
 
 

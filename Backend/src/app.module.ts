@@ -12,6 +12,10 @@ import { MailModule } from './mail/mail.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { ClassesModule } from './modules/classes/classes.module';
 import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.module';
+import { AccountModule } from './modules/admin/management/account/account.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { BannedUsersModule } from './modules/admin/management/account/banned-users/banned-users.module';
+import { ClassModule } from './modules/admin/management/class/class.module';
 
 @Module({
   imports: [
@@ -29,6 +33,7 @@ import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.mo
         uri: configService.get<string>('database.db_connection_uri'),
       }),
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     PassportModule,
@@ -36,6 +41,9 @@ import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.mo
     EnrollmentsModule,
     ClassesModule,
     PendingInvitesModule,
+    AccountModule,
+    BannedUsersModule,
+    ClassModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],

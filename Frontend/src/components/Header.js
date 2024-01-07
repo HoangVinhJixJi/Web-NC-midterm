@@ -16,12 +16,16 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth as useAuthContext } from '../api/AuthContext';
 const pages = ['home', 'about', 'classroom'];
+const adminPages = ['admin', 'management'];
+const managements = ['account', 'class'];
 
 function Header() {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const [anchorElManagement, setAnchorElManagement] = React.useState(null);
     const navigate = useNavigate();
-    const { isLoggedIn, user, logout } = useAuthContext();
+    const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
+    console.log(isAdmin);
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -40,6 +44,60 @@ function Header() {
         logout();
         navigate('/home');
     };
+  function handleCloseManagementMenu() {
+    setAnchorElManagement(null);
+  }
+  function handleOpenManagementMenu(event) {
+    setAnchorElManagement(event.currentTarget);
+  }
+  function renderTabsOnHeader(tabNames) {
+      return tabNames.map((page) => (
+        page === 'management' ? (
+            <>
+              <Button
+                key={page}
+                onClick={handleOpenManagementMenu}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                {page}
+              </Button>
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={anchorElManagement}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorElManagement)}
+                onClose={handleCloseManagementMenu}
+              >
+                {managements.map((type) => (
+                  <Link style={{ textDecoration: 'none', color: 'black' }} to={`/management/${type}`} >
+                    <MenuItem key={type} onClick={handleCloseManagementMenu}>
+                      <Typography textAlign="center" >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Typography>
+                    </MenuItem>
+                  </Link>
+                ))}
+              </Menu>
+            </>
+          )
+          : (<Button
+            key={page}
+            onClick={handleCloseNavMenu}
+            sx={{ my: 2, color: 'white', display: 'block' }}
+          >
+            <Link style={{ textDecoration: 'none', color: 'white' }} to={`/${page}`} >{page}</Link>
+          </Button>)
+      ));
+  }
 
     return (
         <AppBar position="static">
@@ -123,15 +181,7 @@ function Header() {
                         LOGO
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) => (
-                            <Button
-                                key={page}
-                                onClick={handleCloseNavMenu}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                                <Link style={{ textDecoration: 'none', color: 'white' }} to={`/${page}`} >{page}</Link>
-                            </Button>
-                        ))}
+                      {isAdmin ? renderTabsOnHeader(adminPages) : renderTabsOnHeader(pages)}
                     </Box>
 
                     <Box sx={{ flexGrow: 0 }} >
