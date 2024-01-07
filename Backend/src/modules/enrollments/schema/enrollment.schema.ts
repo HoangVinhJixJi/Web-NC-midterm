@@ -11,8 +11,6 @@ export class Enrollment extends mongoose.Document {
   @Prop()
   role: string;
   @Prop()
-  studentId: string;
-  @Prop()
   joinAt: string;
   @Prop({ default: false })
   isCreator: boolean;
