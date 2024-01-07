@@ -89,6 +89,13 @@ export default function BannedAccountListTab() {
     setIsDisplayClearTDBButton(false);
     setCurrentPage(1);
   }
+  function handleClearClick() {
+    setSearchTerm("");
+    setIsSearchEnabled(false);
+    setIsSearchClick(isSearchClick => !isSearchClick);
+    setCurrentPage(1);
+    setTotalPages(0);
+  }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
     if (event.target.value === '') {
@@ -164,6 +171,7 @@ export default function BannedAccountListTab() {
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
+          onClearClick={handleClearClick}
         />
         {isDisplayFilterSide &&
           <>

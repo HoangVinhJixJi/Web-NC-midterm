@@ -58,6 +58,13 @@ export default function PendingAccountListTab() {
       <PendingAccountItem user={account} onActiveClick={() => handleActiveClick(account['userId'])} />
     ));
   }
+  function handleClearClick() {
+    setSearchTerm("");
+    setIsSearchEnabled(false);
+    setIsSearchClick(isSearchClick => !isSearchClick);
+    setCurrentPage(1);
+    setTotalPages(0);
+  }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
     if (event.target.value === '') {
@@ -114,6 +121,7 @@ export default function PendingAccountListTab() {
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
+          onClearClick={handleClearClick}
         />
       </Container>
       <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>

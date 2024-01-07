@@ -20,6 +20,9 @@ export default function ActivatedAccountItem({ user, onBanClick }) {
         />
       </TableCell>
       <TableCell>
+        {user.studentId ?? '<NO DATA>'}
+      </TableCell>
+      <TableCell>
         <ActionButton action="BAN" handler={onBanClick} />
       </TableCell>
       <TableCell>

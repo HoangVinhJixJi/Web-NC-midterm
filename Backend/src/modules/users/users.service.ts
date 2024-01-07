@@ -6,6 +6,7 @@ import { UserInterface } from './interface/user.interface';
 import * as bcrypt from 'bcrypt';
 import { CreateFbUserDto } from './dto/create-fb-user.dto';
 import { SortOrderEnum } from '../../enums/sort-order.enum';
+import { AssignAccountStudentIdDto } from '../admin/management/account/dto/assign-account-student-id.dto';
 
 @Injectable()
 export class UsersService {
@@ -152,6 +153,13 @@ export class UsersService {
           _id: sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
         };
         break;
+      case 'studentId':
+        sortCondition = {
+          ...sortCondition,
+          studentId:
+            sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
+        };
+        break;
       case 'fullname':
         break;
       default:
@@ -182,5 +190,40 @@ export class UsersService {
   }
   async findOneById(userId: any) {
     return this.usersModel.findOne({ _id: userId }).exec();
+  }
+  async adminAssignStudentId(userId: string, studentId: string) {
+    if (studentId !== '') {
+      const user = await this.usersModel
+        .findOne({ studentId: studentId })
+        .exec();
+      return !user
+        ? this.usersModel
+            .findOneAndUpdate(
+              { _id: userId },
+              { studentId: studentId },
+              { new: true },
+            )
+            .exec()
+        : null;
+    } else {
+      return this.usersModel
+        .findOneAndUpdate({ _id: userId }, { studentId: null }, { new: true })
+        .exec();
+    }
+  }
+  async adminAssignStudentIds(userData: Array<AssignAccountStudentIdDto>) {
+    return Promise.all(
+      userData.map(async (user) => {
+        console.log(user);
+        const assignResuld = await this.adminAssignStudentId(
+          user.userId,
+          user.studentId,
+        );
+        console.log(assignResuld);
+        return assignResuld
+          ? { userId: assignResuld._id, studentId: assignResuld.studentId }
+          : { userId: user.userId, studentId: null };
+      }),
+    );
   }
 }

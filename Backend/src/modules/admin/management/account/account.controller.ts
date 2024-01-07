@@ -14,6 +14,7 @@ import { Role } from '../../../../enums/role.enum';
 import { AccountService } from './account.service';
 import { BanUserDto } from './dto/ban-user.dto';
 import { UnbanUserDto } from './dto/unban-user.dto';
+import { AssignAccountStudentIdDto } from './dto/assign-account-student-id.dto';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -107,5 +108,22 @@ export class AccountController {
       pageNumber,
       pageSizeNumber,
     );
+  }
+  @Post('assign-student-id')
+  async assignStudentId(
+    @Body(new ValidationPipe({ transform: true }))
+    userData: AssignAccountStudentIdDto,
+  ) {
+    return this.accountService.assignStudentId(
+      userData.userId,
+      userData.studentId,
+    );
+  }
+  @Post('assign-student-ids')
+  async assignStudentIds(
+    @Body(new ValidationPipe({ transform: true }))
+    userData: Array<AssignAccountStudentIdDto>,
+  ) {
+    return this.accountService.assignStudentIds(userData);
   }
 }

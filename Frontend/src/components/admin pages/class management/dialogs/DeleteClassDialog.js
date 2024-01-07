@@ -38,7 +38,7 @@ export default function DeleteClassDialog(
     setMessage('');
     setIsDisabled(false);
     setIsDisplayCloseButton(false);
-  }, [classId]);
+  }, [isOpenDeleteClassDialog]);
 
   return (
     <Dialog open={isOpenDeleteClassDialog} onClose={() => onCloseDeleteClassDialog(classId)}>

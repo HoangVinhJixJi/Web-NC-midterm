@@ -46,17 +46,17 @@ export default function BanAccountDialog(
     try {
       if (!reason) {
         setMessage('Please select a reason for banning.');
-        setMessageColor("error");
+        setMessageColor("error.main");
         return;
       }
       if (reason === 'other' && !otherReason) {
         setMessage('Please provide a reason for banning.');
-        setMessageColor("error");
+        setMessageColor("error.main");
         return;
       }
       if (!days) {
         setMessage('Please select a ban duration.');
-        setMessageColor("error");
+        setMessageColor("error.main");
         return;
       }
       setIsDisabled(true);
@@ -68,11 +68,11 @@ export default function BanAccountDialog(
       const response = await api.post('/admin/management/account/ban', data);
       console.log('Banned account info: ', response.data);
       if (response.data) {
-        setMessageColor("success");
+        setMessageColor("success.main");
         setMessage(`The account with username '${username}' has been successfully banned`);
         setIsSuccess(true);
       } else {
-        setMessageColor("error");
+        setMessageColor("error.main");
         setMessage(`Account ban failed, please try again.`);
         setIsSuccess(false);
       }
@@ -89,7 +89,7 @@ export default function BanAccountDialog(
     setMessage('');
     setIsDisabled(false);
     setIsDisplayCloseButton(false);
-  }, [userId]);
+  }, [isOpenBanAccountDialog]);
 
   return (
     <Dialog open={isOpenBanAccountDialog} onClose={() => onCloseBanAccountDialog(userId)}>
@@ -123,7 +123,7 @@ export default function BanAccountDialog(
           {`By clicking the confirmation button below, you will lock the account for this user for ${days} days`}
           A locked account will not be able to log in and operate on the website application.
         </Typography>
-        <Typography color={messageColor}><i>{message}</i></Typography>
+        <Typography sx={{ color: messageColor }}><i>{message}</i></Typography>
       </DialogContent>
       <DialogActions>
         {!isDisplayCloseButton

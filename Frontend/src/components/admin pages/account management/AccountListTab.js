@@ -19,9 +19,10 @@ import LoadingDataItem from "../LoadingDataItem";
 import BanAccountDialog from './dialogs/BanAccountDialog';
 import UnbanAccountDialog from './dialogs/UnbanAccountDialog';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import AssignStudentIdToAllDialog from '../class management/dialogs/AssignStudentIdToAllDialog';
+import AssignStudentIdToAllDialog from './dialogs/AssignStudentIdToAllDialog';
+import AssignStudentIdDialog from './dialogs/AssignStudentIdDialog';
 
-const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
+const titleNames = [ "User ID", "User Info", "Student ID", "Status", "Action", "Details" ];
 const status = ["Pending", "Active", "Banned"];
 const actions = ["ACTIVE", "BAN", "UNBAN", "DELETE"];
 export default function AccountListTab() {
@@ -39,6 +40,7 @@ export default function AccountListTab() {
   const [sortedTitleMap, setSortedTitleMap] = useState({
     sortByUserId: { name: 'User ID', query: 'userId', order: 'asc' },
     sortByUserInfo: { name: 'User Info', query: 'fullName', order: '' },
+    sortByStudentId: { name: 'Student ID', query: 'studentId', order: '' },
   });
   const [sortOrder, setSortOrder] = useState(sortedTitleMap.sortByUserId.order); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(sortedTitleMap.sortByUserId.query);
@@ -48,9 +50,13 @@ export default function AccountListTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [isOpenBanAccountDialog, setIsOpenBanAccountDialog] = useState(false);
   const [isOpenUnbanAccountDialog, setIsOpenUnbanAccountDialog] = useState(false);
+  const [isOpenAssignStudentIdDialog, setIsOpenAssignStudentIdDialog] = useState(false);
   const [isOpenAssignStudentIdToAllDialog, setIsOpenAssignStudentIdToAllDialog] = useState(false);
   const [actionUserId, setActionUserId] = useState('');
   const [actionUsername, setActionUsername] = useState('');
+  const [actionUserFullName, setActionUserFullName] = useState('');
+  const [actionUserAvatar, setActionUserAvatar] = useState('');
+  const [actionStudentId, setActionStudentId] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
@@ -93,6 +99,17 @@ export default function AccountListTab() {
     setAccounts(updatedAccounts);
     setFilteredAccounts(updatedFilteredAccounts);
   }
+  function handleAssignStudentIdClick(userId, fullName, avatar, studentId) {
+    setActionUserId(userId);
+    setActionUserFullName(fullName);
+    setActionUserAvatar(avatar);
+    console.log(studentId);
+    setActionStudentId(studentId ?? '');
+    setIsOpenAssignStudentIdDialog(true);
+  }
+  function handleMapStudentIdsClick() {
+    setIsOpenAssignStudentIdToAllDialog(true);
+  }
   function renderAccountList(accounts) {
     return accounts.map((account) => (
       <AccountItem
@@ -101,8 +118,18 @@ export default function AccountListTab() {
         onBanClick={() => handleBanClick(account['userId'], account['username'])}
         onUnbanClick={() => handleUnbanClick(account['userId'], account['username'])}
         onDeleteClick={() => handleDeleteClick(account['userId'])}
+        onAssignStudentIdClick={() => handleAssignStudentIdClick(account['userId'], account['fullName'], account['avatar'], account['studentId'])}
       />
     ));
+  }
+  function handleClearClick() {
+    setSearchTerm("");
+    setIsDisplayClearStatusButton(false);
+    setIsDisplayClearActionButton(false);
+    setIsSearchEnabled(false);
+    setIsSearchClick(isSearchClick => !isSearchClick);
+    setCurrentPage(1);
+    setTotalPages(0);
   }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -165,6 +192,30 @@ export default function AccountListTab() {
     }
     setIsSuccess(false);
   }
+  function handleCloseAssignStudentIdDialog(userId, studentId) {
+    setIsOpenAssignStudentIdDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.map(account => {
+        return account['userId'] === userId ? {...account, studentId: studentId} : account;
+      });
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
+  }
+  function handleCloseAssignStudentIdToAllDialog(data) {
+    setIsOpenAssignStudentIdToAllDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.map(account => {
+        const correspondingUser = data.find(item => item.userId === account.userId);
+        if (correspondingUser) {
+          return { ...account, studentId: correspondingUser.studentId };
+        }
+        return account;
+      });
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
+  }
 
   useEffect(() => {
     const fetchData = async (searchTerm, selectedStatus, selectedAction, page, sortedBy, sortOrder) => {
@@ -214,6 +265,7 @@ export default function AccountListTab() {
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
+          onClearClick={handleClearClick}
         />
         {isDisplayFilterSide &&
           <>
@@ -238,12 +290,13 @@ export default function AccountListTab() {
         <Button
           variant="contained" color="primary"
           sx={{ height: 40, alignSelf: 'center' }}
+          onClick={handleMapStudentIdsClick}
         >
           <Stack direction="row" alignItems="center">
             <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
               <AssignmentIcon />
             </ListItemIcon>
-            {!isDisplayFilterSide && 'Map Student_IDs'}
+            {!isDisplayFilterSide && 'Assign Student_IDs'}
           </Stack>
         </Button>
       </Container>
@@ -279,8 +332,15 @@ export default function AccountListTab() {
         onCloseUnbanAccountDialog={handleCloseUnbanAccountDialog}
         setIsSuccess={setIsSuccess}
       />
+      <AssignStudentIdDialog
+        userId={actionUserId} fullName={actionUserFullName} avatar={actionUserAvatar} _studentId={actionStudentId}
+        isOpenAssignStudentIdDialog={isOpenAssignStudentIdDialog}
+        onCloseAssignStudentIdDialog={handleCloseAssignStudentIdDialog}
+        setIsSuccess={setIsSuccess}
+      />
       <AssignStudentIdToAllDialog
         isOpenAssignStudentIdToAllDialog={isOpenAssignStudentIdToAllDialog}
+        onCloseAssignStudentIdToAllDialog={handleCloseAssignStudentIdToAllDialog}
         setIsSuccess={setIsSuccess}
       />
     </Container>

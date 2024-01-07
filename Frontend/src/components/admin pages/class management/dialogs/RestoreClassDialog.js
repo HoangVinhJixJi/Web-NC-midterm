@@ -38,7 +38,7 @@ export default function RestoreClassDialog(
     setMessage('');
     setIsDisabled(false);
     setIsDisplayCloseButton(false);
-  }, [classId]);
+  }, [isOpenRestoreClassDialog]);
 
   return (
     <Dialog open={isOpenRestoreClassDialog} onClose={() => onCloseRestoreClassDialog(classId)}>

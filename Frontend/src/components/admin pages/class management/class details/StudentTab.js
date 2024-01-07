@@ -3,11 +3,8 @@ import RenderFunctions from '../../table functions/RenderFunctions';
 import {useNavigate} from 'react-router-dom';
 import api, {setAuthToken} from '../../../../api/api';
 import {
-  Button,
   Container,
   Grid,
-  ListItemIcon,
-  Stack,
   Table,
   TableBody,
   TableContainer,
@@ -18,9 +15,7 @@ import SearchBar from '../../../search and filter/SearchBar';
 import LoadingDataItem from '../../LoadingDataItem';
 import NoResultsFoundItem from '../../NoResultsFoundItem';
 import StudentItem from '../table item/participant items/StudentItem';
-import AssignStudentIdDialog from '../dialogs/AssignStudentIdDialog';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AssignStudentIdToAllDialog from '../dialogs/AssignStudentIdToAllDialog';
+import AssignStudentIdDialog from '../../account management/dialogs/AssignStudentIdDialog';
 
 const titleNames = ["User ID", "Student Info", "Time of Participation", "Student ID", "Action", "Details"];
 export default function StudentTab({ classId }) {
@@ -36,9 +31,8 @@ export default function StudentTab({ classId }) {
   const [actionUserId, setActionUserId] = useState('');
   const [actionUserFullName, setActionUserFullName] = useState('');
   const [actionUserAvatar, setActionUserAvatar] = useState('');
-  const [actionClassId, setActionClassId] = useState('');
+  const [actionStudentId, setActionStudentId] = useState('');
   const [isOpenAssignStudentIdDialog, setIsOpenAssignStudentIdDialog] = useState(false);
-  const [isOpenAssignStudentIdToAllDialog, setIsOpenAssignStudentIdToAllDialog] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
@@ -49,11 +43,11 @@ export default function StudentTab({ classId }) {
     }
     setSortedBy(columnName);
   }
-  function handleAssignStudentIdClick(userId, fullName, avatar, classId) {
+  function handleAssignStudentIdClick(userId, fullName, avatar, studentId) {
     setActionUserId(userId);
     setActionUserFullName(fullName);
     setActionUserAvatar(avatar);
-    setActionClassId(classId);
+    setActionStudentId(studentId ?? '');
     setIsOpenAssignStudentIdDialog(true);
   }
   function handleCloseAssignStudentIdDialog(userId, studentId) {
@@ -66,29 +60,11 @@ export default function StudentTab({ classId }) {
     }
     setIsSuccess(false);
   }
-  function handleAssignStudentIdToAllClick() {
-    setActionClassId(classId);
-    setIsOpenAssignStudentIdToAllDialog(true);
-  }
-  function handleCloseAssignStudentIdToAllDialog(data) {
-    setIsOpenAssignStudentIdToAllDialog(false);
-    if (isSuccess) {
-      const updatedStudents = students.map(student => {
-        const correspondingUser = data.find(item => item.userId === student.userId);
-        if (correspondingUser) {
-          return { ...student, studentId: correspondingUser.studentId };
-        }
-        return student;
-      });
-      setStudents(updatedStudents);
-    }
-    setIsSuccess(false);
-  }
   function renderClassList(students) {
     return students.map((student) => (
       <StudentItem
         student={student}
-        onAssignStudentIdClick={() => handleAssignStudentIdClick(student.userId, student.fullName, student.avatar, classId)}
+        onAssignStudentIdClick={() => handleAssignStudentIdClick(student.userId, student.fullName, student.avatar, student.studentId)}
       />
     ));
   }
@@ -142,14 +118,6 @@ export default function StudentTab({ classId }) {
           isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
         />
-        <Button variant="contained" color="primary" onClick={handleAssignStudentIdToAllClick}>
-          <Stack direction="row" alignItems="center">
-            <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
-              <AssignmentIcon />
-            </ListItemIcon>
-            Assign Student ID To All
-          </Stack>
-        </Button>
       </Container>
       <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
         <TableContainer>
@@ -169,16 +137,9 @@ export default function StudentTab({ classId }) {
         </TableContainer>
       </Grid>
       <AssignStudentIdDialog
-        userId={actionUserId} fullName={actionUserFullName} avatar={actionUserAvatar}
-        classId={actionClassId}
+        userId={actionUserId} fullName={actionUserFullName} avatar={actionUserAvatar} _studentId={actionStudentId}
         isOpenAssignStudentIdDialog={isOpenAssignStudentIdDialog}
         onCloseAssignStudentIdDialog={handleCloseAssignStudentIdDialog}
-        setIsSuccess={setIsSuccess}
-      />
-      <AssignStudentIdToAllDialog
-        classId={actionClassId}
-        isOpenAssignStudentIdToAllDialog={isOpenAssignStudentIdToAllDialog}
-        onCloseAssignStudentIdToAllDialog={handleCloseAssignStudentIdToAllDialog}
         setIsSuccess={setIsSuccess}
       />
     </Container>

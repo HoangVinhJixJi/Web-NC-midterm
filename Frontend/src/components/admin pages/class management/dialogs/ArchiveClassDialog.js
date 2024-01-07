@@ -38,7 +38,7 @@ export default function ArchiveClassDialog(
     setMessage('');
     setIsDisabled(false);
     setIsDisplayCloseButton(false);
-  }, [classId]);
+  }, [isOpenArchiveClassDialog]);
 
   return (
     <Dialog open={isOpenArchiveClassDialog} onClose={() => onCloseArchiveClassDialog(classId)}>

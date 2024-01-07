@@ -8,6 +8,7 @@ import { ClassesService } from '../../../classes/classes.service';
 import { SortOrderEnum } from '../../../../enums/sort-order.enum';
 import { AccountStatusEnum } from '../../../../enums/account-status.enum';
 import { AccountActionEnum } from '../../../../enums/account-action.enum';
+import { AssignAccountStudentIdDto } from './dto/assign-account-student-id.dto';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -50,6 +51,7 @@ export class AccountService {
         username: user.username,
         fullName: user.fullName,
         avatar: user.avatar,
+        studentId: user.studentId,
       };
       if (status === '') {
         resUser = {
@@ -389,5 +391,11 @@ export class AccountService {
       return { totalPages, classes: classes.slice(skip, end) };
     }
     return null;
+  }
+  async assignStudentId(userId: string, studentId: string) {
+    return this.usersService.adminAssignStudentId(userId, studentId);
+  }
+  async assignStudentIds(userData: Array<AssignAccountStudentIdDto>) {
+    return this.usersService.adminAssignStudentIds(userData);
   }
 }

@@ -7,13 +7,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  ListItemAvatar, Stack, TextField,
+  Stack, TextField,
   Typography
 } from '@mui/material';
 
 export default function AssignStudentIdDialog(
   {
-    userId, fullName, avatar, classId,
+    userId, fullName, avatar, _studentId,
     isOpenAssignStudentIdDialog, onCloseAssignStudentIdDialog,
     setIsSuccess
   }) {
@@ -23,18 +23,26 @@ export default function AssignStudentIdDialog(
   const [isDisabled, setIsDisabled] = useState(false);
   const [isDisplayCloseButton, setIsDisplayCloseButton] = useState(false);
 
+  function handleResetClick() {
+    setStudentId('');
+  }
   async function handleConfirmClick() {
     try {
       setIsDisabled(true);
-      const data = { userId: userId, classId: classId, studentId: studentId };
-      const response = await api.post('/admin/management/class/assign-student-id', data);
-      console.log('Assigned student info: ', response.data);
+      const data = { userId: userId, studentId: studentId };
+      const response = await api.post('/admin/management/account/assign-student-id', data);
+      console.log('Assigned user info: ', response.data);
       if (response.data) {
-        setMessageColor("success");
-        setMessage(`The student with the name '${fullName}' has been successfully assigned with student ID '${studentId}'`);
+        console.log(response.data);
+        setMessageColor("success.main");
+        if (response.data.studentId) {
+          setMessage(`The user with the name '${fullName}' has been successfully assigned with student ID '${studentId}'`);
+        } else {
+          setMessage(`The user with the name '${fullName}' has been successfully usassigned student ID`);
+        }
         setIsSuccess(true);
       } else {
-        setMessageColor("error");
+        setMessageColor("error.main");
         setMessage(`Assign student ID failed, please try again.`);
         setIsSuccess(false);
       }
@@ -46,16 +54,17 @@ export default function AssignStudentIdDialog(
 
   useEffect(() => {
     setMessage('');
+    setStudentId(_studentId);
     setIsDisabled(false);
     setIsDisplayCloseButton(false);
-  }, [userId]);
+  }, [isOpenAssignStudentIdDialog]);
 
   return (
     <Dialog open={isOpenAssignStudentIdDialog} onClose={() => onCloseAssignStudentIdDialog(userId, studentId)}>
       <Stack display="flex" flexDirection="column" alignItems="center" spacing={1} sx={{ marginTop: 2 }}>
         <Avatar src={avatar} alt={fullName} sx={{ width: 100, height: 100 }} />
       </Stack>
-      <DialogTitle><strong>{`Assign student ID for student '${fullName}'?`}</strong></DialogTitle>
+      <DialogTitle><strong>{`Assign student ID for user '${fullName}'?`}</strong></DialogTitle>
       <DialogContent>
         <Typography>
           <div>Student ID will be the code representing the student when participating in class.</div>
@@ -63,15 +72,17 @@ export default function AssignStudentIdDialog(
         </Typography>
         <Stack display="flex" flexDirection="column" alignItems="center">
           <TextField value={studentId} onChange={e => setStudentId(e.target.value)} />
+          {studentId !== '' &&
+            <DialogActions><Button onClick={handleResetClick}><strong>Reset</strong></Button></DialogActions>}
         </Stack>
-        <Typography color={messageColor}><i>{message}</i></Typography>
+        <Typography sx={{ color: messageColor }}><i>{message}</i></Typography>
       </DialogContent>
       <DialogActions>
         {!isDisplayCloseButton
           ?
           <>
             <Button
-              onClick={() => onCloseAssignStudentIdDialog(userId, studentId)}
+              onClick={() => onCloseAssignStudentIdDialog(userId, studentId !== '' ? studentId : null)}
               disabled={isDisabled} sx={{ color: "gray" }}
             >
               <strong>Cancel</strong>
@@ -81,7 +92,7 @@ export default function AssignStudentIdDialog(
             </Button>
           </>
           :
-          <Button onClick={() => onCloseAssignStudentIdDialog(userId, studentId)}>
+          <Button onClick={() => onCloseAssignStudentIdDialog(userId, studentId !== '' ? studentId : null)}>
             <strong>Close</strong>
           </Button>
         }

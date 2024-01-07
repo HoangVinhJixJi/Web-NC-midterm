@@ -10,10 +10,11 @@ import {useLocation} from 'react-router-dom';
 
 const Actions = {
   pending: ["ACTIVE"],
-  active: ["BAN"],
-  banned: ["UNBAN", "DELETE"]
+  active: ["BAN", "ASSIGN_ID"],
+  banned: ["UNBAN", "DELETE", "ASSIGN_ID"]
 }
-export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanClick, onDeleteClick }) {
+const NO_DATA = '<NO DATA>';
+export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanClick, onDeleteClick, onAssignStudentIdClick }) {
   const { renderStatus } = RenderFunctions();
   const [anchorElActions, setAnchorElActions] = useState(null);
   const location = useLocation();
@@ -28,6 +29,8 @@ export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanCl
         return onUnbanClick;
       case "DELETE":
         return onDeleteClick;
+      case "ASSIGN_ID":
+        return onAssignStudentIdClick;
       default:
         return null;
     }
@@ -56,6 +59,9 @@ export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanCl
           avatar={user.avatar}
           fullName={user.fullName}
         />
+      </TableCell>
+      <TableCell>
+        {user['studentId'] ?? NO_DATA}
       </TableCell>
       <TableCell>
         {renderStatus(user.status)}
