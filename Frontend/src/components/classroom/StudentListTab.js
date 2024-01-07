@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {  
   Typography, 
   List, 
@@ -16,13 +16,32 @@ import {
   DialogContent,
   TextField,
   Grid,
-  CircularProgress
+  CircularProgress,
+  Menu,
+  MenuItem
 } from '@mui/material';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import UploadIcon from '@mui/icons-material/Upload';
+import DownloadIcon from '@mui/icons-material/Download';
+
 import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
-
+import { styled } from '@mui/material/styles';
+import {
+  exportStudentListToXLSX,
+  exportStudentListToCSV,
+  uploadStudentList,
+} from '../../excel/exportExcel';
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
 const StudentListTab = ({classId, isTeaching}) => {
   const [isAddStudentDialogOpen, setIsAddStudentDialogOpen] = useState(false);
   const [newStudentEmail, setNewStudentEmail] = useState('');
@@ -30,6 +49,8 @@ const StudentListTab = ({classId, isTeaching}) => {
   const [invitedEmails, setInvitedEmails] = useState([]);
   const [students, setStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fileTypeMenuAnchorEl, setFileTypeMenuAnchorEl] = useState(null);
+  
   const navigate = useNavigate();
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -51,6 +72,7 @@ const StudentListTab = ({classId, isTeaching}) => {
         //Kiểm tra lại thông tin teacher:
         const list = response.data.reduce((accumulator, obj) => {
           if (obj.memberInfo != null && obj.role === 'student') {
+            obj.memberInfo['studentId'] = obj.studentId;
             accumulator.push(obj.memberInfo);
           }
           return accumulator;
@@ -116,6 +138,44 @@ const StudentListTab = ({classId, isTeaching}) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+  const handleMenuFileClose = () => {
+    setFileTypeMenuAnchorEl(null);
+  };
+  const handleFileTypeClick = (event) => {
+    setFileTypeMenuAnchorEl(event.currentTarget);
+  };
+  const handleFileTypeSelect = (fileType) => {
+    if( fileType === 'XLSX'){
+      exportStudentListToXLSX(students);
+    }
+    if(fileType === 'CSV'){
+      exportStudentListToCSV(students);
+    }
+    console.log(`Download student list  as ${fileType}`);
+    handleMenuFileClose();
+  };
+  const handleUploadFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+    try {
+      const sheetData = await uploadStudentList(selectedFile);
+      console.log("sheetData: ", sheetData);
+      const testdata = students;
+      testdata.forEach((row) => {
+        sheetData.forEach((studentData, index) => {
+          if(studentData.fullName !== '' && row.fullName === studentData.fullName ){
+            row.studentId = studentData.studentId;
+            sheetData.splice(index, 1);
+            
+          } 
+        })
+      })
+      console.log('testdata: ', testdata);
+      setStudents(testdata);
+    } catch (error) {
+      console.error('Error reading Excel file:', error);
+    }
+  };
+
   //Kiểm tra nếu là giáo viên thì hiển thị Button Thêm học sinh còn nếu là học sinh thì chỉ cho xem số lượng học sinh
     return (
       <>
@@ -126,6 +186,7 @@ const StudentListTab = ({classId, isTeaching}) => {
         :
       <div>
       <Grid container alignItems="center" justifyContent="space-between">
+        
         <Typography variant="h6" gutterBottom>
           Student List
         </Typography>
@@ -159,7 +220,35 @@ const StudentListTab = ({classId, isTeaching}) => {
           
         </Grid>
       </Grid>
-
+      <Button component="label" variant="contained" startIcon={<UploadIcon />}>
+        Upload Student List
+        <VisuallyHiddenInput type="file" onChange={handleUploadFileChange}/>
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{margin: '16px'}}
+        onClick={handleFileTypeClick}
+        startIcon= {<DownloadIcon/>}
+      >
+        Download Student List
+      </Button>
+      <Menu
+        open={Boolean(fileTypeMenuAnchorEl)}
+        anchorEl={fileTypeMenuAnchorEl}
+        onClose={handleMenuFileClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        <MenuItem onClick={() => handleFileTypeSelect('CSV')}>Download as CSV</MenuItem>
+        <MenuItem onClick={() => handleFileTypeSelect('XLSX')}>Download as XLSX</MenuItem>
+      </Menu>
         <Divider sx={{ margin: '16px 0' }} />
 
         {invitedEmails.map((teacher) => (

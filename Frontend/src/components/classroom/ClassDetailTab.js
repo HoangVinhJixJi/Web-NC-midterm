@@ -5,17 +5,33 @@ import {
   Box,
   Tab,
   Tabs,
+  Popup,
+  Typography,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  CircularProgress,
 } from '@mui/material';
 import api, { setAuthToken } from '../../api/api';
 //Các componet của mỗi tab
 import ClassInfoTab from './ClassInfoTab';
 import TeacherListTab from './TeacherListTab';
 import StudentListTab from './StudentListTab';
+import GradeBoardTab from './GradeBoardTab';
+import AssignmentListTab from './AssignmentListTab';
+
 
 const ClassDetailTab = () => {
+  const [isAddStudentIdDialogOpen, setIsAddStudentIdDialogOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   const [classInfo, setClassInfo] = useState({});
   const [isTeaching, setIsTeaching] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [studentId, setStudentId] = useState('');
+  const [checkStudentId, setCheckStudentId] = useState(false);
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
@@ -38,11 +54,15 @@ const ClassDetailTab = () => {
         const response = await api.get(`/classes/info/${classId}`);
         //Lưu thông tin toàn bộ lớp học vào state
         console.log('Class Detail Data : ', response.data);
-        if (response.data.classCode) {
+        if (response.data.classInfo.classCode) {
           setIsTeaching(true);
         }
-        setClassInfo(response.data);
-
+        setClassInfo(response.data.classInfo);
+        if(!response.data.checkStudentId){
+          console.log('*********** Do not have StudentID!!!**********');
+        }
+        setCheckStudentId(response.data.checkStudentId);
+        setIsLoading(false);
 
       } catch (error) {
         // Xử lý lỗi
@@ -59,8 +79,42 @@ const ClassDetailTab = () => {
     fetchUserData();
 
   }, [navigate, classId]);
+
+  
+
+  const handleStudentIdChange = (event) => {
+    setStudentId(event.target.value);
+  };
+
+  const handleStudentIdSave = () => {
+    //Gọi API kiểm tra sutdentId có tồn tại chưa?
+    console.log('studentId : ', studentId);
+    const fetchStudentIdData = async () => {
+      try {
+        const response = await api.post(`/enrollments/update/${classId}`,{
+          studentId,
+        });
+        console.log('Enrollment Data: ', response.data);
+        
+      } catch (error) {
+        // Xử lý lỗi
+        // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
+        if (error.response && error.response.status === 401) {
+          navigate('/signin');
+        }else{
+            console.error('Error fetching user data :', error);
+            
+            
+        }
+      }
+    };
+    fetchStudentIdData();
+    //Nếu có studentId rồi hiện thông báo để gửi phản hồi
+    setCheckStudentId(true);
+  };
   return (
     <Box sx={{ width: '100%' }}>
+    
       {/* Tabs */}
       <Tabs
         value={currentTab}
@@ -73,6 +127,8 @@ const ClassDetailTab = () => {
         <Tab label="Class Information" />
         <Tab label="Teacher List" />
         <Tab label="Student List" />
+        <Tab label="Assignment List" />
+        <Tab label="Grade board" />
       </Tabs>
 
       {/* Tab Panels */}
@@ -85,6 +141,39 @@ const ClassDetailTab = () => {
       <TabPanel value={currentTab} index={2}>
         <StudentListTab classId={classId} isTeaching={isTeaching} />
       </TabPanel>
+      <TabPanel value={currentTab} index={3}>
+        <AssignmentListTab classId={classId} isTeaching={isTeaching} />
+      </TabPanel>
+      <TabPanel value={currentTab} index={4}>
+        <GradeBoardTab classId={classId} isTeaching={isTeaching} />
+      </TabPanel>
+        
+      { isLoading ? 
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </div>
+        :
+        <Dialog open={!checkStudentId}>
+        <DialogTitle>*** Enter StudentID to join the class! ***</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="studentId"
+            label="Student ID"
+            type="text"
+            fullWidth
+            value={studentId}
+            onChange={handleStudentIdChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleStudentIdSave} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+      }
     </Box>
   );
 };

@@ -12,6 +12,8 @@ import { MailModule } from './mail/mail.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { ClassesModule } from './modules/classes/classes.module';
 import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.module';
+import { AssignmentsModule } from './modules/assignments/assignments.module';
+import { GradesModule } from './modules/grades/grades.module';
 import { AccountModule } from './modules/admin/management/account/account.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BannedUsersModule } from './modules/admin/management/account/banned-users/banned-users.module';
@@ -41,6 +43,8 @@ import { ClassModule } from './modules/admin/management/class/class.module';
     EnrollmentsModule,
     ClassesModule,
     PendingInvitesModule,
+    AssignmentsModule,
+    GradesModule,
     AccountModule,
     BannedUsersModule,
     ClassModule,

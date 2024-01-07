@@ -72,7 +72,15 @@ export class ClassesController {
   @UseGuards(JwtAuthGuard)
   async getClassInfo(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
-    return this.classesService.getClassInfo(userId, classId);
+    const checkStudentId = await this.enrollmentsService.checkStudentId(
+      userId,
+      classId,
+    );
+    const classInfo = await this.classesService.getClassInfo(userId, classId);
+    return {
+      checkStudentId,
+      classInfo,
+    };
   }
   @Post('update/:classId')
   @UseGuards(JwtAuthGuard)

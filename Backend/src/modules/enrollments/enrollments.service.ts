@@ -17,6 +17,7 @@ export class EnrollmentsService {
       role,
       joinAt: new Date().toString(),
       isCreator,
+      studentId: '',
     };
     const createEnrollment = new this.enrollmentsModel(newEnrollment);
     return createEnrollment.save();
@@ -131,6 +132,7 @@ export class EnrollmentsService {
           return {
             memberInfo: enrollment['userId'],
             role: enrollment.role,
+            studentId: enrollment.studentId,
           };
         });
       } catch (error) {
@@ -148,6 +150,50 @@ export class EnrollmentsService {
       classId: classId,
       userId: rmvId,
     });
+  }
+  async updateStudentId(classId: string, userId: any, newStudentId: string) {
+    // Tìm kiếm enrollment dựa trên classId và userId
+    const existingEnrollment = await this.enrollmentsModel
+      .findOne({ classId, userId })
+      .exec();
+    // Nếu tồn tại enrollment, thì cập nhật giá trị studentId
+    if (existingEnrollment) {
+      existingEnrollment.studentId = newStudentId['studentId'];
+      await existingEnrollment.save();
+      return existingEnrollment;
+    }
+
+    // Nếu không tồn tại, tạo một enrollment mới với giá trị studentId
+    const newEnrollment = new this.enrollmentsModel({
+      classId,
+      userId,
+      studentId: newStudentId,
+    });
+    return newEnrollment.save();
+  }
+  //Kiểm tra xem có studentId hay chưa khi tham gia lớp học
+  async checkStudentId(userId: string, classId: string): Promise<boolean> {
+    // Kiểm tra xem đã có enrollment cho userId và classId chưa
+    const existingEnrollment = await this.enrollmentsModel.findOne({
+      userId,
+      classId,
+    });
+    if (existingEnrollment) {
+      if (
+        existingEnrollment.role === 'student' &&
+        'studentId' in existingEnrollment &&
+        existingEnrollment.studentId &&
+        existingEnrollment.studentId.trim() !== ''
+      ) {
+        return true;
+      }
+      if (existingEnrollment.role === 'teacher') {
+        return true;
+      }
+      return false;
+    } else {
+      return false;
+    }
   }
   async findEnrollments(filter: any = {}) {
     return this.enrollmentsModel.find(filter).exec();
