@@ -1,6 +1,7 @@
 import {
+  Button,
   Container, FormControlLabel,
-  Grid, Switch, Table, TableBody,
+  Grid, ListItemIcon, Stack, Switch, Table, TableBody,
   TableContainer,
   TableHead,
   TableRow
@@ -17,6 +18,8 @@ import api, {setAuthToken} from "../../../api/api";
 import LoadingDataItem from "../LoadingDataItem";
 import BanAccountDialog from './dialogs/BanAccountDialog';
 import UnbanAccountDialog from './dialogs/UnbanAccountDialog';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignStudentIdToAllDialog from '../class management/dialogs/AssignStudentIdToAllDialog';
 
 const titleNames = [ "User ID", "User Info", "Status", "Action", "Details" ];
 const status = ["Pending", "Active", "Banned"];
@@ -45,6 +48,7 @@ export default function AccountListTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [isOpenBanAccountDialog, setIsOpenBanAccountDialog] = useState(false);
   const [isOpenUnbanAccountDialog, setIsOpenUnbanAccountDialog] = useState(false);
+  const [isOpenAssignStudentIdToAllDialog, setIsOpenAssignStudentIdToAllDialog] = useState(false);
   const [actionUserId, setActionUserId] = useState('');
   const [actionUsername, setActionUsername] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -198,7 +202,7 @@ export default function AccountListTab() {
 
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '60em' }}>
-      <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', gap: 1.5 }}>
+      <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', gap: 1 }}>
         <FormControlLabel
           control={<Switch checked={isDisplayFilterSide} onChange={handleFilterSwitchChange} />}
           label="Filters" labelPlacement="start"
@@ -231,6 +235,17 @@ export default function AccountListTab() {
             />
           </>
         }
+        <Button
+          variant="contained" color="primary"
+          sx={{ height: 40, alignSelf: 'center' }}
+        >
+          <Stack direction="row" alignItems="center">
+            <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
+              <AssignmentIcon />
+            </ListItemIcon>
+            {!isDisplayFilterSide && 'Map Student_IDs'}
+          </Stack>
+        </Button>
       </Container>
       <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
         <TableContainer>
@@ -262,6 +277,10 @@ export default function AccountListTab() {
         username={actionUsername}
         isOpenUnbanAccountDialog={isOpenUnbanAccountDialog}
         onCloseUnbanAccountDialog={handleCloseUnbanAccountDialog}
+        setIsSuccess={setIsSuccess}
+      />
+      <AssignStudentIdToAllDialog
+        isOpenAssignStudentIdToAllDialog={isOpenAssignStudentIdToAllDialog}
         setIsSuccess={setIsSuccess}
       />
     </Container>

@@ -96,7 +96,7 @@ export default function AssignStudentIdToAllDialog(
             <img src="/images/data_file_demo.png" alt="Data File Demo"/>
           </ImageListItem>
         </Typography>
-        <Typography gutterBottom><strong>Upload File (.xlsx, .xls):</strong></Typography>
+        <Typography gutterBottom><strong>Upload File (.xlsx, .xls, .csv):</strong></Typography>
         <Input type="file" inputProps={{ accept: ".xlsx, .xls" }} onChange={handleFileChange} />
         <Typography color={messageColor}><i>{message}</i></Typography>
       </DialogContent>
