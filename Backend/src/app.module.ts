@@ -14,6 +14,8 @@ import { ClassesModule } from './modules/classes/classes.module';
 import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.module';
 import { AssignmentsModule } from './modules/assignments/assignments.module';
 import { GradesModule } from './modules/grades/grades.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { EventsModule } from './gateway/events.module';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { GradesModule } from './modules/grades/grades.module';
     PendingInvitesModule,
     AssignmentsModule,
     GradesModule,
+    NotificationsModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],

@@ -22,6 +22,7 @@ import TeacherListTab from './TeacherListTab';
 import StudentListTab from './StudentListTab';
 import GradeBoardTab from './GradeBoardTab';
 import AssignmentListTab from './AssignmentListTab';
+import AssignmentDetail from './AssignmentDetail';
 
 
 const ClassDetailTab = () => {
@@ -32,6 +33,18 @@ const ClassDetailTab = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [studentId, setStudentId] = useState('');
   const [checkStudentId, setCheckStudentId] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+
+  const handleAssignmentClick = (assignment) => {
+    setSelectedAssignment(assignment);
+    
+  };
+  const handleAssignmentClose = () => {
+    setSelectedAssignment(null);
+
+  };
+  console.log('selectedAssignment: ', selectedAssignment);
+
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
@@ -142,12 +155,21 @@ const ClassDetailTab = () => {
         <StudentListTab classId={classId} isTeaching={isTeaching} />
       </TabPanel>
       <TabPanel value={currentTab} index={3}>
-        <AssignmentListTab classId={classId} isTeaching={isTeaching} />
+        {selectedAssignment === null ? 
+        <AssignmentListTab classId={classId} isTeaching={isTeaching} onAssignmentClick={handleAssignmentClick} />
+        :
+        <AssignmentDetail
+            assignment={selectedAssignment}
+            isTeaching={isTeaching}
+            classId={classId}
+            onClose= {handleAssignmentClose}
+          />}
       </TabPanel>
       <TabPanel value={currentTab} index={4}>
         <GradeBoardTab classId={classId} isTeaching={isTeaching} />
       </TabPanel>
         
+      
       { isLoading ? 
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
           <CircularProgress />

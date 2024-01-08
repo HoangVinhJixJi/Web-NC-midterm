@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
-export type ClassDocument = HydratedDocument<Grade>;
+export type GradeDocument = HydratedDocument<Grade>;
 @Schema({ collection: 'grade' })
 export class Grade extends mongoose.Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Class' })

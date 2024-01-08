@@ -331,7 +331,7 @@ export const uploadStudentList = async (file) => {
     const sheetData = [];
     worksheet.eachRow({ includeEmpty: false }, (row) => {
       const rowData = {
-        studentId: row.getCell(1).value,
+        studentId: row.getCell(1).value.toString(),
         fullName: row.getCell(2).value,
       };
       sheetData.push(rowData);
@@ -347,7 +347,7 @@ export const uploadStudentList = async (file) => {
         const sheetData = lines.slice(1).map((line) => {
           const values = line.split(',');
           const rowData = {
-            studentId: values[0],
+            studentId: values[0].toString(),
             fullName: values[1],
           };
           return rowData;

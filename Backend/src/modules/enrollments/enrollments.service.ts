@@ -48,6 +48,32 @@ export class EnrollmentsService {
       throw new Error(error);
     }
   }
+  async getUserIdOfStudentByClassId(classId: string): Promise<string[]> {
+    try {
+      const enrollments = await this.enrollmentsModel
+        .find({ classId, role: 'student' })
+        .exec();
+      // Lấy userIds từ enrollments
+      const userIds = enrollments.map((enrollment) =>
+        enrollment.userId.toString(),
+      );
+      return userIds;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  async getStudentIdByClassId(classId: string): Promise<string[]> {
+    try {
+      const enrollments = await this.enrollmentsModel
+        .find({ classId, role: 'student' })
+        .exec();
+      // Lấy userIds từ enrollments
+      const userIds = enrollments.map((enrollment) => enrollment.studentId);
+      return userIds;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
   async hasEmailJoinedClass(email: string, classId: string): Promise<boolean> {
     try {
       const enrolledEmails = await this.getEmailsByClassId(classId);
@@ -103,6 +129,9 @@ export class EnrollmentsService {
   }
   async getOne(classId: string, userId: any) {
     return this.enrollmentsModel.findOne({ classId, userId }).exec();
+  }
+  async getOneByStudentId(classId: string, studentId: any) {
+    return this.enrollmentsModel.findOne({ classId, studentId }).exec();
   }
   async getMembers(userId: string, classId: any, _role: string) {
     const member = await this.enrollmentsModel
@@ -164,6 +193,25 @@ export class EnrollmentsService {
       studentId: newStudentId,
     });
     return newEnrollment.save();
+  }
+  async updateListStudentId(data: any) {
+    // Tìm kiếm enrollment dựa trên classId và userId
+    const classId = data.classId;
+    const updated = [];
+    for (const row of data) {
+      // Tìm kiếm enrollment dựa trên classId và userId
+      const existingEnrollment = await this.enrollmentsModel
+        .findOne({ classId, userId: row.userId })
+        .exec();
+      // Nếu tồn tại enrollment, thì cập nhật giá trị studentId
+      if (existingEnrollment) {
+        existingEnrollment.studentId = row['studentId'];
+        await existingEnrollment.save();
+        console.log('existingEnrollment: ', existingEnrollment);
+        updated.push(existingEnrollment);
+      }
+    }
+    return updated;
   }
   //Kiểm tra xem có studentId hay chưa khi tham gia lớp học
   async checkStudentId(userId: string, classId: string): Promise<boolean> {

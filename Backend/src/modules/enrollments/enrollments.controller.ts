@@ -46,7 +46,7 @@ export class EnrollmentsController {
     return this.enrollmentsService.findAllByClassId(classId);
   }
   @Post('update/:classId')
-  async createNewAssignment(
+  async updateStudentId(
     @Request() req: any,
     @Param('classId') classId: string,
     @Body(new ValidationPipe({ transform: true }))
@@ -54,5 +54,13 @@ export class EnrollmentsController {
   ): Promise<Enrollment | null> {
     const userId = req.user.sub;
     return this.enrollmentsService.updateStudentId(classId, userId, studentId);
+  }
+  @Post('update/list')
+  async updateListStudentId(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    data: any,
+  ): Promise<any[]> {
+    return this.enrollmentsService.updateListStudentId(data);
   }
 }

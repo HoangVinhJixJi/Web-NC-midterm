@@ -101,11 +101,14 @@ const GradeBoardTab = ({classId, isTeaching}) => {
   const [students, setStudents] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [grades, setGrades] = useState([]);
+  const [total, setTotal] = useState([]);
   const [data, setData] = useState([]);
   const [curValue, setCurValue] = useState('');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [selectedScore, setSelectedScore] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [isPublic, setIsPublic] = useState(false);
+
   //Interface
   const [isLoading, setIsLoading] = useState(true);
   const [messageInputGrade, setMessageInputGrade] = useState('');
@@ -117,8 +120,30 @@ const GradeBoardTab = ({classId, isTeaching}) => {
   const [fileTypeMenuAnchorEl, setFileTypeMenuAnchorEl] = useState(null);
 
   const navigate = useNavigate();
+  // Tính tổng điểm cho từng học sinh 
+  const totalGradeData = (data) => {
+    const totalData = data.map((row) => {
+      let sum = 0;
+      let validAssignments = 0;
+      row.assignments.forEach((assign) => {
+        console.log(assign.score);
+        if (assign.score !== '' && assign.score !== null && !isNaN(assign.score)) {
+          sum += parseFloat(assign.score);
+          validAssignments++;
+        }
+      });
+      const averageGrade = validAssignments !== 0 ? (sum / validAssignments).toFixed(2) : '';
+      return {
+        studentId: row.studentId,
+        grade: averageGrade,
+      };
+    });
+    return totalData;
+  };
+
+  
   // * Call API render Grade Board
-  useEffect(() => {
+  const getDataAPI= ()=>{
     const fetchStudentData = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -208,9 +233,16 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       //Tạo mảng data để hiện thị Grade Board
       const dataSample = createDataSample(StudentData,AssignmentData, GradeData );
       console.log('1. => data Merge : ', dataSample);
+      const totalData = totalGradeData(dataSample);
+      
+      console.log('totalData: ', totalData);
+      setTotal(totalData);
       setData(dataSample);
     }
     callGradeData();
+  }
+  useEffect(() => {
+    getDataAPI();
   }, []); 
 
 
@@ -225,15 +257,23 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     setSelectedScore(value);
     setCurValue(value);
   }
+  
   const changeCellGrade = (value, studentId, assignmentName) =>{
+    
     const updatedData = data.map((row) => {
       if (row.studentId === studentId) {
+        const updatedAssignments = row.assignments.map((assignment) => {
+          if (assignment.name === assignmentName) {
+            return {
+              ...assignment,
+              score: value,
+            };
+          }
+          return assignment;
+        });
         return {
           ...row,
-          assignments: {
-            ...row.assignments,
-            [assignmentName]: value,
-          },
+          assignments: updatedAssignments,
         };
       }
       return row;
@@ -252,16 +292,20 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     setSelectedAssignment(assignment);
   };
 
-  const handleScoreMenuOpen = (event, score, studentId, assignmentName) => {
-    setSelectedStudent(studentId);
+  const handleScoreMenuOpen = (event, assignmentName, row) => {
+    const gradeObj = row.assignments.find((assign) => assign.name === assignmentName);
+    setSelectedStudent(row.studentId);
+    setIsPublic(gradeObj.status === 'public');
     setSelectedAssignment(assignmentName);
     setScoreMenuAnchorEl(event.currentTarget);
-    setSelectedScore(score);
+    setSelectedScore(gradeObj.score);
+    
   };
 
   const handleMenuClose = () => {
     setAssignmentMenuAnchorEl(null);
     setScoreMenuAnchorEl(null);
+    setFileTypeMenuAnchorEl(null);
     setSelectedAssignment(null);
     setSelectedScore(null);
   };
@@ -324,7 +368,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     }
     else if(selectedScore !== curValue )
     {
-      if(selectedScore === ''){
+      if(selectedScore === ''){ //Điểm số rỗng tức là xóa điểm số của bài tập 
         const deleteGrade = async (gradeData) => {
           try {
             const response = await api.post(`/grades/delete`, gradeData);
@@ -346,33 +390,41 @@ const GradeBoardTab = ({classId, isTeaching}) => {
         }, 3000);
       }
       else{
+        //Tiến hành cập nhật lại giá trị điểm cho học sinh
         const gradeData = {
           classId: classId,
           assignmentId: assignments.find((a)=>{return a.assignmentName === assignmentName} ).assignmentId,
           studentId: studentId,
           score: parseInt(selectedScore),
-          status: 'unlisted',
+          status: 'unlisted', //cho dù trước đó là 'public' cũng đặt lại 'unlisted'
         }
         console.log(gradeData);
         const sendGradeData = async (gradeData) => {
           try {
             //Lưu điểm số
             const response = await api.post(`/grades/create`, gradeData);
+            setMessageInputGrade('Grade is updated successfully!!!');
+            
             //Lưu thông tin toàn bộ lớp học vào state
             return response.data;
           } catch (error) {
             // Xử lý lỗi
             console.error('Error fetching user data:', error);
+            setMessageInputGrade('### Error when update Grade ###');
             // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
             if (error.response && error.response.status === 401) {
               navigate('/signin');
             }
+            return null;
           }
         };
         const updated = sendGradeData(gradeData);
-        console.log("setSelectedScore(score);  = ", updated);
+        console.log("update grade after fetch;  = ", updated);
+        
         setSnackbarOpen(true);
-        setMessageInputGrade('Grade is updated successfully!!!');
+        getDataAPI();
+        const totalData = totalGradeData(data);
+        setTotal(totalData);
         setTimeout(() => {
           setSnackbarOpen(false);
         }, 3000);
@@ -403,7 +455,55 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     };
     const updated = await sendData(gradeData);
     console.log('updated: ', updated);
+    getDataAPI();
   }  
+  //Xử lý trả bài cho toàn bộ học sinh
+  const handlePublicAssignmentGrade = async () =>{
+    handleMenuClose();
+    const assignmentData = {
+      classId: classId,
+      assignmentId: assignments.find((a)=>{return a.assignmentName === selectedAssignment} ).assignmentId,
+    }
+    console.log('assignmentData update status: ', assignmentData);
+    const sendData = async (data) => {
+      try {
+        const response = await api.post(`/grades/assignment/change-status`, data);
+        console.log('response.data: ', response.data);
+        return response.data;
+      } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
+      }
+    };
+    const updated = await sendData(assignmentData);
+    console.log('updated: ', updated);
+    getDataAPI();
+  }  
+  //Thử thao tác tạo NOtification
+  const handlePublicTestNoti = async () => {
+    handleMenuClose();
+
+    const notiData = {
+      receiveId: students.find((stu)=> stu.studentId === selectedStudent).userId,
+      message: 'Thông báo đây là 1 thông báo để thông báo có thông báo',
+      type: 'public_grade',
+      status: 'unread',
+    }
+    console.log('notidata : ', notiData);
+    
+    const sendData = async (notiData) => {
+      try {
+        const response = await api.post(`/notifications/send`, notiData);
+        return response.data;
+      } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
+      }
+    };
+    const updated = await sendData(notiData);
+    console.log('updated: ', updated);
+  } 
+
   
   // Xử lý Download file
   const handleFileTypeSelect = (fileType) => {
@@ -484,10 +584,11 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     };
     sendGradeAssignmentData(gradeData);
     setIsUploadFile(false);
+    getDataAPI();
   }
   //Danh sách tên các bài tập 
   const assignmentNames = assignments.map((assignment) => assignment.assignmentName);
-
+  console.log('============ data ========= ', data);
   return (
     <>
     { students && isLoading ? 
@@ -581,6 +682,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
               {row.studentName} 
             </TableCell>
             {assignmentNames.map((assignmentName) => {
+              
               const gradeObj = row.assignments.find((assign) => assign.name === assignmentName);
               return (
               <TableCell key={assignmentName} align="right" style={{  width: '150px', borderRight:  '1px solid #ddd'}}>
@@ -593,7 +695,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
                     onBlur={() => handleSaveGradeChanges(row.studentId, assignmentName)}
                     InputProps={{
                       style: {
-                        color: gradeObj?.status === 'public' ? 'green' : 'black',
+                        color: gradeObj?.status === 'public' ? 'black' : 'red',
                       },
                     }}
                   />
@@ -601,7 +703,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
                   <IconButton
                     aria-controls="score-menu"
                     aria-haspopup="true"
-                    onClick={(event) => handleScoreMenuOpen(event, gradeObj.score, row.studentId, assignmentName )}
+                    onClick={(event) => handleScoreMenuOpen(event, assignmentName, row )}
                   >
                     <MoreVertIcon />
                   </IconButton>
@@ -609,24 +711,35 @@ const GradeBoardTab = ({classId, isTeaching}) => {
               </TableCell>
             )})}
             {/* { ===== Cột tổng điểm Total grade ========} */}
-            <TableCell key={rowIndex} align="right" style={{  width: '150px', borderRight:  '1px solid #ddd' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>
-                  <TextField
-                    value={''}
-                    // onChange={(e) => handleCellValueChange(e, row.studentId, assignmentName)}
-                    // onBlur={() => handleSaveGradeChanges(row.studentId, assignmentName)}
-                  />
-                  </span>
-                  <IconButton
-                    aria-controls="score-menu"
-                    aria-haspopup="true"
-                    onClick={(event) => handleScoreMenuOpen(event, '')}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </div>
-              </TableCell>
+            {total.map((totalGrade, totalIndex) => {
+
+              if (totalGrade.studentId === row.studentId) {
+                return (
+                  <TableCell key={totalIndex} align="right" style={{ width: '150px', borderRight: '1px solid #ddd' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>
+                        <TextField
+                          value={totalGrade.grade !== '' ? totalGrade.grade : ''}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </span>
+                      <IconButton
+                        aria-controls="score-menu"
+                        aria-haspopup="true"
+                        onClick={(event) => handleScoreMenuOpen(event, '')}
+                      >
+                        <MoreVertIcon />
+                      </IconButton>
+                    </div>
+                  </TableCell>
+                );
+              }
+              return null;
+            })}
+            
+            
           </TableRow>
         ))}
       </TableBody>
@@ -641,7 +754,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     >
       <MenuItem onClick={handleMenuClose}>Chỉnh sửa</MenuItem>
       <MenuItem onClick={handleMenuClose}>Xóa</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Trả bài tất cả</MenuItem>
+      <MenuItem onClick={handlePublicAssignmentGrade}>Trả bài tất cả</MenuItem>
       <MenuItem onClick={handleFileTypeClick}>Download Assignment</MenuItem>
       <MenuItem onClick={handleFileTypeClick}>Download Template</MenuItem>
       
@@ -658,9 +771,11 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     </Menu>
     {/* { ===== Menu File type ========} */}
     <Menu
+      id="filetype-menu"
       open={Boolean(fileTypeMenuAnchorEl)}
       anchorEl={fileTypeMenuAnchorEl}
-      autoHideDuration={3000}
+      keepMounted
+      onClose={handleMenuClose}
       anchorOrigin={{
         vertical: 'top',
         horizontal: 'right',
@@ -681,8 +796,8 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       open={Boolean(scoreMenuAnchorEl)}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handlePublicGrade}>Trả bài</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Thao tác với điểm</MenuItem>
+      <MenuItem disabled={isPublic}  onClick={handlePublicGrade}>Trả bài</MenuItem>
+      <MenuItem onClick={handlePublicTestNoti}>Thao tác với điểm</MenuItem>
     </Menu>
     {/* { ===== Thông báo lỗi input ========} */}
     <Snackbar

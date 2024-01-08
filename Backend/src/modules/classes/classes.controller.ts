@@ -23,6 +23,7 @@ import { UsersService } from '../users/users.service';
 import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { EventsGateway } from 'src/gateway/events.gateway';
 
 @Controller('classes')
 export class ClassesController {
@@ -33,6 +34,7 @@ export class ClassesController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly eventsGateway: EventsGateway,
   ) {}
   @Get('/')
   @UseGuards(JwtAuthGuard)

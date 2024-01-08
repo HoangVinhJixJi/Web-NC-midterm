@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../modules/users/schema/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class AuthService {
@@ -320,5 +321,21 @@ export class AuthService {
       }),
       // access_token: this.jwtService.signAsync(payload),
     };
+  }
+  async getUserFromSocket(socket: Socket): Promise<any | null> {
+    const token = socket.handshake.auth.token;
+    console.log('=======================auth Header token: ', token);
+    if (token) {
+      try {
+        const decoded = this.jwtService.verify(token);
+        console.log('decode: ', decoded);
+        const userId = decoded.sub;
+        return { userId }; // Trả về đối tượng user với thông tin userId
+      } catch (error) {
+        // Xác thực không thành công
+        return null;
+      }
+    }
+    return null; // Không có token trong header
   }
 }
