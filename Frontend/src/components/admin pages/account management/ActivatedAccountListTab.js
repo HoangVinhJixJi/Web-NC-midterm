@@ -15,7 +15,7 @@ import LoadingDataItem from "../LoadingDataItem";
 import NoResultsFoundItem from "../NoResultsFoundItem";
 import BanAccountDialog from './dialogs/BanAccountDialog';
 
-const titleNames = [ "User ID", "User Info", "Action", "Details" ];
+const titleNames = [ "User ID", "User Info", "Student ID", "Action", "Details" ];
 export default function ActivatedAccountListTab() {
   const [accounts, setAccounts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,6 +25,7 @@ export default function ActivatedAccountListTab() {
   const [sortedTitleMap, setSortedTitleMap] = useState({
     sortByUserId: { name: 'User ID', query: 'userId', order: 'asc' },
     sortByUserInfo: { name: 'User Info', query: 'fullName', order: '' },
+    sortByStudentId: { name: 'Student ID', query: 'studentId', order: '' },
   });
   const [sortOrder, setSortOrder] = useState(sortedTitleMap.sortByUserId.order); // 'asc' hoặc 'desc'
   const [sortedBy, setSortedBy] = useState(sortedTitleMap.sortByUserId.query);
@@ -62,6 +63,13 @@ export default function ActivatedAccountListTab() {
         onBanClick={() => handleBanClick(account['userId'], account['username'])}
       />
     ));
+  }
+  function handleClearClick() {
+    setSearchTerm("");
+    setIsSearchEnabled(false);
+    setIsSearchClick(isSearchClick => !isSearchClick);
+    setCurrentPage(1);
+    setTotalPages(0);
   }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
@@ -122,11 +130,12 @@ export default function ActivatedAccountListTab() {
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '60em' }}>
       <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
         <SearchBar
-          placeholder="Search User ID, Name"
+          placeholder="Search User/Student ID, Name"
           searchTerm={searchTerm}
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
+          onClearClick={handleClearClick}
         />
       </Container>
       <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>

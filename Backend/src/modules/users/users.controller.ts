@@ -14,11 +14,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { UserDto } from './dto/user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
 
+@UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
+@Roles(Role.User)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  @UseGuards(JwtAuthGuard)
   @Post('update')
   async updateProfile(
     @Request() req,
@@ -75,7 +80,6 @@ export class UsersController {
       avatar: updatedUser.avatar,
     };
   }
-  @UseGuards(JwtAuthGuard)
   @Post('update-password')
   async updatePassword(
     @Request() req,

@@ -25,11 +25,11 @@ export default function UnbanAccountDialog(
       const response = await api.post('/admin/management/account/unban', data);
       console.log('Banned account info: ', response.data);
       if (response.data) {
-        setMessageColor("success");
+        setMessageColor("success.main");
         setMessage(`The account with username '${username}' has been successfully unbanned`);
         setIsSuccess(true);
       } else {
-        setMessageColor("error");
+        setMessageColor("error.main");
         setMessage(`Account unban failed, please try again.`);
         setIsSuccess(false);
       }
@@ -43,7 +43,7 @@ export default function UnbanAccountDialog(
     setMessage('');
     setIsDisabled(false);
     setIsDisplayCloseButton(false);
-  }, [userId]);
+  }, [isOpenUnbanAccountDialog]);
 
   return (
     <Dialog open={isOpenUnbanAccountDialog} onClose={() => onCloseUnbanAccountDialog(userId)}>
@@ -53,7 +53,7 @@ export default function UnbanAccountDialog(
           <div>By clicking the confirmation button below, you will agree to unban the account for this user.</div>
           <div>The unbanned account will log in and function normally again.</div>
         </Typography>
-        <Typography color={messageColor}><i>{message}</i></Typography>
+        <Typography sx={{ color: messageColor }}><i>{message}</i></Typography>
       </DialogContent>
       <DialogActions>
         {!isDisplayCloseButton

@@ -59,6 +59,9 @@ export default function PersonalInfoTab({ username }) {
             <Typography variant="subtitle1" gutterBottom>
               <b>Gender:</b> {user.gender ?? NO_DATA}
             </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              <b>Student ID:</b> {user.studentId ?? NO_DATA}
+            </Typography>
           </Box>
         </Grid>
 

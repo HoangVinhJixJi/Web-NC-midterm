@@ -510,7 +510,7 @@ export class ClassesService {
       'userId',
       null,
       'student',
-      '_id username fullName avatar',
+      '_id username fullName avatar studentId',
     );
     return students.map((student) => {
       const userIdObj: any = student.userId;
@@ -520,7 +520,7 @@ export class ClassesService {
         fullName: userIdObj.fullName,
         avatar: userIdObj.avatar,
         timeOfParticipation: student.joinAt,
-        studentId: student.studentId,
+        studentId: userIdObj.studentId,
       };
     });
   }

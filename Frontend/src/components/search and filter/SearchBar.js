@@ -3,7 +3,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from '@mui/icons-material/Clear';
 import React from "react";
 
-export default function SearchBar({ placeholder, searchTerm, onSearchTermChange, isButtonSearchEnabled, onSearchClick }) {
+export default function SearchBar({ placeholder, searchTerm, onSearchTermChange, isButtonSearchEnabled, onSearchClick, onClearClick }) {
   return (
     <TextField
       sx={{ marginRight: 2.5, width: "22em" }}
@@ -13,7 +13,9 @@ export default function SearchBar({ placeholder, searchTerm, onSearchTermChange,
         endAdornment: (
           <InputAdornment position="end">
             {searchTerm !== '' &&
-              <Button sx={{ minWidth: 0, color: "gray" }}><ClearIcon /></Button>
+              <Button sx={{ minWidth: 0, color: "gray" }} onClick={onClearClick}>
+                <ClearIcon />
+              </Button>
             }
             <Button
               variant="contained" color="primary" sx={{ minWidth: 0 }}

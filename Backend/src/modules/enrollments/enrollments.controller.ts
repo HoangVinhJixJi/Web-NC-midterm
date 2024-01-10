@@ -11,9 +11,14 @@ import {
 import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { EnrollmentsService } from './enrollments.service';
 import { Enrollment } from './schema/enrollment.schema';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
 
+@UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
+@Roles(Role.User)
 @Controller('enrollments')
-@UseGuards(JwtAuthGuard)
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
   @Get(':classId')

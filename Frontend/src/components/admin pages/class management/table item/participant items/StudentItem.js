@@ -23,7 +23,7 @@ export default function StudentItem({ student, onAssignStudentIdClick }) {
         {student['timeOfParticipation']}
       </TableCell>
       <TableCell>
-        {student['studentId'] ?? 'NO DATA'}
+        {student['studentId'] ?? '<NO DATA>'}
       </TableCell>
       <TableCell>
         <ActionButton action="assign_id" handler={onAssignStudentIdClick} />

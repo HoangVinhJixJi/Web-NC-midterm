@@ -4,6 +4,7 @@ import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {useAuth as useAuthContext} from "../api/AuthContext";
 import api from "../api/api";
+import BannedInfoDialog from './dialogs/BannedInfoDialog';
 
 export default function AdminSignIn() {
   const { login, isLoggedIn, isAdmin } = useAuthContext();
@@ -12,6 +13,8 @@ export default function AdminSignIn() {
   const [showPassword, setShowPassword] = useState(false); // State for password visibility
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const [isOpenBannedInfoDialog, setIsOpenBannedInfoDialog] = useState(false);
+  const [bannedInfo, setBannedInfo] = useState({});
 
   useEffect(() => {
     // Kiểm tra trạng thái đăng nhập
@@ -21,6 +24,9 @@ export default function AdminSignIn() {
     }
   }, [isLoggedIn, navigate]);
 
+  function handleCloseBannedInfoDialog() {
+    setIsOpenBannedInfoDialog(false);
+  }
   const handleSignIn = async (event) => {
     try {
       event.preventDefault();
@@ -35,18 +41,45 @@ export default function AdminSignIn() {
       };
       console.log(u);
       // Call the login API from the backend
-      const response = await api.post('/auth/login?role=admin', u);
+      const response = await api.post('/auth/admin-login', u);
       // Handle API response
       if (response.data) {
-        navigate('/admin');
-        console.log(response.data);
-        const { userData, access_token } = response.data;
-        // Save user information and token to localStorage or sessionStorage
-        login(access_token, userData);
+        if (response.data.status === 403) {
+          setMessage('Your account does not have this permission.');
+        } else {
+          navigate('/admin');
+          console.log(response.data);
+          const { userData, access_token } = response.data;
+          // Save user information and token to localStorage or sessionStorage
+          login(access_token, userData);
+        }
       }
     } catch (error) {
-      setMessage('Sign in failed. Try again!');
-      console.error('Sign in failed:', error);
+      if (error.response) {
+        console.log(error.response.data);
+        switch (error.response.status) {
+          case 400:
+            setMessage('Wrong password. Try again!');
+            break;
+          case 401:
+            setMessage('Account has not been activated. Please check the email to active your account.');
+            break;
+          case 403:
+            if (error.response.data['message'] === 'Forbidden') {
+              setMessage('Your account does not have this permission.');
+            } else {
+              setBannedInfo(error.response.data);
+              setIsOpenBannedInfoDialog(true);
+            }
+            break;
+          default:
+            setMessage('Sign in failed. Try again!');
+            console.error('Sign in failed:', error);
+        }
+      } else {
+        setMessage('Sign in failed. Try again!');
+        console.error('Sign in failed:', error);
+      }
     }
   };
   return (
@@ -97,6 +130,11 @@ export default function AdminSignIn() {
           <Link to="/signin">Login as User</Link>
         </Typography>
       </Paper>
+      <BannedInfoDialog
+        bannedInfo={bannedInfo}
+        isOpenDialog={isOpenBannedInfoDialog}
+        onCloseDialogClick={handleCloseBannedInfoDialog}
+      />
     </Container>
   );
 }

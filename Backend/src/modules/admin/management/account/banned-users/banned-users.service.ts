@@ -3,13 +3,13 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BannedUser } from '../schema/banned-user.schema';
-import { UsersService } from '../../../../users/users.service';
+import { User } from '../../../../users/schema/user.schema';
 
 @Injectable()
 export class BannedUsersService {
   constructor(
     @InjectModel('BannedUser') private bannedUserModel: Model<BannedUser>,
-    private usersService: UsersService,
+    @InjectModel('User') private usersModel: Model<User>,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -25,12 +25,9 @@ export class BannedUsersService {
         userId: ban.userId,
       });
       if (unbanUser) {
-        return this.usersService.updateUserByField(
-          unbanUser.userId.toString(),
-          {
-            isActivated: true,
-            isBanned: false,
-          },
+        return this.usersModel.findOneAndUpdate(
+          { _id: unbanUser.userId.toString() },
+          { isActivated: true, isBanned: false },
         );
       }
     }

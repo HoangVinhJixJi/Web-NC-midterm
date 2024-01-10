@@ -17,11 +17,12 @@ import { RestoreClassDto } from './dto/restore-class.dto';
 import { DeleteClassDto } from './dto/delete-class.dto';
 import { AssignStudentIdDto } from './dto/assign-student-id.dto';
 import { AssignStudentIdToAllDto } from './dto/assign-student-id-to-all.dto';
+import { AccountStatusGuard } from '../../../../auth/account-status/account-status.guard';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
 @Roles(Role.Admin)
 @Controller('admin/management/class')
 export class ClassController {
