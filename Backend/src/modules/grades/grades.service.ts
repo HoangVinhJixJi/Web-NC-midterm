@@ -253,4 +253,26 @@ export class GradesService {
       throw new Error(error);
     }
   }
+  async findMyGrade(
+    userId: string,
+    classId: string,
+    assignmentId: string,
+  ): Promise<any | null> {
+    try {
+      const enroll = await this.enrollmentsService.getOne(classId, userId);
+      if (enroll) {
+        const myGrade = await this.gradesModel
+          .findOne({ studentId: enroll.studentId, classId, assignmentId })
+          .exec();
+        if (myGrade.status === 'public') {
+          return myGrade;
+        } else {
+          myGrade.score = null; //KHông tiết lộ điểm
+          return myGrade;
+        }
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

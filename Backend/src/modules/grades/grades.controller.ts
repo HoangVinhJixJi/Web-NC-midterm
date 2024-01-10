@@ -115,4 +115,20 @@ export class GradesController {
     console.log('/assignment/change-status: => updated: ', updated);
     return updated;
   }
+  //Lấy thông tin điểm bài tập của mình
+  @Get('/get/my-grade/:classId/:assignmentId')
+  @UseGuards(JwtAuthGuard)
+  async getMyGrade(
+    @Request() req: any,
+    @Param('assignmentId') assignmentId: string,
+    @Param('classId') classId: string,
+  ): Promise<any> {
+    const userId = req.user.sub;
+    const mygrade = await this.gradesService.findMyGrade(
+      userId,
+      classId,
+      assignmentId,
+    );
+    return mygrade;
+  }
 }

@@ -37,7 +37,7 @@ function Header() {
     const [unreadCount, setUnreadCount] = React.useState(0);
     const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
     const navigate = useNavigate();
-    console.log(isAdmin);
+    //console.log(isAdmin);
     // Fetch danh sách thông báo 
     const fetchNotiData = async () => {
         try {
@@ -79,21 +79,6 @@ function Header() {
           setNotifications(list);
           setUnreadCount(list.filter((noti) => { return noti.status === 'unread'}).length);
           return list;
-          
-        } catch (error) {
-          // Xử lý lỗi
-          console.error('Error fetching user data:', error);
-          
-        }
-    };
-    // Fetch danh sách thông báo 
-    const fetchNotiDataAll = async () => {
-        try {
-          
-          const response = await api.get(`/notifications/delete/all`);
-          console.log('List Notifications Data response.data: ', response.data);
-          
-          return  response.data;
           
         } catch (error) {
           // Xử lý lỗi
@@ -171,6 +156,10 @@ function Header() {
     const handleOpenNoti = (event) => {
         setAnchorElNoti(event.currentTarget);
         setIsChange(true);
+        const notiData = fetchNotiData();
+        notiData.then((result) => {
+            console.log("result: ", result);
+        });
     };
 
     const handleClose = () => {
