@@ -18,7 +18,8 @@ import MainContent from "./tab and sidebar/MainContent";
 
 import { Container } from '@mui/material';
 import NotificationJoinClass from './classroom/NotificationJoinClass';
-// Tạo các component tương ứng với các tab
+import AssignmentDetail from './classroom/AssignmentDetail';
+
 
 
 const Classroom = () => {
@@ -31,6 +32,10 @@ const Classroom = () => {
   };
 
   const handleClassClick = (classId) => {
+    // Chuyển hướng đến trang chi tiết lớp học
+    navigate(`/classroom/class-detail/${classId}`);
+  };
+  const handleReturnAssignmentList = (classId) => {
     // Chuyển hướng đến trang chi tiết lớp học
     navigate(`/classroom/class-detail/${classId}`);
   };
@@ -71,6 +76,8 @@ const Classroom = () => {
           <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick}/>} />
           <Route path="/class-detail/:classId" element={<ClassDetailTab />} />
           <Route path="/class-code/:classCode" element={<NotificationJoinClass />} />
+          <Route path="/class-detail/:classId/assignment-detail/:assignmentId" 
+                element={<AssignmentDetail />} />
         </Routes>
 
       </MainContent>

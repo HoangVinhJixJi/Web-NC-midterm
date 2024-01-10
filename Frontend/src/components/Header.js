@@ -15,6 +15,11 @@ import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth as useAuthContext } from '../api/AuthContext';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { Badge, List, ListItem, ListItemButton, Popover } from '@mui/material';
+import api, {setAuthToken} from '../api/api';
+import io from 'socket.io-client';
+
 const pages = ['home', 'about', 'classroom'];
 const adminPages = ['admin', 'management'];
 const managements = ['account', 'class'];
@@ -23,9 +28,175 @@ function Header() {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const [anchorElManagement, setAnchorElManagement] = React.useState(null);
-    const navigate = useNavigate();
+    const [anchorElNoti, setAnchorElNoti] = React.useState(null);
+    const [isChange, setIsChange] = React.useState(false);
+    const [notifications, setNotifications] = React.useState([]); 
+    const [classId, setClassId] = React.useState(null);
+    const [assignmentId, setAssignmentId] = React.useState(null);
+    const [message, setMessage] = React.useState('');
+    const [unreadCount, setUnreadCount] = React.useState(0);
     const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
-    console.log(isAdmin);
+    const navigate = useNavigate();
+    //console.log(isAdmin);
+    // Fetch danh sách thông báo 
+    const fetchNotiData = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if(!token){
+            console.error('Error fetching user data:', Error);
+            navigate('/signin');
+          }
+          setAuthToken(token);
+          // Gọi API để lấy dữ liệu danh sách toàn bộ các thông báo
+          const response = await api.get(`/notifications/get/receive`);
+          console.log('List Notifications Data response.data: ', response.data);
+          
+          // kiểm tra thông tin học sinh
+          const list = response.data.reduce((accumulator, obj) => {
+            if (obj != null ) {
+                const match = obj.message.match(/classId: (.+),assignmentId: (.+),message: (.+)/);
+                if (match) {
+                    setClassId(match[1]);
+                    setAssignmentId( match[2]);
+                    setMessage(match[3]);
+
+                    console.log('classId:', match[1]);
+                    console.log('assignmentId:',match[2]);
+                    console.log('message:', match[3]);
+                    obj.classId = match[1];
+                    obj.assignmentId = match[2];
+                    obj.message = match[3];
+                // Sử dụng classId, assignmentId, và message ở đây
+                } else {
+                    console.log('Không tìm thấy thông tin cần thiết trong message hoặc định dạng không đúng.');
+                
+                }
+                accumulator.push(obj);
+            }
+            return accumulator;
+          }, []);
+          list.reverse();
+          setNotifications(list);
+          setUnreadCount(list.filter((noti) => { return noti.status === 'unread'}).length);
+          return list;
+          
+        } catch (error) {
+          // Xử lý lỗi
+          console.error('Error fetching user data:', error);
+          
+        }
+    };
+    // update status noti
+    const updateNotiStatus = async (notiId) => {
+        try {
+        const data = {
+            notificationId: notiId,
+            status: 'read',
+        }
+        const response = await api.post(`/notifications/update/status`, data);
+        console.log('List Notifications Data response.data: ', response.data);
+        
+        return response.data;
+        } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
+        
+        }
+    };
+
+    React.useEffect(() => {
+        // Kiểm tra nếu đã đăng nhập và có token
+        if (isLoggedIn) {
+            const token = localStorage.getItem('token');
+    
+            // Khởi tạo socket và kết nối
+            const socket = io('http://localhost:5000', {
+                auth: { token },
+            });
+            console.log('dã đăng nhập');
+    
+            // Lắng nghe sự kiện 'public_grade' từ server
+            socket.on('public_grade', (data) => {
+                console.log('******* New Notification public_grade socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                setUnreadCount((prevCount) => prevCount + 1);
+            });
+            //
+            socket.on('message', (data) => {
+                console.log('******* New Notification socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                setUnreadCount((prevCount) => prevCount + 1);
+            });
+    
+            const notiData = fetchNotiData();
+            notiData.then((result) => {
+                console.log("result: ", result);
+            });
+    
+            // Trả về hàm cleanup để ngắt kết nối socket khi component unmount hoặc người dùng đăng xuất
+            return () => {
+                socket.disconnect();
+            };
+        }
+    
+        // Người dùng không đăng nhập, không cần kết nối socket
+        return () => {};
+    }, [isLoggedIn]); 
+    
+    
+    function notificationsLabel(count) {
+        if (count === 0) {
+          return 'no notifications';
+        }
+        if (count > 99) {
+          return 'more than 99 notifications';
+        }
+        return `${count} notifications`;
+      }
+    const handleOpenNoti = (event) => {
+        setAnchorElNoti(event.currentTarget);
+        setIsChange(true);
+        const notiData = fetchNotiData();
+        notiData.then((result) => {
+            console.log("result: ", result);
+        });
+    };
+
+    const handleClose = () => {
+        setAnchorElNoti(null);
+        setIsChange(false);
+    };
+    
+    const handleNotificationClick = async (notificationId) => {
+        // Xử lý khi click vào một thông báo, chuyển hướng đến đường dẫn của nội dung thông báo
+        console.log(`Redirect to notification ${notificationId}`);
+        //Thông tin notification
+        const noti = notifications.filter((noti)=> noti._id === notificationId)[0];
+        console.log(noti);
+        //Cập nhật status notification
+        if(noti.status === 'unread'){
+            const updated = await updateNotiStatus(notificationId);
+            if(updated && updated.status !== 'read'){
+                setUnreadCount((prevCount) => prevCount - 1);
+            }
+        }
+        
+        
+        //Navigate
+        if(noti.type === 'public_grade'){
+            console.log('public_grade');
+            navigate(`/classroom/class-detail/${classId}/assignment-detail/${assignmentId}`);
+        }
+        else if (noti.type === 'comment'){
+            console.log('comment');
+            //navigate(`/classroom/class-detail/:classId}/assignment-detail/:assignment._id}`)
+        }
+        else if (noti.type === 'final_decision'){
+            console.log('final_decision');
+            //navigate(`/classroom/class-detail/:classId}`, { state: { currentTab: 3 } });
+        }
+        handleClose();
+    };
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -187,7 +358,59 @@ function Header() {
                     <Box sx={{ flexGrow: 0 }} >
                         {isLoggedIn ? (
                             <>
+                                <IconButton color="inherit" onClick={handleOpenNoti} aria-label={notificationsLabel(100)}>
+                                    <Badge badgeContent={unreadCount} color='error'>
+                                        <NotificationsIcon />
+                                    </Badge>
+                                </IconButton>
+                                <Popover
+                                    open={Boolean(anchorElNoti)}
+                                    anchorEl={anchorElNoti}
+                                    onClose={handleClose}
+                                    anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
+                                    }}
+                                    transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                    }}
+                                >
+                                    <List sx={{maxWidth: '30vw',  maxHeight: '300px', overflowY: 'auto'}}>
+                                    {notifications && notifications.length === 0 ? 
+                                        <ListItemButton>
+                                        <Typography
+                                        style={{
+                                            display: '-webkit-box',
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
+                                            }}
+                                        >Không có thông báo!</Typography>
+                                        </ListItemButton>
+                                        :
+                                        notifications.map((notification, index) => (
+                                        <ListItemButton
+                                        key={notification._id}
+                                        onClick={() => handleNotificationClick(notification._id)}
+                                        sx={{ borderTop: index === 0 ? 'none':'1px solid #ccc'}}
+                                        >
+                                        <Typography
+                                        style={{
+                                            display: '-webkit-box',
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
+                                            }}
+                                        >{notification.message}</Typography>
+                                        </ListItemButton>
+                                        ))
+                                    }
+                                    </List>
+                                </Popover>
+
                                 <Tooltip title="Open settings">
+
 
                                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                         <Typography color={'white'} px={2}> {user.fullName} </Typography>

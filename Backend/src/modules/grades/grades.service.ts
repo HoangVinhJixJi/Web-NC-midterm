@@ -5,6 +5,10 @@ import { Grade } from './schema/grade.schema';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CreateGradeDto } from './dto/create-grade.dto';
+import { EnrollmentsService } from '../enrollments/enrollments.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { AssignmentsService } from '../assignments/assignments.service';
+import { EventsGateway } from 'src/gateway/events.gateway';
 @Injectable()
 export class GradesService {
   constructor(
@@ -12,35 +16,43 @@ export class GradesService {
     private gradesModel: Model<Grade>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly enrollmentsService: EnrollmentsService,
+    private readonly notificationsService: NotificationsService,
+    private readonly assignmentsService: AssignmentsService,
+    private readonly eventsGateway: EventsGateway,
   ) {}
   async create(gradeData: CreateGradeDto): Promise<Grade> {
-    //console.log('gradeData before update: ', gradeData);
-    const newGradeData = {
-      classId: gradeData.classId,
-      assignmentId: gradeData.assignmentId,
-      studentId: gradeData.studentId,
-      score: gradeData.score,
-      status: gradeData.status,
-    };
-    const existingGrade = await this.gradesModel
-      .findOne({
+    try {
+      //console.log('gradeData before update: ', gradeData);
+      const newGradeData = {
         classId: gradeData.classId,
         assignmentId: gradeData.assignmentId,
         studentId: gradeData.studentId,
-      })
-      .exec();
-    //console.log('existingGrade: ', existingGrade);
-    // Nếu tồn tại grade
-    if (existingGrade) {
-      existingGrade.score = gradeData['score'];
-      await existingGrade.save();
-      return existingGrade;
+        score: gradeData.score,
+        status: gradeData.status,
+      };
+      const existingGrade = await this.gradesModel
+        .findOne({
+          classId: gradeData.classId,
+          assignmentId: gradeData.assignmentId,
+          studentId: gradeData.studentId,
+        })
+        .exec();
+      //console.log('existingGrade: ', existingGrade);
+      // Nếu tồn tại grade
+      if (existingGrade) {
+        existingGrade.score = gradeData['score'];
+        existingGrade.status = gradeData['status'];
+        await existingGrade.save();
+        return existingGrade;
+      }
+      // Nếu không tồn tại, tạo một grade mới score
+      const createGrade = new this.gradesModel(newGradeData);
+      const newGrade = await createGrade.save();
+      return newGrade;
+    } catch (error) {
+      throw new Error(error);
     }
-
-    // Nếu không tồn tại, tạo một grade mới score
-    const createGrade = new this.gradesModel(newGradeData);
-    const newGrade = await createGrade.save();
-    return newGrade;
   }
   async deleteGrade(
     classId: string,
@@ -66,13 +78,99 @@ export class GradesService {
       .exec();
     return rs;
   }
-
+  //Chỉnh sửa status cho 1 học sinh
+  async updateStatusGradeOfStudent(userId: string, data: any): Promise<any> {
+    const updated = await this.updateOneGrade('status', data);
+    //Gửi thông báo
+    const detailAssign = await this.assignmentsService.findOneById(
+      data.assignmentId,
+    );
+    const enroll = await this.enrollmentsService.getOneByStudentId(
+      data.classId,
+      data.studentId,
+    );
+    //Lưu vào Notification
+    const notiData = {
+      receiveId: enroll['userId'],
+      message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Điểm số ${detailAssign['assignmentName']} của bạn là: ${updated.score}`,
+      type: 'public_grade',
+      status: 'unread',
+    };
+    const newNoti = await this.notificationsService.createNotification(
+      userId,
+      notiData,
+    );
+    if (newNoti) {
+      //Gửi thông báo socket
+      this.eventsGateway.handleEmitSocket({
+        data: {
+          newNoti,
+        },
+        event: 'public_grade',
+        to: enroll['userId'].toString(), //receiveId
+      });
+    }
+  }
+  //Chỉnh sửa status điểm số của 1 bài tập cho tất cả học sinh
+  async updateStatusGradeOfAssignment(
+    userId: string,
+    data: any,
+  ): Promise<Grade[]> {
+    const updatedGrades = [];
+    const classId = data.classId;
+    const assignmentId = data.assignmentId;
+    const detailAssign =
+      await this.assignmentsService.findOneById(assignmentId);
+    const studentList = await this.enrollmentsService.getMembers(
+      userId,
+      classId,
+      'student',
+    );
+    for (const student of studentList) {
+      if (student !== null) {
+        const enroll = await this.enrollmentsService.getOneByStudentId(
+          classId,
+          student.studentId,
+        );
+        const updated = await this.updateOneGrade('status', {
+          classId,
+          assignmentId,
+          studentId: student.studentId,
+          status: 'public',
+        });
+        updatedGrades.push(updated);
+        //Lưu vào Notification
+        const notiData = {
+          receiveId: enroll['userId'],
+          message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Điểm số ${detailAssign['assignmentName']} của bạn là: ${updated.score}`,
+          type: 'public_grade',
+          status: 'unread',
+        };
+        const newNoti = await this.notificationsService.createNotification(
+          userId,
+          notiData,
+        );
+        if (newNoti) {
+          //Gửi thông báo socket
+          this.eventsGateway.handleEmitSocket({
+            data: {
+              newNoti,
+            },
+            event: 'public_grade',
+            to: enroll['userId'].toString(), //receiveId
+          });
+        }
+      }
+    }
+    return updatedGrades;
+  }
+  //Chỉnh sửa điểm số của 1 bài tập sau khi upload file
   async updateGradeAssignment(gradeData: any): Promise<Grade[]> {
     const updatedGrades = [];
     // Lặp qua từng phần tử trong mảng gradeData
     const classId = gradeData.classId;
     const assignmentId = gradeData.assignmentId;
-    gradeData.list.forEach(async (entry) => {
+    gradeData.list.forEach(async (entry: any) => {
       const { studentId, grade } = entry;
       // Tìm grade hiện tại
       const existingGrade = await this.gradesModel
@@ -85,6 +183,7 @@ export class GradesService {
           await this.deleteGrade(classId, assignmentId, studentId);
         } else {
           existingGrade.score = grade;
+          existingGrade.status = 'unlisted'; //Mặc định khi lưu từ file là unlisted
           await existingGrade.save();
           updatedGrades.push(existingGrade);
         }
@@ -95,7 +194,7 @@ export class GradesService {
           assignmentId,
           studentId,
           score: grade,
-          status: 'unlisted', // Bạn có thể cần điều chỉnh trạng thái tùy theo yêu cầu của bạn
+          status: 'unlisted',
         };
         const createGrade = new this.gradesModel(newGradeData);
         const newGrade = await createGrade.save();
@@ -150,6 +249,28 @@ export class GradesService {
   async findOneById(gradeId: string): Promise<Grade | null> {
     try {
       return await this.gradesModel.findById(gradeId).exec();
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  async findMyGrade(
+    userId: string,
+    classId: string,
+    assignmentId: string,
+  ): Promise<any | null> {
+    try {
+      const enroll = await this.enrollmentsService.getOne(classId, userId);
+      if (enroll) {
+        const myGrade = await this.gradesModel
+          .findOne({ studentId: enroll.studentId, classId, assignmentId })
+          .exec();
+        if (myGrade.status === 'public') {
+          return myGrade;
+        } else {
+          myGrade.score = null; //KHông tiết lộ điểm
+          return myGrade;
+        }
+      }
     } catch (error) {
       throw new Error(error);
     }

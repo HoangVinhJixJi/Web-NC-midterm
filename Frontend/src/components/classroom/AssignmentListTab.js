@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {  
   Typography, 
   List, 
@@ -19,10 +19,11 @@ import {
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
 
-const AssignmentListTab = ({classId, isTeaching}) => {
+const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
   const [isAddAssignmentDialogOpen, setIsAddAssignmentDialogOpen] = useState(false);
   const [assignmentName, setAssignmentName] = useState('');
   const [assignmentContent, setAssignmentContent] = useState('');
@@ -102,6 +103,7 @@ const AssignmentListTab = ({classId, isTeaching}) => {
     // Viết logic để mở tab hiển thị thông tin điểm số ở đây
     console.log('Xem bài tập của bạn');
   };
+  
   return (
     <>
     { assignments && isLoading ? 
@@ -136,14 +138,20 @@ const AssignmentListTab = ({classId, isTeaching}) => {
         onClick={handleViewScoresClick}
         startIcon={<AssignmentIndIcon />}
       >
-        Xem bài tập của bạn
+        View your assignments
       </Button>
     }
-      {assignments && <List>
+      {assignments && <List sx={{overflowY: 'auto', maxHeight: 'calc(100vh - 160px)'}}>
         {assignments.map((assignment) => (
-          <ListItem key={assignment._id}>
-            <ListItemButton>
-              <ListItemText 
+          <ListItemButton 
+          //onClick={() => onAssignmentClick(assignment)}
+          component={Link}
+          to={`/classroom/class-detail/${classId}/assignment-detail/${assignment._id}`}
+          key={assignment._id} 
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <AssignmentIcon sx={{marginRight: '16px', color: 'orange'}}/>
+            <ListItem>
+              <ListItemText   
                 secondary={
                     <Typography
                       style={{
@@ -157,11 +165,18 @@ const AssignmentListTab = ({classId, isTeaching}) => {
                     >
                       {assignment.assignmentContent}
                     </Typography>}
-                primary={assignment.assignmentName} />
-             
-            </ListItemButton>
+                primary={
+                <Typography variant='body' fontWeight='bold'>
+                  {assignment.assignmentName}
+                </Typography>} />
+            </ListItem>  
+            { !isTeaching &&
+              <Typography variant='body' fontWeight='bold'>
+              Grade 10/100
+            </Typography>
+            }
             
-          </ListItem>
+          </ListItemButton>
         ))}
       </List>
       }
@@ -204,3 +219,4 @@ const AssignmentListTab = ({classId, isTeaching}) => {
 };
 
 export default AssignmentListTab
+

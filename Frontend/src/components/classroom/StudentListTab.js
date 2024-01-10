@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/Download';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
 import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
@@ -49,50 +50,50 @@ const StudentListTab = ({classId, isTeaching}) => {
   const [invitedEmails, setInvitedEmails] = useState([]);
   const [students, setStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploadFile, setIsUploadFile] = useState(false);
   const [fileTypeMenuAnchorEl, setFileTypeMenuAnchorEl] = useState(null);
   
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        // Lấy token từ localStorage hoặc nơi lưu trữ khác
-        const token = localStorage.getItem('token');
-        if(!token){
-          console.error('Error fetching user data:', Error);
-          
-          navigate('/signin');
-        }
+  const fetchStudentData = async () => {
+    try {
+      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
         
-        // Đặt token cho mọi yêu cầu
-        setAuthToken(token);
-        // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
-        const response = await api.get(`/enrollments/student/${classId}`);
-        //Lưu thông tin toàn bộ lớp học vào state
-        console.log('List Students Data: ', response.data);
-        //Kiểm tra lại thông tin teacher:
-        const list = response.data.reduce((accumulator, obj) => {
-          if (obj.memberInfo != null && obj.role === 'student') {
-            obj.memberInfo['studentId'] = obj.studentId;
-            accumulator.push(obj.memberInfo);
-          }
-          return accumulator;
-        }, []);
-        
-        console.log("list: ", list);
-        setStudents(list);
-        setIsLoading(false);
-        
-      } catch (error) {
-        // Xử lý lỗi
-        console.error('Error fetching user data:', error);
-
-        // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
-        if (error.response && error.response.status === 401) {
-          navigate('/signin');
-        }
+        navigate('/signin');
       }
-    };
+      
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
+      // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
+      const response = await api.get(`/enrollments/student/${classId}`);
+      //Lưu thông tin toàn bộ lớp học vào state
+      console.log('List Students Data: ', response.data);
+      //Kiểm tra lại thông tin teacher:
+      const list = response.data.reduce((accumulator, obj) => {
+        if (obj.memberInfo != null && obj.role === 'student') {
+          obj.memberInfo['studentId'] = obj.studentId;
+          accumulator.push(obj.memberInfo);
+        }
+        return accumulator;
+      }, []);
+      
+      console.log("list: ", list);
+      setStudents(list);
+      setIsLoading(false);
+      
+    } catch (error) {
+      // Xử lý lỗi
+      console.error('Error fetching user data:', error);
 
+      // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
+      if (error.response && error.response.status === 401) {
+        navigate('/signin');
+      }
+    }
+  };
+  useEffect(() => {
     // Gọi hàm lấy dữ liệu người dùng
     fetchStudentData();
 
@@ -154,13 +155,16 @@ const StudentListTab = ({classId, isTeaching}) => {
     console.log(`Download student list  as ${fileType}`);
     handleMenuFileClose();
   };
+  //Xử lý upload file danh sách học sinh
+
+
   const handleUploadFileChange = async (e) => {
     const selectedFile = e.target.files[0];
     try {
       const sheetData = await uploadStudentList(selectedFile);
       console.log("sheetData: ", sheetData);
-      const testdata = students;
-      testdata.forEach((row) => {
+      const studentData = students;
+      studentData.forEach((row) => {
         sheetData.forEach((studentData, index) => {
           if(studentData.fullName !== '' && row.fullName === studentData.fullName ){
             row.studentId = studentData.studentId;
@@ -169,12 +173,34 @@ const StudentListTab = ({classId, isTeaching}) => {
           } 
         })
       })
-      console.log('testdata: ', testdata);
-      setStudents(testdata);
+      console.log('studentData: ', studentData);
+      //gọi fetch data
+      setStudents(studentData);
+      setIsUploadFile(true);
     } catch (error) {
       console.error('Error reading Excel file:', error);
     }
   };
+  //Xác nhận lưu data từ file vào database hay không?
+  const handleSaveUploadFile = () => {
+    
+    const sendStudentIdChangeData = async (studentData) => {
+      try {
+        const response = await api.post(`/enrollments/update/list`, studentData);
+        return response.data;
+      } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
+      }
+    };
+    const updated = sendStudentIdChangeData({
+      classId,
+      userIds: students.map((s)=> {return s._id;}),
+      studentIds: students.map((s)=> {return s.studentId;}),
+    });
+    console.log('=> updated list sutdent ID : ', updated);
+    setIsUploadFile(false);
+  }
 
   //Kiểm tra nếu là giáo viên thì hiển thị Button Thêm học sinh còn nếu là học sinh thì chỉ cho xem số lượng học sinh
     return (
@@ -233,6 +259,11 @@ const StudentListTab = ({classId, isTeaching}) => {
       >
         Download Student List
       </Button>
+      {isUploadFile && 
+          <Button variant="contained" color='error' startIcon={<SaveAltIcon />} onClick={handleSaveUploadFile}>
+              Save Data
+          </Button>
+        }
       <Menu
         open={Boolean(fileTypeMenuAnchorEl)}
         anchorEl={fileTypeMenuAnchorEl}
@@ -262,7 +293,7 @@ const StudentListTab = ({classId, isTeaching}) => {
               <ListItemAvatar>
                 <Avatar alt={student.fullName} src={student.avatar} />
               </ListItemAvatar>
-              <ListItemText primary={student.fullName} />
+              <ListItemText primary={`${student.fullName} - (${student.studentId})`} />
             </ListItem>
           ))}
         </List>

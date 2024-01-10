@@ -71,8 +71,15 @@ const MainHomepageTab = ({ onClassClick }) => {
       // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
       const response = await api.get('/classes/');
       //Lưu thông tin toàn bộ lớp học vào state
-      setClassList(response.data);
-      console.log('response.data: ', response.data);
+      const list = response.data.reduce((accumulator, obj) => {
+        if (obj !== null) {
+          accumulator.push(obj);
+        }
+        return accumulator;
+      }, []);
+
+      setClassList(list);
+      console.log('list: ', list);
       setIsLoading(false);
       
     } catch (error) {

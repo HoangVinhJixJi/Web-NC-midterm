@@ -30,12 +30,20 @@ export class AssignmentsController {
   // }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':classId')
+  @Get('/:classId')
   async getAllAssignmentsByClassId(
     @Request() req: any,
     @Param('classId') classId: string,
   ) {
     return this.assignemntsService.findAllByClassId(classId);
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('/get/assignment/:assignmentId')
+  async getAssignmentsByAssignmentId(
+    @Request() req: any,
+    @Param('assignmentId') assignmentId: string,
+  ) {
+    return this.assignemntsService.findOneById(assignmentId);
   }
   @Post('create')
   @UseGuards(JwtAuthGuard)

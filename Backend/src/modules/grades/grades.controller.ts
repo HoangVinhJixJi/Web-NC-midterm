@@ -53,6 +53,7 @@ export class GradesController {
     gradeData: CreateGradeDto,
   ): Promise<Grade> {
     const newGrade = await this.gradesService.create(gradeData);
+    console.log('create grade: ', newGrade);
     return newGrade;
   }
   @Post('/create/assignment')
@@ -83,6 +84,7 @@ export class GradesController {
     console.log(deletedGrade);
     return deletedGrade;
   }
+  //Public điểm số của 1 học sinh
   @Post('/change-status')
   @UseGuards(JwtAuthGuard)
   async changeStatusGrade(
@@ -90,7 +92,43 @@ export class GradesController {
     @Body(new ValidationPipe({ transform: true }))
     data: any,
   ): Promise<any> {
-    const updated = await this.gradesService.updateOneGrade('status', data);
+    const userId = req.user.sub;
+    const updated = await this.gradesService.updateStatusGradeOfStudent(
+      userId,
+      data,
+    );
     return updated;
+  }
+  //Public điểm số toàn bộ học sinh của 1 bài tập
+  @Post('/assignment/change-status')
+  @UseGuards(JwtAuthGuard)
+  async changeStatusAssignmentGrade(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    data: any,
+  ): Promise<any> {
+    const userId = req.user.sub;
+    const updated = await this.gradesService.updateStatusGradeOfAssignment(
+      userId,
+      data,
+    );
+    console.log('/assignment/change-status: => updated: ', updated);
+    return updated;
+  }
+  //Lấy thông tin điểm bài tập của mình
+  @Get('/get/my-grade/:classId/:assignmentId')
+  @UseGuards(JwtAuthGuard)
+  async getMyGrade(
+    @Request() req: any,
+    @Param('assignmentId') assignmentId: string,
+    @Param('classId') classId: string,
+  ): Promise<any> {
+    const userId = req.user.sub;
+    const mygrade = await this.gradesService.findMyGrade(
+      userId,
+      classId,
+      assignmentId,
+    );
+    return mygrade;
   }
 }
