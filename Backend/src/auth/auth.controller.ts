@@ -5,7 +5,6 @@ import {
   Ip,
   Param,
   Post,
-  Query,
   Render,
   Req,
   Request,
@@ -28,6 +27,8 @@ import { ConfigService } from '@nestjs/config';
 import { PendingInvitesService } from 'src/modules/pendingInvites/pendingInvites.service';
 import { EnrollmentsService } from 'src/modules/enrollments/enrollments.service';
 import { Role } from '../enums/role.enum';
+import { LoginByRoleGuard } from './roles/login-by-role.guard';
+import { Roles } from './roles/roles.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -203,10 +204,18 @@ export class AuthController {
     };
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard, LoginByRoleGuard)
+  @Roles(Role.User)
   @Post('login')
-  signIn(@Request() req: any, @Query('role') role: Role) {
-    return this.authService.respondSignIn(req.user, role);
+  signIn(@Request() req: any) {
+    return req.user;
+    //return this.authService.respondSignIn(req.user, role);
+  }
+  @UseGuards(LocalAuthGuard, LoginByRoleGuard)
+  @Roles(Role.Admin)
+  @Post('admin-login')
+  adminSignIn(@Request() req: any) {
+    return req.user;
   }
 
   @UseGuards(JwtAuthGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT

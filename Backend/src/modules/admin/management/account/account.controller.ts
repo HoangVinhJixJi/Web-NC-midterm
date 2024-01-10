@@ -15,11 +15,12 @@ import { AccountService } from './account.service';
 import { BanUserDto } from './dto/ban-user.dto';
 import { UnbanUserDto } from './dto/unban-user.dto';
 import { AssignAccountStudentIdDto } from './dto/assign-account-student-id.dto';
+import { AccountStatusGuard } from '../../../../auth/account-status/account-status.guard';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
 @Roles(Role.Admin)
 @Controller('admin/management/account')
 export class AccountController {

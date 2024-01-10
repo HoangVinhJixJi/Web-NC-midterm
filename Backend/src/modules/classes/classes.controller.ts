@@ -3,8 +3,8 @@ import {
   Controller,
   Delete,
   Get,
-  Post,
   Param,
+  Post,
   Put,
   Query,
   Request,
@@ -24,7 +24,12 @@ import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
 
+@UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
+@Roles(Role.User)
 @Controller('classes')
 export class ClassesController {
   constructor(
@@ -36,31 +41,26 @@ export class ClassesController {
     private readonly configService: ConfigService,
   ) {}
   @Get('/')
-  @UseGuards(JwtAuthGuard, AccountStatusGuard)
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, null, 'active');
   }
   @Get('teaching')
-  @UseGuards(JwtAuthGuard)
   async getTeachingClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, 'teacher', 'active');
   }
   @Get('enrolled')
-  @UseGuards(JwtAuthGuard)
   async getEnrolledClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, 'student', 'active');
   }
   @Get('archived')
-  @UseGuards(JwtAuthGuard)
   async getArchivedClasses(@Request() req: any) {
     const userId = req.user.sub;
     return this.classesService.getClasses(userId, null, 'archive');
   }
   @Post('create')
-  @UseGuards(JwtAuthGuard)
   async createNewClass(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true })) userData: CreateClassDto,
@@ -69,7 +69,6 @@ export class ClassesController {
     return this.classesService.create(userData, userId);
   }
   @Get('info/:classId')
-  @UseGuards(JwtAuthGuard)
   async getClassInfo(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     const checkStudentId = await this.enrollmentsService.checkStudentId(
@@ -83,7 +82,6 @@ export class ClassesController {
     };
   }
   @Post('update/:classId')
-  @UseGuards(JwtAuthGuard)
   async update(
     @Request() req: any,
     @Param('classId') classId: string,
@@ -93,7 +91,6 @@ export class ClassesController {
     return this.classesService.update(userId, classId, userData);
   }
   @Get('class-code/:classCode')
-  @UseGuards(JwtAuthGuard)
   async getClassInfoAndUserJoinedSatus(
     @Request() req: any,
     @Param('classCode') classCode: string,
@@ -105,7 +102,6 @@ export class ClassesController {
     );
   }
   @Post('class-code/:classCode')
-  @UseGuards(JwtAuthGuard)
   async joinClassByClassCodeOrLink(
     @Request() req: any,
     @Param('classCode') classCode: string,
@@ -114,7 +110,6 @@ export class ClassesController {
     return this.classesService.joinClass(userId, classCode);
   }
   @Get('email/:classId')
-  @UseGuards(JwtAuthGuard)
   async getAllEmailsByClassId(
     @Request() req: any,
     @Param('classId') classId: string,
@@ -131,7 +126,6 @@ export class ClassesController {
     return uniqueEmails;
   }
   @Post('invite-email/:classId')
-  @UseGuards(JwtAuthGuard)
   async inviteEmail(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true })) userData: InviteEmailsDto,
@@ -219,7 +213,6 @@ export class ClassesController {
     }
   }
   @Delete('remove-member/:classId')
-  @UseGuards(JwtAuthGuard)
   async removeMember(
     @Request() req: any,
     @Param('classId') classId: string,
@@ -229,25 +222,21 @@ export class ClassesController {
     return this.classesService.removeMember(userId, classId, rmvId);
   }
   @Put('archive/:classId')
-  @UseGuards(JwtAuthGuard)
   async archiveClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.archive(userId, classId);
   }
   @Put('restore/:classId')
-  @UseGuards(JwtAuthGuard)
   async restoreClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.restore(userId, classId);
   }
   @Delete('delete/:classId')
-  @UseGuards(JwtAuthGuard)
   async deleteClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.delete(userId, classId);
   }
   @Delete('leave/:classId')
-  @UseGuards(JwtAuthGuard)
   async leaveClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.leaveClass(classId, userId);

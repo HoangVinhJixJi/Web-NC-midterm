@@ -24,25 +24,6 @@ export class AuthService {
     if (!user) {
       throw new HttpException('Username not found', HttpStatus.BAD_REQUEST);
     }
-    if (!user.isActivated) {
-      if (!user.isBanned) {
-        throw new HttpException(
-          'Account has not been activated',
-          HttpStatus.UNAUTHORIZED,
-        );
-      } else {
-        const bannedInfo = await this.bannedUsersService.getOneById(user._id);
-        throw new HttpException(
-          {
-            bannedReason: bannedInfo.bannedReason,
-            numOfDaysBanned: bannedInfo.numOfDaysBanned,
-            bannedStartTime: bannedInfo.bannedStartTime,
-            bannedEndTime: bannedInfo.bannedEndTime,
-          },
-          HttpStatus.FORBIDDEN,
-        );
-      }
-    }
     const { password } = user;
     const isMatch = await bcrypt.compare(pass, password);
     if (isMatch) {
@@ -54,6 +35,7 @@ export class AuthService {
       };
       return {
         userData: {
+          username: user.username,
           fullName: user.fullName,
           avatar: user.avatar,
           role: user.role,

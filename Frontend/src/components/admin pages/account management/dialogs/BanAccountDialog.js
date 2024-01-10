@@ -121,7 +121,7 @@ export default function BanAccountDialog(
         </FormControl>
         <Typography>
           {`By clicking the confirmation button below, you will lock the account for this user for ${days} days`}
-          A locked account will not be able to log in and operate on the website application.
+          A banned account will not be able to log in and operate on the website application.
         </Typography>
         <Typography sx={{ color: messageColor }}><i>{message}</i></Typography>
       </DialogContent>
