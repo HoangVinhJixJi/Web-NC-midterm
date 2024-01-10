@@ -114,7 +114,10 @@ function Header() {
             const token = localStorage.getItem('token');
 
             // Khởi tạo socket và kết nối
-            const socket = io('http://localhost:5000', {
+            // const socket = io('http://localhost:5000', {
+            //     auth: { token },
+            // });
+            const socket = io('https://ptudwnc-final-project.vercel.app', {
                 auth: { token },
             });
             console.log('dã đăng nhập');
