@@ -21,81 +21,23 @@ import api, {setAuthToken} from '../api/api';
 import io from 'socket.io-client';
 
 const pages = ['home', 'about', 'classroom'];
+const adminPages = ['admin', 'management'];
+const managements = ['account', 'class'];
 
 function Header() {
-    
-    // const sampleNoti= [
-    //     {
-    //         id: '1',
-    //         sendId: '123123',
-    //         message : 'đây là thông báo về điểm: bạn được 10 điểm',
-    //         status: 'unread',
-    //         type: 'public',
-    //     },
-    //     {
-    //         id: '2',
-    //         sendId: '123123',
-    //         message : 'đây là thông báo về điểm: bạn được 2 điểm',
-    //         status: 'unread',
-    //         type: 'public',
-    //     },
-    //     {
-    //         id: '3',
-    //         sendId: '123123',
-    //         message : 'đây là thông báo về điểm: bạn được 3 điểm',
-    //         status: 'unread',
-    //         type: 'public',
-    //     },
-    //     {
-    //         id: '4',
-    //         sendId: '123123',
-    //         message : 'đây là thông báo về điểm: bạn được 4 điểm',
-    //         status: 'unread',
-    //         type: 'public',
-    //     },
-    //     {
-    //         id: '5',
-    //         sendId: '123123',
-    //         message : 'đây là thông báo về điểm: bạn được 5 điểm',
-    //         status: 'unread',
-    //         type: 'public',
-    //     },
-    //     {
-    //         id: '6',
-    //         sendId: '123123',
-    //         message : 'đây là thông báo về điểm: bạn được 6 điểm',
-    //         status: 'unread',
-    //         type: 'public',
-    //     },
-    //     {
-    //         id: '7',
-    //         sendId: '123123',
-    //         message : 'đây là thông báo về điểm: bạn được 7 điểm',
-    //         status: 'unread',
-    //         type: 'public',
-    //     },
-    //     {
-    //         id: '8',
-    //         sendId: '123123',
-    //         message : 'đây là thông báo về điểm: bạn được 8 điểm',
-    //         status: 'unread',
-    //         type: 'public',
-    //     },
-    // ]
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const [anchorElManagement, setAnchorElManagement] = React.useState(null);
     const [anchorElNoti, setAnchorElNoti] = React.useState(null);
     const [isChange, setIsChange] = React.useState(false);
     const [notifications, setNotifications] = React.useState([]); 
     const [classId, setClassId] = React.useState(null);
     const [assignmentId, setAssignmentId] = React.useState(null);
     const [message, setMessage] = React.useState('');
-
-    const { isLoggedIn, user, logout } = useAuthContext();
     const [unreadCount, setUnreadCount] = React.useState(0);
-
+    const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
     const navigate = useNavigate();
-
+    console.log(isAdmin);
     // Fetch danh sách thông báo 
     const fetchNotiData = async () => {
         try {
@@ -284,15 +226,61 @@ function Header() {
         logout();
         navigate('/home');
     };
-    
-    React.useEffect( () => {
-        if(isChange){
-            const notiData = fetchNotiData();
-            console.log('notiData: ', notiData);
-        }
-    }, [isChange]);
+  function handleCloseManagementMenu() {
+    setAnchorElManagement(null);
+  }
+  function handleOpenManagementMenu(event) {
+    setAnchorElManagement(event.currentTarget);
+  }
+  function renderTabsOnHeader(tabNames) {
+      return tabNames.map((page) => (
+        page === 'management' ? (
+            <>
+              <Button
+                key={page}
+                onClick={handleOpenManagementMenu}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                {page}
+              </Button>
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={anchorElManagement}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorElManagement)}
+                onClose={handleCloseManagementMenu}
+              >
+                {managements.map((type) => (
+                  <Link style={{ textDecoration: 'none', color: 'black' }} to={`/management/${type}`} >
+                    <MenuItem key={type} onClick={handleCloseManagementMenu}>
+                      <Typography textAlign="center" >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Typography>
+                    </MenuItem>
+                  </Link>
+                ))}
+              </Menu>
+            </>
+          )
+          : (<Button
+            key={page}
+            onClick={handleCloseNavMenu}
+            sx={{ my: 2, color: 'white', display: 'block' }}
+          >
+            <Link style={{ textDecoration: 'none', color: 'white' }} to={`/${page}`} >{page}</Link>
+          </Button>)
+      ));
+  }
 
-    console.log("list Notification: render  ");
     return (
         <AppBar position="static">
             <Container maxWidth="xl">
@@ -375,15 +363,7 @@ function Header() {
                         LOGO
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) => (
-                            <Button
-                                key={page}
-                                onClick={handleCloseNavMenu}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                                <Link style={{ textDecoration: 'none', color: 'white' }} to={`/${page}`} >{page}</Link>
-                            </Button>
-                        ))}
+                      {isAdmin ? renderTabsOnHeader(adminPages) : renderTabsOnHeader(pages)}
                     </Box>
 
                     <Box sx={{ flexGrow: 0 }} >

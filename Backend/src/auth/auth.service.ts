@@ -7,7 +7,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../modules/users/schema/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
+<<<<<<< HEAD
 import { Socket } from 'socket.io';
+=======
+import { Role } from '../enums/role.enum';
+import { BannedUsersService } from '../modules/admin/management/account/banned-users/banned-users.service';
+>>>>>>> dca31a6edfb7b6feb4081e149da8cb7cfd522ae8
 
 @Injectable()
 export class AuthService {
@@ -16,6 +21,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
+    private bannedUsersService: BannedUsersService,
   ) {}
   async signIn(username: string, pass: string) {
     const user = await this.usersService.findOneByUsername(username);
@@ -23,10 +29,23 @@ export class AuthService {
       throw new HttpException('Username not found', HttpStatus.BAD_REQUEST);
     }
     if (!user.isActivated) {
-      throw new HttpException(
-        'Account has not been activated',
-        HttpStatus.UNAUTHORIZED,
-      );
+      if (!user.isBanned) {
+        throw new HttpException(
+          'Account has not been activated',
+          HttpStatus.UNAUTHORIZED,
+        );
+      } else {
+        const bannedInfo = await this.bannedUsersService.getOneById(user._id);
+        throw new HttpException(
+          {
+            bannedReason: bannedInfo.bannedReason,
+            numOfDaysBanned: bannedInfo.numOfDaysBanned,
+            bannedStartTime: bannedInfo.bannedStartTime,
+            bannedEndTime: bannedInfo.bannedEndTime,
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
     }
     const { password } = user;
     const isMatch = await bcrypt.compare(pass, password);
@@ -35,17 +54,24 @@ export class AuthService {
         sub: user._id.toString(),
         username: user.username,
         email: user.email,
+        role: user.role,
       };
       return {
         userData: {
           fullName: user.fullName,
           avatar: user.avatar,
+          role: user.role,
         },
         access_token: await this.jwtService.signAsync(payload),
       };
     } else {
       throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
     }
+  }
+  respondSignIn(user: any, role: Role) {
+    return user.userData.role === role
+      ? user
+      : new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
   //Handle profile user Facebook
   handleUserFacebook(fbUser: any) {
@@ -75,12 +101,14 @@ export class AuthService {
           sub: newUser['_id'].toString(),
           username: newUser['username'],
           email: newUser['email'],
+          role: newUser.role,
         };
         console.log('payload(newUser) in sigInFacebook auth-service:', payload);
         return {
           userData: {
             fullName: newUser.fullName,
             avatar: newUser.avatar,
+            role: newUser.role,
           },
           access_token: await this.jwtService.signAsync(payload),
         };
@@ -106,12 +134,14 @@ export class AuthService {
         sub: curUser['_id'].toString(),
         username: curUser['username'],
         email: curUser['email'],
+        role: curUser.role,
       };
       //console.log('payload in sigInFacebook auth-service: ', payload);
       return {
         userData: {
           fullName: curUser.fullName,
           avatar: curUser.avatar,
+          role: curUser.role,
         },
         access_token: await this.jwtService.signAsync(payload),
       };
@@ -132,11 +162,13 @@ export class AuthService {
     const hashedPassword = await this.usersService.hashPassword(password);
     const activationToken = uuidv4();
     const resetPasswordToken = null;
+    const role = Role.User;
     return await this.usersService.create({
       password: hashedPassword,
       isActivated: false,
       activationToken,
       resetPasswordToken,
+      role,
       ...otherData,
     });
   }
@@ -280,11 +312,13 @@ export class AuthService {
         sub: newUser._id.toString(),
         username: newUser.username,
         email: newUser.email,
+        role: newUser.role,
       };
       return {
         userData: {
           fullName: newUser.fullName,
           avatar: newUser.avatar,
+          role: newUser.role,
         },
         access_token: this.jwtService.sign(payload, {
           secret: this.configService.get<string>('jwt.secret'),
@@ -310,11 +344,13 @@ export class AuthService {
       sub: curUser._id.toString(),
       username: curUser.username,
       email: curUser.email,
+      role: curUser.role,
     };
     return {
       userData: {
         fullName: curUser.fullName,
         avatar: curUser.avatar,
+        role: curUser.role,
       },
       access_token: this.jwtService.sign(payload, {
         secret: this.configService.get<string>('jwt.secret'),

@@ -34,6 +34,7 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "dayjs": "^1.11.10",
     "express-handlebars": "^7.1.2",
     "express-useragent": "^1.0.15",
     "handlebars": "^4.7.8",
@@ -48,9 +49,15 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+<<<<<<< HEAD
     "socket.io": "^4.7.3",
     "uuid": "^9.0.1",
     "vercel": "^32.5.6"
+=======
+    "uuid": "^9.0.1",
+    "vercel": "^32.5.6",
+    "xlsx": "^0.18.5"
+>>>>>>> dca31a6edfb7b6feb4081e149da8cb7cfd522ae8
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

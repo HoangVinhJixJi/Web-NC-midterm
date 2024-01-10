@@ -87,15 +87,21 @@ export class EnrollmentsService {
     populate: string,
     role: string,
     status: string,
+    classId: string = '',
   ) {
+    const extraFilter = classId !== '' ? { classId } : {};
     try {
       return role !== null
         ? await this.enrollmentsModel
-            .find({ userId, role })
-            .populate({ path: populate, match: { status: status } })
-        : await this.enrollmentsModel
-            .find({ userId })
-            .populate({ path: populate, match: { status: status } });
+            .find({ userId, role, ...extraFilter })
+            .populate({
+              path: populate,
+              match: status !== '' ? { status: status } : {},
+            })
+        : await this.enrollmentsModel.find({ userId }).populate({
+            path: populate,
+            match: status !== '' ? { status: status } : {},
+          });
     } catch (error) {
       throw new Error(error);
     }
@@ -236,5 +242,16 @@ export class EnrollmentsService {
     } else {
       return false;
     }
+  }
+  async findEnrollments(filter: any = {}) {
+    return this.enrollmentsModel.find(filter).exec();
+  }
+  async adminUpdate(
+    filter: { classId: string; userId: string },
+    updateData: { studentId: string },
+  ) {
+    return this.enrollmentsModel.findOneAndUpdate(filter, updateData, {
+      new: true,
+    });
   }
 }

@@ -12,6 +12,9 @@ import MainHomepageTab from './classroom/MainHomepageTab';
 import TeachingTab from './classroom/TeachingTab';
 import JoinedClassTab from './classroom/JoinedClassTab';
 import ClassDetailTab from './classroom/ClassDetailTab';
+import SidebarContainer from "./tab and sidebar/SidebarContainer";
+import SidebarItem from "./tab and sidebar/SidebarItem";
+import MainContent from "./tab and sidebar/MainContent";
 
 import { Container } from '@mui/material';
 import NotificationJoinClass from './classroom/NotificationJoinClass';
