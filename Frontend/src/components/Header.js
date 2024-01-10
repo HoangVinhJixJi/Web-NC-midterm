@@ -24,74 +24,159 @@ const pages = ['home', 'about', 'classroom'];
 
 function Header() {
     
-    const sampleNoti= [
-        {
-            id: '1',
-            sendId: '123123',
-            message : 'đây là thông báo về điểm: bạn được 10 điểm',
-            status: 'unread',
-            type: 'public',
-        },
-        {
-            id: '2',
-            sendId: '123123',
-            message : 'đây là thông báo về điểm: bạn được 2 điểm',
-            status: 'unread',
-            type: 'public',
-        },
-        {
-            id: '3',
-            sendId: '123123',
-            message : 'đây là thông báo về điểm: bạn được 3 điểm',
-            status: 'unread',
-            type: 'public',
-        },
-        {
-            id: '4',
-            sendId: '123123',
-            message : 'đây là thông báo về điểm: bạn được 4 điểm',
-            status: 'unread',
-            type: 'public',
-        },
-        {
-            id: '5',
-            sendId: '123123',
-            message : 'đây là thông báo về điểm: bạn được 5 điểm',
-            status: 'unread',
-            type: 'public',
-        },
-        {
-            id: '6',
-            sendId: '123123',
-            message : 'đây là thông báo về điểm: bạn được 6 điểm',
-            status: 'unread',
-            type: 'public',
-        },
-        {
-            id: '7',
-            sendId: '123123',
-            message : 'đây là thông báo về điểm: bạn được 7 điểm',
-            status: 'unread',
-            type: 'public',
-        },
-        {
-            id: '8',
-            sendId: '123123',
-            message : 'đây là thông báo về điểm: bạn được 8 điểm',
-            status: 'unread',
-            type: 'public',
-        },
-    ]
+    // const sampleNoti= [
+    //     {
+    //         id: '1',
+    //         sendId: '123123',
+    //         message : 'đây là thông báo về điểm: bạn được 10 điểm',
+    //         status: 'unread',
+    //         type: 'public',
+    //     },
+    //     {
+    //         id: '2',
+    //         sendId: '123123',
+    //         message : 'đây là thông báo về điểm: bạn được 2 điểm',
+    //         status: 'unread',
+    //         type: 'public',
+    //     },
+    //     {
+    //         id: '3',
+    //         sendId: '123123',
+    //         message : 'đây là thông báo về điểm: bạn được 3 điểm',
+    //         status: 'unread',
+    //         type: 'public',
+    //     },
+    //     {
+    //         id: '4',
+    //         sendId: '123123',
+    //         message : 'đây là thông báo về điểm: bạn được 4 điểm',
+    //         status: 'unread',
+    //         type: 'public',
+    //     },
+    //     {
+    //         id: '5',
+    //         sendId: '123123',
+    //         message : 'đây là thông báo về điểm: bạn được 5 điểm',
+    //         status: 'unread',
+    //         type: 'public',
+    //     },
+    //     {
+    //         id: '6',
+    //         sendId: '123123',
+    //         message : 'đây là thông báo về điểm: bạn được 6 điểm',
+    //         status: 'unread',
+    //         type: 'public',
+    //     },
+    //     {
+    //         id: '7',
+    //         sendId: '123123',
+    //         message : 'đây là thông báo về điểm: bạn được 7 điểm',
+    //         status: 'unread',
+    //         type: 'public',
+    //     },
+    //     {
+    //         id: '8',
+    //         sendId: '123123',
+    //         message : 'đây là thông báo về điểm: bạn được 8 điểm',
+    //         status: 'unread',
+    //         type: 'public',
+    //     },
+    // ]
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const [anchorElNoti, setAnchorElNoti] = React.useState(null);
     const [isChange, setIsChange] = React.useState(false);
-    const [notifications, setNotifications] = React.useState(sampleNoti); 
-    
+    const [notifications, setNotifications] = React.useState([]); 
+    const [classId, setClassId] = React.useState(null);
+    const [assignmentId, setAssignmentId] = React.useState(null);
+    const [message, setMessage] = React.useState('');
+
     const { isLoggedIn, user, logout } = useAuthContext();
     const [unreadCount, setUnreadCount] = React.useState(0);
 
     const navigate = useNavigate();
+
+    // Fetch danh sách thông báo 
+    const fetchNotiData = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if(!token){
+            console.error('Error fetching user data:', Error);
+            navigate('/signin');
+          }
+          setAuthToken(token);
+          // Gọi API để lấy dữ liệu danh sách toàn bộ các thông báo
+          const response = await api.get(`/notifications/get/receive`);
+          console.log('List Notifications Data response.data: ', response.data);
+          
+          // kiểm tra thông tin học sinh
+          const list = response.data.reduce((accumulator, obj) => {
+            if (obj != null ) {
+                const match = obj.message.match(/classId: (.+),assignmentId: (.+),message: (.+)/);
+                if (match) {
+                    setClassId(match[1]);
+                    setAssignmentId( match[2]);
+                    setMessage(match[3]);
+
+                    console.log('classId:', match[1]);
+                    console.log('assignmentId:',match[2]);
+                    console.log('message:', match[3]);
+                    obj.classId = match[1];
+                    obj.assignmentId = match[2];
+                    obj.message = match[3];
+                // Sử dụng classId, assignmentId, và message ở đây
+                } else {
+                    console.log('Không tìm thấy thông tin cần thiết trong message hoặc định dạng không đúng.');
+                
+                }
+                accumulator.push(obj);
+            }
+            return accumulator;
+          }, []);
+          list.reverse();
+          setNotifications(list);
+          setUnreadCount(list.filter((noti) => { return noti.status === 'unread'}).length);
+          return list;
+          
+        } catch (error) {
+          // Xử lý lỗi
+          console.error('Error fetching user data:', error);
+          
+        }
+    };
+    // Fetch danh sách thông báo 
+    const fetchNotiDataAll = async () => {
+        try {
+          
+          const response = await api.get(`/notifications/delete/all`);
+          console.log('List Notifications Data response.data: ', response.data);
+          
+          return  response.data;
+          
+        } catch (error) {
+          // Xử lý lỗi
+          console.error('Error fetching user data:', error);
+          
+        }
+    };
+    // update status noti
+    const updateNotiStatus = async (notiId) => {
+        try {
+        const data = {
+            notificationId: notiId,
+            status: 'read',
+        }
+        const response = await api.post(`/notifications/update/status`, data);
+        console.log('List Notifications Data response.data: ', response.data);
+        
+        return response.data;
+        } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
+        
+        }
+    };
+
     React.useEffect(() => {
         // Kiểm tra nếu đã đăng nhập và có token
         if (isLoggedIn) {
@@ -101,15 +186,25 @@ function Header() {
             const socket = io('http://localhost:5000', {
                 auth: { token },
             });
+            console.log('dã đăng nhập');
     
             // Lắng nghe sự kiện 'public_grade' từ server
+            socket.on('public_grade', (data) => {
+                console.log('******* New Notification public_grade socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                setUnreadCount((prevCount) => prevCount + 1);
+            });
+            //
             socket.on('message', (data) => {
                 console.log('******* New Notification socket io :', data);
                 // Cập nhật số lượng thông báo chưa đọc
                 setUnreadCount((prevCount) => prevCount + 1);
             });
     
-            
+            const notiData = fetchNotiData();
+            notiData.then((result) => {
+                console.log("result: ", result);
+            });
     
             // Trả về hàm cleanup để ngắt kết nối socket khi component unmount hoặc người dùng đăng xuất
             return () => {
@@ -122,7 +217,15 @@ function Header() {
     }, [isLoggedIn]); 
     
     
-    
+    function notificationsLabel(count) {
+        if (count === 0) {
+          return 'no notifications';
+        }
+        if (count > 99) {
+          return 'more than 99 notifications';
+        }
+        return `${count} notifications`;
+      }
     const handleOpenNoti = (event) => {
         setAnchorElNoti(event.currentTarget);
         setIsChange(true);
@@ -130,11 +233,37 @@ function Header() {
 
     const handleClose = () => {
         setAnchorElNoti(null);
+        setIsChange(false);
     };
-
-    const handleNotificationClick = (notificationId) => {
-        // Xử lý khi click vào một thông báo, ví dụ: chuyển hướng đến đường dẫn của nội dung thông báo
+    
+    const handleNotificationClick = async (notificationId) => {
+        // Xử lý khi click vào một thông báo, chuyển hướng đến đường dẫn của nội dung thông báo
         console.log(`Redirect to notification ${notificationId}`);
+        //Thông tin notification
+        const noti = notifications.filter((noti)=> noti._id === notificationId)[0];
+        console.log(noti);
+        //Cập nhật status notification
+        if(noti.status === 'unread'){
+            const updated = await updateNotiStatus(notificationId);
+            if(updated && updated.status !== 'read'){
+                setUnreadCount((prevCount) => prevCount - 1);
+            }
+        }
+        
+        
+        //Navigate
+        if(noti.type === 'public_grade'){
+            console.log('public_grade');
+            navigate(`/classroom/class-detail/${classId}/assignment-detail/${assignmentId}`);
+        }
+        else if (noti.type === 'comment'){
+            console.log('comment');
+            //navigate(`/classroom/class-detail/:classId}/assignment-detail/:assignment._id}`)
+        }
+        else if (noti.type === 'final_decision'){
+            console.log('final_decision');
+            //navigate(`/classroom/class-detail/:classId}`, { state: { currentTab: 3 } });
+        }
         handleClose();
     };
     const handleOpenNavMenu = (event) => {
@@ -155,46 +284,15 @@ function Header() {
         logout();
         navigate('/home');
     };
-    // Fetch danh sách thông báo 
-    const fetchNotiData = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          if(!token){
-            console.error('Error fetching user data:', Error);
-            navigate('/signin');
-          }
-          setAuthToken(token);
-          // Gọi API để lấy dữ liệu danh sách toàn bộ các thông báo
-          const response = await api.get(`/notifications/get/all`);
-          console.log('List Notifications Data response.data: ', response.data);
-          
-          // kiểm tra thông tin học sinh
-          const list = response.data.reduce((accumulator, obj) => {
-            if (obj != null ) {
-              accumulator.push(obj);
-            }
-            return accumulator;
-          }, []);
-          list.reverse();
-          setNotifications(list);
-          return list;
-          
-        } catch (error) {
-          // Xử lý lỗi
-          console.error('Error fetching user data:', error);
-          
-        }
-    };
+    
     React.useEffect( () => {
         if(isChange){
             const notiData = fetchNotiData();
             console.log('notiData: ', notiData);
-            setIsChange(false);
         }
-        
-      }, [isChange]);
+    }, [isChange]);
 
-    console.log("list Notification: render:  ", notifications);
+    console.log("list Notification: render  ");
     return (
         <AppBar position="static">
             <Container maxWidth="xl">
@@ -291,7 +389,7 @@ function Header() {
                     <Box sx={{ flexGrow: 0 }} >
                         {isLoggedIn ? (
                             <>
-                                <IconButton color="inherit" onClick={handleOpenNoti}>
+                                <IconButton color="inherit" onClick={handleOpenNoti} aria-label={notificationsLabel(100)}>
                                     <Badge badgeContent={unreadCount} color='error'>
                                         <NotificationsIcon />
                                     </Badge>
@@ -310,7 +408,19 @@ function Header() {
                                     }}
                                 >
                                     <List sx={{maxWidth: '30vw',  maxHeight: '300px', overflowY: 'auto'}}>
-                                    {notifications.map((notification, index) => (
+                                    {notifications && notifications.length === 0 ? 
+                                        <ListItemButton>
+                                        <Typography
+                                        style={{
+                                            display: '-webkit-box',
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
+                                            }}
+                                        >Không có thông báo!</Typography>
+                                        </ListItemButton>
+                                        :
+                                        notifications.map((notification, index) => (
                                         <ListItemButton
                                         key={notification._id}
                                         onClick={() => handleNotificationClick(notification._id)}
@@ -325,8 +435,8 @@ function Header() {
                                             }}
                                         >{notification.message}</Typography>
                                         </ListItemButton>
-                                        
-                                    ))}
+                                        ))
+                                    }
                                     </List>
                                 </Popover>
 

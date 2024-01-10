@@ -80,6 +80,9 @@ export class NotificationsService {
   async deleteNotification(notiId: string): Promise<any> {
     return await this.notificationsModel.deleteOne({ _id: notiId }).exec();
   }
+  async deleteNotifications(): Promise<any> {
+    return await this.notificationsModel.deleteMany({}).exec();
+  }
   async findAllByUserId(userId: string, role: string): Promise<Notification[]> {
     try {
       if (role === 'send') {
@@ -151,5 +154,19 @@ export class NotificationsService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  //Update status noti
+  async updateOneColNotification(colName: string, data: any): Promise<any> {
+    const rs = await this.notificationsModel
+      .findOneAndUpdate(
+        { _id: data.notificationId },
+        {
+          [colName]: data[colName],
+        },
+        { new: true },
+      )
+      .exec();
+    return rs;
   }
 }

@@ -40,15 +40,18 @@ export class NotificationsController {
   @UseGuards(JwtAuthGuard)
   @Get('/get/receive')
   async getAllNotificationsReceive(@Request() req: any) {
-    return this.notificationsService.findAllByUserId(req.userId, 'receive');
+    return await this.notificationsService.findAllByUserId(
+      req.user.sub,
+      'receive',
+    );
   }
   @UseGuards(JwtAuthGuard)
   @Get('/get/send')
-  async getAllNotificationsSend(
-    @Request() req: any,
-    @Param('userId') userId: string,
-  ) {
-    return this.notificationsService.findAllByUserId(userId, 'send');
+  async getAllNotificationsSend(@Request() req: any) {
+    return await this.notificationsService.findAllByUserId(
+      req.user.sub,
+      'send',
+    );
   }
   @Get('/get/type/:type')
   async getAllNotificationsByAssignmentId(
@@ -57,6 +60,10 @@ export class NotificationsController {
   ) {
     return this.notificationsService.findAllByColName('type', type);
   }
+  // @Get('delete/all')
+  // async deleteAll() {
+  //   return this.notificationsService.deleteNotifications();
+  // }
   @Post('/send/all/:classId')
   @UseGuards(JwtAuthGuard)
   async sendNotificationAllClass(
@@ -86,6 +93,18 @@ export class NotificationsController {
       userId,
       NotificationData,
     );
+    return newNotification;
+  }
+  @Post('/update/status')
+  @UseGuards(JwtAuthGuard)
+  async updateNotificationStatus(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    data: any,
+  ): Promise<Notification> {
+    //const userId = req.user.sub;
+    const newNotification =
+      await this.notificationsService.updateOneColNotification('status', data);
     return newNotification;
   }
 }

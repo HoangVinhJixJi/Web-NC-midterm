@@ -6,6 +6,7 @@ import { GradesService } from './grades.service';
 import { EnrollmentsModule } from '../enrollments/enrollments.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AssignmentsModule } from '../assignments/assignments.module';
+import { EventsModule } from 'src/gateway/events.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AssignmentsModule } from '../assignments/assignments.module';
     EnrollmentsModule,
     NotificationsModule,
     AssignmentsModule,
+    EventsModule,
   ],
   providers: [GradesService],
   exports: [GradesService],

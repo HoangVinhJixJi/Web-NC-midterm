@@ -53,6 +53,10 @@ const Classroom = () => {
     // Chuyển hướng đến trang chi tiết lớp học
     navigate(`/classroom/class-detail/${classId}`);
   };
+  const handleReturnAssignmentList = (classId) => {
+    // Chuyển hướng đến trang chi tiết lớp học
+    navigate(`/classroom/class-detail/${classId}`);
+  };
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
@@ -90,7 +94,8 @@ const Classroom = () => {
           <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick}/>} />
           <Route path="/class-detail/:classId" element={<ClassDetailTab />} />
           <Route path="/class-code/:classCode" element={<NotificationJoinClass />} />
-          <Route path="/class-detail/:classId/assignment-detail/:assignmentId" element={<AssignmentDetail />} />
+          <Route path="/class-detail/:classId/assignment-detail/:assignmentId" 
+                element={<AssignmentDetail />} />
         </Routes>
 
       </MainContent>

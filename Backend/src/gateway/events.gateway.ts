@@ -1,4 +1,3 @@
-import { UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -23,7 +22,7 @@ export class EventsGateway
     if (to) {
       // this.server.to(to.map((el) => String(el))).emit(event, data);
       this.server.to(to).emit(event, data);
-      console.log('send noti data to: ', data);
+      console.log('send noti data to : ', to, '-data: ', data);
     } else {
       this.server.emit(event, data);
       console.log('send noti data emit all : ', data);
@@ -48,13 +47,6 @@ export class EventsGateway
       socket.data.userId = user.userId;
       socket.join(socket.data.userId);
       console.log('connect success', socket.data.userId);
-      setTimeout(() => {
-        this.handleEmitSocket({
-          data: { message: `Thông báo test thử từ : ${socket.data.userId}` },
-          event: 'message',
-          to: '6575edb257bc05fc01237645',
-        });
-      }, 3000);
     } else {
       socket.disconnect();
     }

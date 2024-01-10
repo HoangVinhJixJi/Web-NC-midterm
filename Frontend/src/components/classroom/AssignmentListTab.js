@@ -144,7 +144,9 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
       {assignments && <List sx={{overflowY: 'auto', maxHeight: 'calc(100vh - 160px)'}}>
         {assignments.map((assignment) => (
           <ListItemButton 
-          onClick={() => onAssignmentClick(assignment)}
+          //onClick={() => onAssignmentClick(assignment)}
+          component={Link}
+          to={`/classroom/class-detail/${classId}/assignment-detail/${assignment._id}`}
           key={assignment._id} 
           sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <AssignmentIcon sx={{marginRight: '16px', color: 'orange'}}/>
@@ -217,3 +219,4 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
 };
 
 export default AssignmentListTab
+

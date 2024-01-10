@@ -8,6 +8,7 @@ import { CreateGradeDto } from './dto/create-grade.dto';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { AssignmentsService } from '../assignments/assignments.service';
+import { EventsGateway } from 'src/gateway/events.gateway';
 @Injectable()
 export class GradesService {
   constructor(
@@ -18,6 +19,7 @@ export class GradesService {
     private readonly enrollmentsService: EnrollmentsService,
     private readonly notificationsService: NotificationsService,
     private readonly assignmentsService: AssignmentsService,
+    private readonly eventsGateway: EventsGateway,
   ) {}
   async create(gradeData: CreateGradeDto): Promise<Grade> {
     try {
@@ -87,13 +89,27 @@ export class GradesService {
       data.classId,
       data.studentId,
     );
+    //Lưu vào Notification
     const notiData = {
       receiveId: enroll['userId'],
-      message: `Điểm số ${detailAssign['assignmentName']} của bạn là: ${updated.score}`,
+      message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Điểm số ${detailAssign['assignmentName']} của bạn là: ${updated.score}`,
       type: 'public_grade',
       status: 'unread',
     };
-    this.notificationsService.createNotification(userId, notiData);
+    const newNoti = await this.notificationsService.createNotification(
+      userId,
+      notiData,
+    );
+    if (newNoti) {
+      //Gửi thông báo socket
+      this.eventsGateway.handleEmitSocket({
+        data: {
+          newNoti,
+        },
+        event: 'public_grade',
+        to: enroll['userId'].toString(), //receiveId
+      });
+    }
   }
   //Chỉnh sửa status điểm số của 1 bài tập cho tất cả học sinh
   async updateStatusGradeOfAssignment(
@@ -101,7 +117,6 @@ export class GradesService {
     data: any,
   ): Promise<Grade[]> {
     const updatedGrades = [];
-    // Lặp qua từng phần tử trong mảng data
     const classId = data.classId;
     const assignmentId = data.assignmentId;
     const detailAssign =
@@ -113,21 +128,38 @@ export class GradesService {
     );
     for (const student of studentList) {
       if (student !== null) {
-        const update = await this.updateOneGrade('status', {
+        const enroll = await this.enrollmentsService.getOneByStudentId(
+          classId,
+          student.studentId,
+        );
+        const updated = await this.updateOneGrade('status', {
           classId,
           assignmentId,
           studentId: student.studentId,
           status: 'public',
         });
-        updatedGrades.push(update);
-        //Tạo thông báo
+        updatedGrades.push(updated);
+        //Lưu vào Notification
         const notiData = {
-          receiveId: student.memberInfo['_id'],
-          message: `Điểm số ${detailAssign['assignmentName']} của bạn là: ${update.score}`,
+          receiveId: enroll['userId'],
+          message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Điểm số ${detailAssign['assignmentName']} của bạn là: ${updated.score}`,
           type: 'public_grade',
           status: 'unread',
         };
-        this.notificationsService.createNotification(userId, notiData);
+        const newNoti = await this.notificationsService.createNotification(
+          userId,
+          notiData,
+        );
+        if (newNoti) {
+          //Gửi thông báo socket
+          this.eventsGateway.handleEmitSocket({
+            data: {
+              newNoti,
+            },
+            event: 'public_grade',
+            to: enroll['userId'].toString(), //receiveId
+          });
+        }
       }
     }
     return updatedGrades;
