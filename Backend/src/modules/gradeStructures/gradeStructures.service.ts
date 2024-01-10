@@ -23,7 +23,7 @@ export class GradeStructuresService {
     const createGradeStructure = new this.gradeStructuresModel(
       newGradeStructure,
     );
-    return createGradeStructure.save();
+    return await createGradeStructure.save();
   }
   async delete(gradeStructureId: string): Promise<GradeStructure | null> {
     try {

@@ -20,7 +20,7 @@ export class PendingInvitesService {
       role,
     };
     const createPendingInvite = new this.pendingInvitesModel(newPendingInvite);
-    return createPendingInvite.save();
+    return await createPendingInvite.save();
   }
   async findAllByClassId(classId: string): Promise<PendingInvite[]> {
     try {

@@ -12,33 +12,15 @@ import MainHomepageTab from './classroom/MainHomepageTab';
 import TeachingTab from './classroom/TeachingTab';
 import JoinedClassTab from './classroom/JoinedClassTab';
 import ClassDetailTab from './classroom/ClassDetailTab';
-import AssignmentDetail from './classroom/AssignmentDetail';
+import SidebarContainer from "./tab and sidebar/SidebarContainer";
+import SidebarItem from "./tab and sidebar/SidebarItem";
+import MainContent from "./tab and sidebar/MainContent";
 import GradeReviewDetail from './classroom/GradeReviewDetail';
 
 import { Container } from '@mui/material';
 import NotificationJoinClass from './classroom/NotificationJoinClass';
-const SidebarContainer = styled('div')(({ theme }) => ({
-  width: 200,
-  padding: theme.spacing(3),
-  backgroundColor: theme.palette.background.default,
-  borderRight: `1px solid ${theme.palette.divider}`,
-}));
+import AssignmentDetail from './classroom/AssignmentDetail';
 
-const SidebarItem = styled('div')(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  transition: 'background-color 0.3s ease',
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-    cursor: 'pointer',
-  },
-}));
-
-const MainContent = styled('div')(({ theme }) => ({
-  width: `calc(100% - 200px)`,
-  padding: theme.spacing(3),
-}));
-
-// Tạo các component tương ứng với các tab
 
 
 const Classroom = () => {
@@ -51,6 +33,10 @@ const Classroom = () => {
   };
 
   const handleClassClick = (classId) => {
+    // Chuyển hướng đến trang chi tiết lớp học
+    navigate(`/classroom/class-detail/${classId}`);
+  };
+  const handleReturnAssignmentList = (classId) => {
     // Chuyển hướng đến trang chi tiết lớp học
     navigate(`/classroom/class-detail/${classId}`);
   };
@@ -88,11 +74,12 @@ const Classroom = () => {
           <Route path="/" element={<MainHomepageTab onClassClick={handleClassClick} />} />
           <Route path="/home" element={<MainHomepageTab onClassClick={handleClassClick} />} />
           <Route path="/teaching" element={<TeachingTab onClassClick={handleClassClick} />} />
-          <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick} />} />
+          <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick}/>} />
           <Route path="/class-detail/:classId" element={<ClassDetailTab />} />
           <Route path="/class-code/:classCode" element={<NotificationJoinClass />} />
-          <Route path="/class-detail/:classId/assignment/:assignmentId" element={<AssignmentDetail />} />
-          <Route path="/class-detail/:classId/assignment/:assignmentId/gradeReview/:gradeReviewId" element={<GradeReviewDetail />} />
+          <Route path="/class-detail/:classId/assignment-detail/:assignmentId" 
+                element={<AssignmentDetail />} />
+          <Route path="/class-detail/:classId/assignment-detail/:assignmentId/gradeReview-detail/:gradeReviewId" element={<GradeReviewDetail />} />
         </Routes>
 
       </MainContent>

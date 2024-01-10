@@ -5,6 +5,7 @@ import {
   Ip,
   Param,
   Post,
+  Query,
   Render,
   Req,
   Request,
@@ -12,7 +13,6 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { SignInDto } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local/local-auth.guard';
 import { JwtAuthGuard } from './jwt/jwt-auth.guard'; // Thêm import JwtAuthGuard
@@ -27,6 +27,7 @@ import * as useragent from 'express-useragent';
 import { ConfigService } from '@nestjs/config';
 import { PendingInvitesService } from 'src/modules/pendingInvites/pendingInvites.service';
 import { EnrollmentsService } from 'src/modules/enrollments/enrollments.service';
+import { Role } from '../enums/role.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -202,10 +203,10 @@ export class AuthController {
     };
   }
 
-  @UseGuards(LocalAuthGuard) // Sử dụng LocalAuthGuard cho đăng nhập local
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  signIn(@Body(new ValidationPipe({ transform: true })) signInData: SignInDto) {
-    return this.authService.signIn(signInData.username, signInData.password);
+  signIn(@Request() req: any, @Query('role') role: Role) {
+    return this.authService.respondSignIn(req.user, role);
   }
 
   @UseGuards(JwtAuthGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
