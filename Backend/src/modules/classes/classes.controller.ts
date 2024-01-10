@@ -23,11 +23,8 @@ import { UsersService } from '../users/users.service';
 import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
-<<<<<<< HEAD
 import { EventsGateway } from 'src/gateway/events.gateway';
-=======
 import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
->>>>>>> dca31a6edfb7b6feb4081e149da8cb7cfd522ae8
 
 @Controller('classes')
 export class ClassesController {

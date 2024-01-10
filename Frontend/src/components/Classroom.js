@@ -19,28 +19,7 @@ import MainContent from "./tab and sidebar/MainContent";
 import { Container } from '@mui/material';
 import NotificationJoinClass from './classroom/NotificationJoinClass';
 import AssignmentDetail from './classroom/AssignmentDetail';
-const SidebarContainer = styled('div')(({ theme }) => ({
-  width: 200,
-  padding: theme.spacing(3),
-  backgroundColor: theme.palette.background.default,
-  borderRight: `1px solid ${theme.palette.divider}`,
-}));
 
-const SidebarItem = styled('div')(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  transition: 'background-color 0.3s ease',
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-    cursor: 'pointer',
-  },
-}));
-
-const MainContent = styled('div')(({ theme }) => ({
-  width: `calc(100% - 200px)`,
-  padding: theme.spacing(3),
-}));
-
-// Tạo các component tương ứng với các tab
 
 
 const Classroom = () => {

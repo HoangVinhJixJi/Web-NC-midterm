@@ -7,12 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../modules/users/schema/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
-<<<<<<< HEAD
 import { Socket } from 'socket.io';
-=======
 import { Role } from '../enums/role.enum';
 import { BannedUsersService } from '../modules/admin/management/account/banned-users/banned-users.service';
->>>>>>> dca31a6edfb7b6feb4081e149da8cb7cfd522ae8
 
 @Injectable()
 export class AuthService {
