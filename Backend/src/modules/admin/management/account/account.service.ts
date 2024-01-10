@@ -182,7 +182,7 @@ export class AccountService {
         .populate({
           path: 'userId',
           match: match,
-          select: 'username fullName avatar',
+          select: 'username fullName avatar studentId',
         })
         .skip(param.skip)
         .limit(param.take)
@@ -207,7 +207,7 @@ export class AccountService {
         .populate({
           path: 'userId',
           match: match,
-          select: 'username fullName avatar',
+          select: 'username fullName avatar studentId',
         })
         .exec();
       const accounts = bannedUsers
@@ -247,6 +247,7 @@ export class AccountService {
           email: user.email,
           birthday: user.birthday,
           gender: user.gender,
+          studentId: user.studentId,
         }
       : {};
   }
@@ -307,8 +308,12 @@ export class AccountService {
             ? [
                 { _id: searchTerm },
                 { fullName: { $regex: searchTerm, $options: 'i' } },
+                { studentId: { $regex: searchTerm, $options: 'i' } },
               ]
-            : [{ fullName: { $regex: searchTerm, $options: 'i' } }],
+            : [
+                { fullName: { $regex: searchTerm, $options: 'i' } },
+                { studentId: { $regex: searchTerm, $options: 'i' } },
+              ],
         },
       ];
     }

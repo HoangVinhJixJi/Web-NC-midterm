@@ -24,7 +24,7 @@ export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick })
           avatar={user['userInfo'].avatar}
           fullName={user['userInfo'].fullName}
         />
-        {user['studentId'] ? `(sID: ${user['studentId']})` : '(No Student ID)'}
+        {user['userInfo']['studentId'] ? `(sID: ${user['userInfo']['studentId']})` : '(No Student ID)'}
       </TableCell>
       <TableCell>
         {user['bannedInfo']['numOfDaysBanned']} {renderTotalDaysBannedUnit(user['bannedInfo']['numOfDaysBanned'])}

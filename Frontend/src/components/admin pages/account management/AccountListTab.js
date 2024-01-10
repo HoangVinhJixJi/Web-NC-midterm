@@ -260,7 +260,7 @@ export default function AccountListTab() {
           sx={{ marginLeft: 0 }}
         />
         <SearchBar
-          placeholder="Search User ID, Name"
+          placeholder="Search User/Student ID, Name"
           searchTerm={searchTerm}
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}

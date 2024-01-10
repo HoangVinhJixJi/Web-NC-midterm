@@ -124,6 +124,15 @@ export default function ClassListTab() {
       />
     ));
   }
+  function handleClearClick() {
+    setSearchTerm("");
+    setIsDisplayClearStatusButton(false);
+    setIsDisplayClearActionButton(false);
+    setIsSearchEnabled(false);
+    setIsSearchClick(isSearchClick => !isSearchClick);
+    setCurrentPage(1);
+    setTotalPages(0);
+  }
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
     if (event.target.value === '') {
@@ -214,6 +223,7 @@ export default function ClassListTab() {
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
+          onClearClick={handleClearClick}
         />
         {isDisplayFilterSide &&
           <>

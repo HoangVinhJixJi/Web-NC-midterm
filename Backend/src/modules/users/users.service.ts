@@ -153,7 +153,7 @@ export class UsersService {
           _id: sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
         };
         break;
-      case 'studentId':
+      case 'studentid':
         sortCondition = {
           ...sortCondition,
           studentId:

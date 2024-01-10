@@ -116,7 +116,7 @@ export default function PendingAccountListTab() {
     <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '60em' }}>
       <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
         <SearchBar
-          placeholder="Search User ID, Name"
+          placeholder="Search User/Student ID, Name"
           searchTerm={searchTerm}
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
