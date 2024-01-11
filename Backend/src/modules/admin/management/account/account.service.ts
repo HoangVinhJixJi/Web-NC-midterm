@@ -485,4 +485,63 @@ export class AccountService {
     }
     return changedUserList;
   }
+  async activeAccount(userId: string) {
+    return this.usersService.updateUserByField(userId, {
+      isActivated: true,
+      activationToken: null,
+    });
+  }
+  async addCreatorToClass() {
+    const classes = await this.classesService.adminGetAllClasses();
+    let creatorList: any = [];
+    for (const _class of classes) {
+      const teachers = await this.classesService.adminGetClassTeachers(
+        _class._id.toString(),
+      );
+      let haveCreator = false;
+      for (const teacher of teachers) {
+        if (teacher.isCreator) {
+          creatorList = [
+            ...creatorList,
+            { userId: teacher.userId, classId: _class._id },
+          ];
+          haveCreator = true;
+          break;
+        }
+      }
+      if (!haveCreator) {
+        await this.classesService.adminSetCreator(
+          teachers[0].userId,
+          _class._id.toString(),
+        );
+        creatorList = [
+          ...creatorList,
+          { userId: teachers[0].userId, classId: _class._id },
+        ];
+      }
+    }
+  }
+  async deleteAccount(userId: string) {
+    // Xoa het notification
+    await this.notificationsService.adminClearNotificationByUserId(userId);
+    // Tìm các lớp do user tạo
+    const createdClasses = await this.classesService.getUserClassesForAdmin(
+      userId,
+      'teacher',
+      '',
+    );
+    // Delete created class
+    for (const _class of createdClasses) {
+      await this.classesService.adminDelete(_class['classInfo']['classId']);
+    }
+    // Tìm các lớp tham gia
+    const participatedClasses =
+      await this.classesService.getUserClassesForAdmin(userId, 'student', '');
+    for (const _class of participatedClasses) {
+      await this.classesService.adminTakeUserLeaveClass(
+        _class['classInfo']['classId'],
+        userId,
+      );
+    }
+  }
 }

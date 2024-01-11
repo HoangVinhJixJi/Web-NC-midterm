@@ -275,4 +275,7 @@ export class GradesService {
       throw new Error(error);
     }
   }
+  async adminClearGradeByClass(classId: any) {
+    return this.gradesModel.deleteMany({ classId: classId }).exec();
+  }
 }

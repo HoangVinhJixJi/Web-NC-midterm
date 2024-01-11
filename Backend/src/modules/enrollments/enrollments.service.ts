@@ -254,4 +254,11 @@ export class EnrollmentsService {
       new: true,
     });
   }
+  async adminSetCreator(userId: string, classId: string) {
+    return this.enrollmentsModel.findOneAndUpdate(
+      { userId: userId, classId: classId },
+      { isCreator: true },
+      { new: true },
+    );
+  }
 }

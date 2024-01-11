@@ -17,6 +17,7 @@ import NoResultsFoundItem from "../NoResultsFoundItem";
 import api, {setAuthToken} from "../../../api/api";
 import Filter from '../../search and filter/Filter';
 import UnbanAccountDialog from './dialogs/UnbanAccountDialog';
+import DeleteAccountDialog from './dialogs/DeleteAccountDialog';
 
 const titleNames = [ "User ID", "User Info", "Total Days Banned", "Start Time", "End Time", "Action", "Details" ];
 const totalDaysBanned = ["1 day", "7 days", "30 days", "Forever"];
@@ -41,6 +42,7 @@ export default function BannedAccountListTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpenUnbanAccountDialog, setIsOpenUnbanAccountDialog] = useState(false);
+  const [isOpenDeleteAccountDialog, setIsOpenDeleteAccountDialog] = useState(false);
   const [actionUserId, setActionUserId] = useState('');
   const [actionUsername, setActionUsername] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -66,9 +68,10 @@ export default function BannedAccountListTab() {
     setActionUsername(username);
     setIsOpenUnbanAccountDialog(true);
   }
-  function handleDeleteClick(userId) {
-    const updatedAccounts = accounts.filter((account) => account['userInfo']['_id'] !== userId);
-    setAccounts(updatedAccounts);
+  function handleDeleteClick(userId, username) {
+    setActionUserId(userId);
+    setActionUsername(username);
+    setIsOpenDeleteAccountDialog(true);
   }
   function renderAccountList(accounts) {
     return accounts.map((account) => (
@@ -118,6 +121,14 @@ export default function BannedAccountListTab() {
   }
   function handleCloseUnbanAccountDialog(userId) {
     setIsOpenUnbanAccountDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.filter((account) => account['userInfo']['_id'] !== userId);
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
+  }
+  function handleCloseDeleteAccountDialog(userId) {
+    setIsOpenDeleteAccountDialog(false);
     if (isSuccess) {
       const updatedAccounts = accounts.filter((account) => account['userInfo']['_id'] !== userId);
       setAccounts(updatedAccounts);
@@ -209,6 +220,13 @@ export default function BannedAccountListTab() {
         username={actionUsername}
         isOpenUnbanAccountDialog={isOpenUnbanAccountDialog}
         onCloseUnbanAccountDialog={handleCloseUnbanAccountDialog}
+        setIsSuccess={setIsSuccess}
+      />
+      <DeleteAccountDialog
+        userId={actionUserId}
+        username={actionUsername}
+        isOpenDeleteAccountDialog={isOpenDeleteAccountDialog}
+        onCloseDeleteAccountDialog={handleCloseDeleteAccountDialog}
         setIsSuccess={setIsSuccess}
       />
     </Container>

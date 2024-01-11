@@ -169,4 +169,13 @@ export class NotificationsService {
       .exec();
     return rs;
   }
+  async adminClearNotificationByUserId(userId: string) {
+    const sendNotification = await this.notificationsModel
+      .deleteMany({ sendId: userId })
+      .exec();
+    const receiveNotification = await this.notificationsModel
+      .deleteMany({ receiveId: userId })
+      .exec();
+    return sendNotification.acknowledged && receiveNotification.acknowledged;
+  }
 }

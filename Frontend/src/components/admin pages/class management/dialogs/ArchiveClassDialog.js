@@ -49,7 +49,7 @@ export default function ArchiveClassDialog(
           <div>Archived classes can't be modified by teachers or students unless they are restored.</div>
           <div>This class will move to Archived classes.</div>
         </Typography>
-        <Typography color={messageColor}><i>{message}</i></Typography>
+        <Typography sx={{ color: messageColor }}><i>{message}</i></Typography>
       </DialogContent>
       <DialogActions>
         {!isDisplayCloseButton

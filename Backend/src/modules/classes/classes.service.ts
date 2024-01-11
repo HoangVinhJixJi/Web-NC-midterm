@@ -15,6 +15,8 @@ import { UsersService } from '../users/users.service';
 import { SortOrderEnum } from '../../enums/sort-order.enum';
 import { ClassStatusEnum } from '../../enums/class-status.enum';
 import { AssignStudentIdDto } from '../admin/management/class/dto/assign-student-id.dto';
+import { GradesService } from '../grades/grades.service';
+import { AssignmentsService } from '../assignments/assignments.service';
 
 @Injectable()
 export class ClassesService {
@@ -25,6 +27,8 @@ export class ClassesService {
     private pendingInvitesService: PendingInvitesService,
     private enrollmentsService: EnrollmentsService,
     private usersService: UsersService,
+    private gradesService: GradesService,
+    private assignmentsService: AssignmentsService,
     @InjectModel('Class') private classesModel: Model<Class>,
   ) {}
   async create(userData: CreateClassDto, userId: any): Promise<Class> {
@@ -321,7 +325,7 @@ export class ClassesService {
   async getUserClassesForAdmin(
     userId: any,
     role: string,
-    status: string,
+    status: string = '',
     searchTerm: any = '',
   ) {
     try {
@@ -449,6 +453,7 @@ export class ClassesService {
   private async findClassCreator(classId: any) {
     const enrollment = await this.enrollmentsService.findEnrollments({
       classId: classId,
+      isCreator: true,
     });
     const creator = await this.usersService.findOneById(enrollment[0].userId);
     return {
@@ -474,8 +479,9 @@ export class ClassesService {
   async adminDelete(classId: string) {
     const isArchived = await this.isArchived(classId);
     if (isArchived) {
-      const result = await this.enrollmentsService.deleteMembers(classId);
-      if (result.acknowledged) {
+      //const result = await this.enrollmentsService.deleteMembers(classId);
+      const result = await this.adminClearDataInvolveClass(classId);
+      if (result) {
         return this.classesModel.findByIdAndDelete(classId);
       }
     }
@@ -492,17 +498,19 @@ export class ClassesService {
       'teacher',
       '_id username fullName avatar',
     );
-    return teachers.map((teacher) => {
-      const userIdObj: any = teacher.userId;
-      return {
-        userId: userIdObj._id,
-        username: userIdObj.username,
-        fullName: userIdObj.fullName,
-        avatar: userIdObj.avatar,
-        timeOfParticipation: teacher.joinAt,
-        isCreator: teacher.isCreator,
-      };
-    });
+    return teachers
+      .filter((teacher) => teacher.userId !== null)
+      .map((teacher) => {
+        const userIdObj: any = teacher.userId;
+        return {
+          userId: userIdObj._id,
+          username: userIdObj.username,
+          fullName: userIdObj.fullName,
+          avatar: userIdObj.avatar,
+          timeOfParticipation: teacher.joinAt,
+          isCreator: teacher.isCreator,
+        };
+      });
   }
   async adminGetClassStudents(classId: string) {
     const students = await this.enrollmentsService.getEnrollmentsPopulatedClass(
@@ -512,17 +520,19 @@ export class ClassesService {
       'student',
       '_id username fullName avatar studentId',
     );
-    return students.map((student) => {
-      const userIdObj: any = student.userId;
-      return {
-        userId: userIdObj._id,
-        username: userIdObj.username,
-        fullName: userIdObj.fullName,
-        avatar: userIdObj.avatar,
-        timeOfParticipation: student.joinAt,
-        studentId: userIdObj.studentId,
-      };
-    });
+    return students
+      .filter((student) => student.userId !== null)
+      .map((student) => {
+        const userIdObj: any = student.userId;
+        return {
+          userId: userIdObj._id,
+          username: userIdObj.username,
+          fullName: userIdObj.fullName,
+          avatar: userIdObj.avatar,
+          timeOfParticipation: student.joinAt,
+          studentId: userIdObj.studentId,
+        };
+      });
   }
   async adminAssignStudentId(
     userId: string,
@@ -543,5 +553,27 @@ export class ClassesService {
         );
       }),
     );
+  }
+  async adminGetAllClasses() {
+    return this.classesModel.find({ _id: { $ne: null } }).exec();
+  }
+  async adminSetCreator(userId: string, classId: string) {
+    return this.enrollmentsService.adminSetCreator(userId, classId);
+  }
+  async adminClearDataInvolveClass(classId: any) {
+    const clearGradeResult =
+      await this.gradesService.adminClearGradeByClass(classId);
+    const clearAssignment =
+      await this.assignmentsService.adminClearAssignmentByClass(classId);
+    const clearEnrollment =
+      await this.enrollmentsService.deleteMembers(classId);
+    return (
+      clearGradeResult.acknowledged &&
+      clearAssignment.acknowledged &&
+      clearEnrollment.acknowledged
+    );
+  }
+  async adminTakeUserLeaveClass(classId: any, userId: string) {
+    return this.enrollmentsService.deleteOne(classId, userId);
   }
 }

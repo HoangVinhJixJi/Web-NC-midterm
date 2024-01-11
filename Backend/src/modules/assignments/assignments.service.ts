@@ -62,4 +62,7 @@ export class AssignmentsService {
       throw new Error(error);
     }
   }
+  async adminClearAssignmentByClass(classId: any) {
+    return this.assignmentsModel.deleteMany({ classId: classId }).exec();
+  }
 }

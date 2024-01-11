@@ -2,35 +2,35 @@ import {useEffect, useState} from 'react';
 import api from '../../../../api/api';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from '@mui/material';
 
-export default function DeleteClassDialog(
+export default function DeleteAccountDialog(
   {
-    classId, className,
-    isOpenDeleteClassDialog, onCloseDeleteClassDialog,
+    userId, username,
+    isOpenDeleteAccountDialog, onCloseDeleteAccountDialog,
     setIsSuccess
-  }) {
+  }
+) {
   const [message, setMessage] = useState('');
   const [messageColor, setMessageColor] = useState("success");
   const [isDisabled, setIsDisabled] = useState(false);
   const [isDisplayCloseButton, setIsDisplayCloseButton] = useState(false);
-
   async function handleConfirmClick() {
     try {
       setIsDisabled(true);
-      const data = { classId: classId };
-      const response = await api.post('/admin/management/class/delete', data);
-      console.log('Deleted class info: ', response.data);
+      const data = { userId: userId };
+      const response = await api.post('/admin/management/account/delete', data);
+      console.log('Delete account info: ', response.data);
       if (response.data) {
         setMessageColor("success.main");
-        setMessage(`The class with name '${className}' has been successfully deleted`);
+        setMessage(`The account with username '${username}' has been successfully deleted`);
         setIsSuccess(true);
       } else {
         setMessageColor("error.main");
-        setMessage(`Class delete failed, please try again.`);
+        setMessage(`Account deleted failed, please try again.`);
         setIsSuccess(false);
       }
       setIsDisplayCloseButton(true);
     } catch (error) {
-      console.log("Deleting class error: ", error);
+      console.log("Deleting account error: ", error);
     }
   }
 
@@ -38,14 +38,14 @@ export default function DeleteClassDialog(
     setMessage('');
     setIsDisabled(false);
     setIsDisplayCloseButton(false);
-  }, [isOpenDeleteClassDialog]);
+  }, [isOpenDeleteAccountDialog]);
 
   return (
-    <Dialog open={isOpenDeleteClassDialog} onClose={() => onCloseDeleteClassDialog(classId)}>
-      <DialogTitle><strong>{`Delete class '${className}'?`}</strong></DialogTitle>
+    <Dialog open={isOpenDeleteAccountDialog} onClose={() => onCloseDeleteAccountDialog(userId)}>
+      <DialogTitle><strong>{`Delete account '${username}'?`}</strong></DialogTitle>
       <DialogContent>
         <Typography>
-          <div>Participants will no longer have access to any posts or comments that have been added to this class.</div>
+          <div>All user data will be deleted from the system including: account information, created classes, participated classes and other related information.</div>
           <div><strong>You can't undo this action.</strong></div>
         </Typography>
         <Typography sx={{ color: messageColor }}><i>{message}</i></Typography>
@@ -54,7 +54,7 @@ export default function DeleteClassDialog(
         {!isDisplayCloseButton
           ?
           <>
-            <Button onClick={() => onCloseDeleteClassDialog(classId)} disabled={isDisabled} sx={{ color: "gray" }}>
+            <Button onClick={() => onCloseDeleteAccountDialog(userId)} disabled={isDisabled} sx={{ color: "gray" }}>
               <strong>Cancel</strong>
             </Button>
             <Button onClick={handleConfirmClick} disabled={isDisabled}>
@@ -62,7 +62,7 @@ export default function DeleteClassDialog(
             </Button>
           </>
           :
-          <Button onClick={() => onCloseDeleteClassDialog(classId)}>
+          <Button onClick={() => onCloseDeleteAccountDialog(userId)}>
             <strong>Close</strong>
           </Button>
         }

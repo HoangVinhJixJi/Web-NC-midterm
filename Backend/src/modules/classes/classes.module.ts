@@ -10,6 +10,8 @@ import { UsersModule } from '../users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { EventsModule } from 'src/gateway/events.module';
 import { BannedUsersModule } from '../admin/management/account/banned-users/banned-users.module';
+import { GradesModule } from '../grades/grades.module';
+import { AssignmentsModule } from '../assignments/assignments.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { BannedUsersModule } from '../admin/management/account/banned-users/bann
     AuthModule,
     EventsModule,
     BannedUsersModule,
+    GradesModule,
+    AssignmentsModule,
   ],
   providers: [ClassesService],
   exports: [ClassesService],

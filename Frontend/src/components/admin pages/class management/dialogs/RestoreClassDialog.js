@@ -20,11 +20,11 @@ export default function RestoreClassDialog(
       const response = await api.post('/admin/management/class/restore', data);
       console.log('Restored class info: ', response.data);
       if (response.data) {
-        setMessageColor("success");
+        setMessageColor("success.main");
         setMessage(`The class with name '${className}' has been successfully restored`);
         setIsSuccess(true);
       } else {
-        setMessageColor("error");
+        setMessageColor("error.main");
         setMessage(`Class restore failed, please try again.`);
         setIsSuccess(false);
       }
@@ -48,7 +48,7 @@ export default function RestoreClassDialog(
           <div>Teachers and students of this class will be able to interact with this class again.</div>
           <div>The class will be shown in "List" and "Active" tabs.</div>
         </Typography>
-        <Typography color={messageColor}><i>{message}</i></Typography>
+        <Typography sx={{ color: messageColor }}><i>{message}</i></Typography>
       </DialogContent>
       <DialogActions>
         {!isDisplayCloseButton
