@@ -19,10 +19,11 @@ export class EventsGateway
   server: Server;
   constructor(private readonly authService: AuthService) {}
   handleEmitSocket({ data, event, to }) {
-    if (to) {
+    const sendId = to.toString();
+    if (sendId) {
       // this.server.to(to.map((el) => String(el))).emit(event, data);
-      this.server.to(to).emit(event, data);
-      console.log('send noti data to : ', to, '-data: ', data);
+      this.server.to(sendId).emit(event, data);
+      console.log('send noti data to : ', sendId, '-data: ', data);
     } else {
       this.server.emit(event, data);
       console.log('send noti data emit all : ', data);
