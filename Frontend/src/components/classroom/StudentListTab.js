@@ -275,19 +275,25 @@ const StudentListTab = ({classId, isTeaching}) => {
           
         </Grid>
       </Grid>
-      <Button component="label" variant="contained" startIcon={<UploadIcon />}>
-        Upload Student List
-        <VisuallyHiddenInput type="file" onChange={handleUploadFileChange}/>
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        sx={{margin: '16px'}}
-        onClick={handleFileTypeClick}
-        startIcon= {<DownloadIcon/>}
-      >
-        Download Student List
-      </Button>
+      {isTeaching && 
+        <>
+        <Button component="label" variant="contained" startIcon={<UploadIcon />}>
+          Upload Student List
+          <VisuallyHiddenInput type="file" onChange={handleUploadFileChange}/>
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{margin: '16px'}}
+          onClick={handleFileTypeClick}
+          startIcon= {<DownloadIcon/>}
+        >
+          Download Student List
+        </Button>
+        </>
+      
+      }
+      
       {isUploadFile && 
         <>
           <Button variant="contained" color='error' startIcon={<SaveAltIcon />} onClick={handleSaveUploadFile}>

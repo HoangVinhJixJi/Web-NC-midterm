@@ -254,4 +254,10 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.leaveClass(classId, userId);
   }
+  @Get('my-studentId/:classId')
+  @UseGuards(JwtAuthGuard)
+  async getMyStudentId(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.enrollmentsService.getStudentId(userId, classId);
+  }
 }

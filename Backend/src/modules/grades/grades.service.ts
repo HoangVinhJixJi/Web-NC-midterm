@@ -92,7 +92,7 @@ export class GradesService {
     //Lưu vào Notification
     const notiData = {
       receiveId: enroll['userId'],
-      message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Your score for ${detailAssign['assignmentName']} is: ${updated.score} points`,
+      message: `classId: ${data.classId},assignmentId: ${data.assignmentId},gradeReviewId: ${null} ,message: Your score for ${detailAssign['assignmentName']} is: ${updated.score} points`,
       type: 'public_grade',
       status: 'unread',
     };
@@ -165,7 +165,7 @@ export class GradesService {
         //Lưu vào Notification
         const notiData = {
           receiveId: enroll['userId'],
-          message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Your score for ${detailAssign['assignmentName']} is: ${updated.score} points`,
+          message: `classId: ${data.classId},assignmentId: ${data.assignmentId},gradeReviewId: ${null} ,message: Your score for ${detailAssign['assignmentName']} is: ${updated.score} points`,
           type: 'public_grade',
           status: 'unread',
         };

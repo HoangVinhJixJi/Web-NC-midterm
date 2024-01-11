@@ -67,6 +67,7 @@ const createDataSample = (students, assignments, grades) => {
         name: assignment.assignmentName, 
         score: score.score || '', //Không có điểm cho bài tập này
         status: score.status || '',
+        gradeStructureId: assignment.gradeStructureId,
       };
     });
 
@@ -107,35 +108,40 @@ const getScaleAssignment = (structures, assignments) =>{
     assignmentScale.push({
       assignmentId: row.assignmentId,
       scale: struc.scale,
+      gradeStructureId: struc._id,
     });
   });
   return assignmentScale;
 }
 
 // Tính tổng điểm cho từng học sinh 
-const totalGradeData = (data, gradeStructures, assignments) => {
-  const listScale = getScaleAssignment(gradeStructures, assignments);
-
+const totalGradeData = (data, gradeStructures) => {
   const totalData = data.map((row) => {
     let totalSum = 0;
-    let totalValidAssignments = 0;
-
-    listScale.forEach((scaleGroup) => {
+    //let totalValidAssignments = 0;
+    gradeStructures.forEach((scaleGroup) => {
+      console.log('scaleGroup', scaleGroup);
       let groupSum = 0;
       let groupValidAssignments = 0;
       row.assignments.forEach((assign) => {
-        if(scaleGroup.assignmentId === assign.id && assign.score !== '' 
+        if(scaleGroup._id === assign.gradeStructureId && assign.score !== '' 
         && assign.score !== null && !isNaN(assign.score)){
-          groupSum += parseFloat(assign.score) * scaleGroup.scale * 0.01;
+          console.log(assign.score, ' - ', scaleGroup.scale, '-', groupSum);
+          groupSum += parseFloat(assign.score) * parseFloat(scaleGroup.scale) * 0.01;
+          console.log('groupSum: ', groupSum);
           groupValidAssignments++;
         };
       });
-
-      totalSum += groupSum;
-      totalValidAssignments += groupValidAssignments;
+      if(groupValidAssignments !== 0){
+        totalSum += parseFloat(groupSum) / parseFloat(groupValidAssignments);
+      }
+      console.log('totalSUm : ', totalSum);
     });
-
-    const averageGrade = totalValidAssignments !== 0 ? (totalSum / totalValidAssignments).toFixed(2) : '';
+    const averageGrade = (totalSum).toFixed(2);
+    console.log({
+      studentId: row.studentId,
+      grade: averageGrade,
+    });
     return {
       studentId: row.studentId,
       grade: averageGrade,
@@ -180,29 +186,6 @@ const GradeBoardTab = ({classId, isTeaching}) => {
   const [fileTypeMenuAnchorEl, setFileTypeMenuAnchorEl] = useState(null);
   
   const navigate = useNavigate();
-  
-  const gradeStructureSample = [
-    {
-      _id: '65925c2618a5f502d23e7f11',
-      classId,
-      name: 'exercise',
-      scale: 30,
-    },
-    {
-      _id: '658d7f24937af6ccec181722',
-      classId,
-      name: 'midterm',
-      scale: 40,
-    },
-    {
-      _id: '65925c4018a5f502d23e7fb33',
-      classId,
-      name: 'final',
-      scale: 60,
-    },
-  ]
-  
-
   
   // * Call API render Grade Board
   const getDataAPI= ()=>{
@@ -250,13 +233,11 @@ const GradeBoardTab = ({classId, isTeaching}) => {
         console.log('List Assignments Data: ', response.data);
        
         
-        const dataAssignments = response.data.map((assignment) => {
-           const stId = getRandomId(gradeStructureSample);
-           console.log('strucId = ', stId);
+        const dataAssignments = response.data.map((assignment, index) => {
           return {
             assignmentName: assignment.assignmentName,
             assignmentId: assignment._id,
-            gradeStructureId: stId,
+            gradeStructureId: assignment.gradeStructureId,
           };
         });
         console.log("list Asignments : ", dataAssignments);
@@ -312,16 +293,18 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       const StudentData = await fetchStudentData();
       const AssignmentData = await fetchAssignmentData();
       const GradeData = await fetchGradeData();
+      const GradeStructureData = await fetchGradestructureData(); 
       setStudents(StudentData); //Lưu vào state : students
       setAssignments(AssignmentData); //Lưu vào state : assignments
       setGrades(GradeData); //Lưu vào state : grades
+      setGradeStructures(GradeStructureData);
       setIsLoading(false);
       //Tạo mảng data để hiện thị Grade Board
-      const dataSample = createDataSample(StudentData,AssignmentData, GradeData );
-      console.log('1. => data Merge : ', dataSample);
-      const totalData = totalGradeData(dataSample, gradeStructureSample, AssignmentData);
+      const dataMerge = createDataSample(StudentData, AssignmentData, GradeData );
+      console.log('1. => data Merge : ', dataMerge);
+      const totalData = totalGradeData(dataMerge, GradeStructureData, AssignmentData);
       console.log('totalData: ', totalData);
-      const updatedData = dataSample.map((row) => {
+      const updatedData = dataMerge.map((row) => {
         const grade = totalData.find((score) => score.studentId === row.studentId);
         console.log({
           ...row,

@@ -247,6 +247,13 @@ export class EnrollmentsService {
       return false;
     }
   }
+  async getStudentId(userId: string, classId: string): Promise<string> {
+    const enrollment = await this.enrollmentsModel.findOne({
+      userId,
+      classId,
+    });
+    return enrollment.studentId;
+  }
   async findEnrollments(filter: any = {}) {
     return this.enrollmentsModel.find(filter).exec();
   }
@@ -257,5 +264,12 @@ export class EnrollmentsService {
     return this.enrollmentsModel.findOneAndUpdate(filter, updateData, {
       new: true,
     });
+  }
+  async getTeacherId(classId: any) {
+    const enrollments = await this.enrollmentsModel
+      .find({ classId, role: 'teacher' })
+      .exec();
+    const userIds = enrollments.map((enrollment) => enrollment.userId);
+    return userIds;
   }
 }
