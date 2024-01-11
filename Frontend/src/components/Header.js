@@ -223,7 +223,7 @@ function Header() {
         const timestamp = new Date().getTime();
         if (noti.type === 'public_grade') {
             console.log('public_grade');
-            navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}?timestamp=${timestamp}`);
+            navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}?timestamp=${timestamp}`, { state: { isTeaching: false } });
         }
         else if (noti.type === 'request_gradeReview') {
             console.log('request_gradeReview');

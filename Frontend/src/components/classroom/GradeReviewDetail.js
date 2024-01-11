@@ -39,7 +39,7 @@ const GradeReviewDetail = () => {
     const { classId, assignmentId, gradeReviewId } = useParams();
     const [isLoading, setIsLoading] = useState(true);
     const location = useLocation();
-    const isTeaching = location.state ? location.state.isTeaching : false;
+    const isTeaching = location.state ? location.state.isTeaching : 'null';
     const [gradeReview, setGradeReview] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -54,6 +54,9 @@ const GradeReviewDetail = () => {
     const u = JSON.parse(localStorage.getItem('user'));
     const fetchGradeReviewDetail = async () => {
         try {
+            if (isTeaching === 'null') {
+                navigate('/classroom')
+            }
             // Lấy token từ localStorage hoặc nơi lưu trữ khác
             const token = localStorage.getItem('token');
             if (!token) {

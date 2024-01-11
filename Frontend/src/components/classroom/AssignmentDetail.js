@@ -39,7 +39,7 @@ const AssignmentDetail = () => {
     const [explanation, setExplanation] = useState('');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const location = useLocation();
-    const isTeaching = location.state ? location.state.isTeaching : false;
+    const isTeaching = location.state ? location.state.isTeaching : 'null';
     const [studentId, setStudentId] = useState(null);
     const [currentGrade, setCurrentGrade] = useState(null);
     const [isUpdateAssignmentDialogOpen, setIsUpdateAssignmentDialogOpen] = useState(false);
@@ -57,6 +57,9 @@ const AssignmentDetail = () => {
     //fetch lấy thông tin bài tập
     const fetchAssignmentDetail = async () => {
         try {
+            if (isTeaching === 'null') {
+                navigate('/classroom')
+            }
             console.log('timestamp', timestamp);
             // Lấy token từ localStorage hoặc nơi lưu trữ khác
             const token = localStorage.getItem('token');
