@@ -73,7 +73,13 @@ export class GradeReviewsController {
     @Body(new ValidationPipe({ transform: true }))
     userData: AddGradeReviewDto,
   ): Promise<GradeReview> {
-    return this.gradeReviewsService.add(classId, assignmentId, userData);
+    const userId = req.user.sub;
+    return this.gradeReviewsService.add(
+      userId,
+      classId,
+      assignmentId,
+      userData,
+    );
   }
   @UseGuards(JwtAuthGuard)
   @Delete('remove/:gradeReviewId')
@@ -91,6 +97,11 @@ export class GradeReviewsController {
     @Body(new ValidationPipe({ transform: true }))
     userData: UpdateGradeReviewDto,
   ) {
-    return this.gradeReviewsService.findOneAndUpdate(gradeReviewId, userData);
+    const userId = req.user.sub;
+    return this.gradeReviewsService.findOneAndUpdate(
+      userId,
+      gradeReviewId,
+      userData,
+    );
   }
 }

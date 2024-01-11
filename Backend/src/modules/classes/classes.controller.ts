@@ -23,6 +23,8 @@ import { UsersService } from '../users/users.service';
 import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { EventsGateway } from 'src/gateway/events.gateway';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
 
 @Controller('classes')
 export class ClassesController {
@@ -33,9 +35,10 @@ export class ClassesController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly eventsGateway: EventsGateway,
   ) {}
   @Get('/')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard)
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, null, 'active');
@@ -71,7 +74,15 @@ export class ClassesController {
   @UseGuards(JwtAuthGuard)
   async getClassInfo(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
-    return this.classesService.getClassInfo(userId, classId);
+    const checkStudentId = await this.enrollmentsService.checkStudentId(
+      userId,
+      classId,
+    );
+    const classInfo = await this.classesService.getClassInfo(userId, classId);
+    return {
+      checkStudentId,
+      classInfo,
+    };
   }
   @Post('update/:classId')
   @UseGuards(JwtAuthGuard)
@@ -242,5 +253,11 @@ export class ClassesController {
   async leaveClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.leaveClass(classId, userId);
+  }
+  @Get('my-studentId/:classId')
+  @UseGuards(JwtAuthGuard)
+  async getMyStudentId(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.enrollmentsService.getStudentId(userId, classId);
   }
 }

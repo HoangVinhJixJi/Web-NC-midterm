@@ -1,6 +1,16 @@
-import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Request,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { EnrollmentsService } from './enrollments.service';
+import { Enrollment } from './schema/enrollment.schema';
 
 @Controller('enrollments')
 @UseGuards(JwtAuthGuard)
@@ -34,5 +44,23 @@ export class EnrollmentsController {
     @Param('classId') classId: string,
   ) {
     return this.enrollmentsService.findAllByClassId(classId);
+  }
+  @Post('update/:classId')
+  async updateStudentId(
+    @Request() req: any,
+    @Param('classId') classId: string,
+    @Body(new ValidationPipe({ transform: true }))
+    studentId: string,
+  ): Promise<Enrollment | null> {
+    const userId = req.user.sub;
+    return this.enrollmentsService.updateStudentId(classId, userId, studentId);
+  }
+  @Post('update/list')
+  async updateListStudentId(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    data: any,
+  ): Promise<any[]> {
+    return this.enrollmentsService.updateListStudentId(data);
   }
 }

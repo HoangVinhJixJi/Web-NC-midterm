@@ -8,4 +8,8 @@ export class UpdateGradeReviewDto {
   @IsString()
   @IsNotEmpty()
   status: string;
+
+  @IsString()
+  @IsNotEmpty()
+  sendName: string;
 }

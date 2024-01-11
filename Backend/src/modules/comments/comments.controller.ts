@@ -38,7 +38,8 @@ export class CommentsController {
     @Body(new ValidationPipe({ transform: true }))
     userData: PostCommentDto,
   ): Promise<Comment> {
-    return this.commentsService.add(gradeReviewId, userData);
+    const sendId = req.user.sub;
+    return this.commentsService.add(gradeReviewId, sendId, userData);
   }
   @UseGuards(JwtAuthGuard)
   @Delete('delete/:commentId')
