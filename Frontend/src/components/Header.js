@@ -233,7 +233,7 @@ function Header() {
             navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}/gradeReview-detail/${noti.gradeReviewId}`, { state: { isTeaching: false } });
         }
         else if (noti.type === 'fellow_teacher_comment_gradeReview') {
-            console.log('teacher_comment_gradeReview');
+            console.log('fellow_teacher_comment_gradeReview');
             navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}/gradeReview-detail/${noti.gradeReviewId}`, { state: { isTeaching: true } });
         }
         else if (noti.type === 'student_comment_gradeReview') {
@@ -242,7 +242,7 @@ function Header() {
         }
         else if (noti.type === 'mark_final_decision_gradeReview') {
             console.log('mark_final_decision_gradeReview');
-            navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}/gradeReview-detail/${noti.gradeReviewId}`, { state: { isTeaching: true } });
+            navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}/gradeReview-detail/${noti.gradeReviewId}`, { state: { isTeaching: false } });
         }
         else if (noti.type === 'fellow_mark_final_decision_gradeReview') {
             console.log('fellow_mark_final_decision_gradeReview');
