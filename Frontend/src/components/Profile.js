@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import api, {setAuthToken} from '../api/api';
 import {
   Container,
   Typography,
   Grid,
   Paper,
-  Avatar,
+  Avatar, ListItemIcon, Stack,
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import CakeIcon from '@mui/icons-material/Cake';
 import PersonIcon from '@mui/icons-material/Person';
 import TransgenderIcon from '@mui/icons-material/Transgender';
+import SchoolIcon from '@mui/icons-material/School';
+import AddStudentIdDialog from './dialogs/AddStudentIdDialog';
 
 
 const Profile= () => {
@@ -23,7 +25,11 @@ const Profile= () => {
     birthday: null,
     email: '',
     avatar: '',
-  }); 
+    studentId: null,
+  });
+  const [isOpenAddStudentIdDialog, setIsOpenAddStudentIdDialog] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const displayBirthday= (day)=>{
     if (!day) {
       return ""; 
@@ -31,6 +37,18 @@ const Profile= () => {
     const [year, month, date] = day.split('-');
     return `${date}/${month}/${year}`;
   }
+  function handleAddStudentIdClick(event) {
+    event.preventDefault();
+    setIsOpenAddStudentIdDialog(true);
+  }
+  function handleCloseAddStudentIdDialog(studentId) {
+    setIsOpenAddStudentIdDialog(false);
+    if (isSuccess) {
+      setUser({...user, studentId: studentId});
+    }
+    setIsSuccess(false);
+  }
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -46,6 +64,7 @@ const Profile= () => {
         // Gọi API để lấy dữ liệu người dùng
         const response = await api.get('/auth/profile');
         // Lưu thông tin người dùng vào state
+        console.log(response.data);
         setUser(response.data);
         
       } catch (error) {
@@ -79,20 +98,57 @@ const Profile= () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <Typography variant="h6" gutterBottom >
-              <PersonIcon /> {user.fullName}
+              <Stack direction="row" alignItems="center">
+                <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
+                  <PersonIcon />
+                </ListItemIcon>
+                {user.fullName}
+              </Stack>
             </Typography>
             <Typography variant="h6" gutterBottom>
-              <TransgenderIcon /> {user.gender}
+              <Stack direction="row" alignItems="center">
+                <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
+                  <TransgenderIcon />
+                </ListItemIcon>
+                {user.gender}
+              </Stack>
             </Typography>
             <Typography variant="h6" gutterBottom>
-              <CakeIcon /> {displayBirthday(user.birthday)}
+              <Stack direction="row" alignItems="center">
+                <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
+                  <CakeIcon />
+                </ListItemIcon>
+                {displayBirthday(user.birthday)}
+              </Stack>
             </Typography>
             <Typography variant="h6" gutterBottom>
-              <EmailIcon /> {user.email}
+              <Stack direction="row" alignItems="center">
+                <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
+                  <EmailIcon />
+                </ListItemIcon>
+                {user.email}
+              </Stack>
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+              <Stack direction="row" alignItems="center">
+                <ListItemIcon direction="row" alignItems="center" sx={{minWidth: "30px", color: "inherit"}}>
+                  <SchoolIcon />
+                </ListItemIcon>
+                {user.studentId ?? '<Student ID>'}
+                <Link to='#' style={{ textDecoration: 'none', marginLeft: "15px" }} onClick={handleAddStudentIdClick}>
+                  <Stack sx={{ color: "primary.main" }}>{user.studentId ? 'Change' : 'Add'}</Stack>
+                </Link>
+              </Stack>
             </Typography>
           </Grid>
         </Grid>
       </Paper>
+      <AddStudentIdDialog
+        _studentId={user.studentId}
+        isOpenDialog={isOpenAddStudentIdDialog}
+        onCloseDialogClick={handleCloseAddStudentIdDialog}
+        setIsSuccess={setIsSuccess}
+      />
     </Container>
   );
 };

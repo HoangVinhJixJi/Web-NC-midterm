@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Query,
+  Request,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { BanUserDto } from './dto/ban-user.dto';
 import { UnbanUserDto } from './dto/unban-user.dto';
 import { AssignAccountStudentIdDto } from './dto/assign-account-student-id.dto';
 import { AccountStatusGuard } from '../../../../auth/account-status/account-status.guard';
+import { ResolveConflictStudentIdDto } from './dto/resolve-conflict-student-id.dto';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -126,5 +128,29 @@ export class AccountController {
     userData: Array<AssignAccountStudentIdDto>,
   ) {
     return this.accountService.assignStudentIds(userData);
+  }
+  @Get('report-conflict-id')
+  async getConflictStudentIdUsers(
+    @Query('sendId') sendId: string,
+    @Query('studentId') studentId: string,
+  ) {
+    return this.accountService.getConflictStudentIdUsers(sendId, studentId);
+  }
+  @Post('resolve-conflict-id')
+  async resolveConflictStudentId(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    userData: ResolveConflictStudentIdDto,
+  ) {
+    const adminId = req.user.sub;
+    const adminUsername = req.user.username;
+    return this.accountService.resolveConflictStudentId(
+      adminId,
+      adminUsername,
+      userData.notificationId,
+      userData.selectedUserId,
+      userData.userIdList,
+      userData.studentId,
+    );
   }
 }

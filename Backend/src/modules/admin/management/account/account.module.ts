@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BannedUserSchema } from './schema/banned-user.schema';
 import { ClassesModule } from '../../../classes/classes.module';
 import { BannedUsersModule } from './banned-users/banned-users.module';
+import { NotificationsModule } from '../../../notifications/notifications.module';
+import { EventsModule } from '../../../../gateway/events.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { BannedUsersModule } from './banned-users/banned-users.module';
     UsersModule,
     ClassesModule,
     BannedUsersModule,
+    NotificationsModule,
+    EventsModule,
   ],
   providers: [AccountService],
   controllers: [AccountController],

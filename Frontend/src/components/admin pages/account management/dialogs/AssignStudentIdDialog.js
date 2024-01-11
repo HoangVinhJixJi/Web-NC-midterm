@@ -49,12 +49,13 @@ export default function AssignStudentIdDialog(
       setIsDisplayCloseButton(true);
     } catch (error) {
       console.log("Assigning student ID error: ", error);
+      setIsDisplayCloseButton(true);
     }
   }
 
   useEffect(() => {
     setMessage('');
-    setStudentId(_studentId);
+    setStudentId(_studentId ?? '');
     setIsDisabled(false);
     setIsDisplayCloseButton(false);
   }, [isOpenAssignStudentIdDialog]);
@@ -68,10 +69,10 @@ export default function AssignStudentIdDialog(
       <DialogContent>
         <Typography>
           <div>Student ID will be the code representing the student when participating in class.</div>
-          <div>Each student in a class will have a different student ID.</div>
+          <div>Each student in a class will have a unique student ID.</div>
         </Typography>
-        <Stack display="flex" flexDirection="column" alignItems="center">
-          <TextField value={studentId} onChange={e => setStudentId(e.target.value)} />
+        <Stack display="flex" flexDirection="column" alignItems="center" sx={{ marginTop: '1.5em' }}>
+          <TextField value={studentId} onChange={e => setStudentId(e.target.value)} label="Student ID" sx={{ minWidth: '20em' }} />
           {studentId !== '' &&
             <DialogActions><Button onClick={handleResetClick}><strong>Reset</strong></Button></DialogActions>}
         </Stack>

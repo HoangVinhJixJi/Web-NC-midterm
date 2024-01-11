@@ -29,6 +29,8 @@ import { EnrollmentsService } from 'src/modules/enrollments/enrollments.service'
 import { Role } from '../enums/role.enum';
 import { LoginByRoleGuard } from './roles/login-by-role.guard';
 import { Roles } from './roles/roles.decorator';
+import { AccountStatusGuard } from './account-status/account-status.guard';
+import { RolesGuard } from './roles/roles.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -230,7 +232,8 @@ export class AuthController {
     return req.user;
   }
 
-  @UseGuards(JwtAuthGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
+  @Roles(Role.User)
   @Get('profile')
   async getProfile(@Request() req): Promise<UserDto> {
     const { username } = req.user;
@@ -243,6 +246,7 @@ export class AuthController {
       gender: user.gender,
       birthday: user.birthday,
       avatar: user.avatar,
+      studentId: user.studentId,
     };
   }
 

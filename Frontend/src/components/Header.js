@@ -37,6 +37,10 @@ function Header() {
     const [unreadCount, setUnreadCount] = React.useState(0);
     const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
     const navigate = useNavigate();
+    const [reportId, setReportId] = React.useState('');
+    const [reportSenderId, setReportSenderId] = React.useState('');
+    const [reportedStudentId, setReportedStudentId] = React.useState('');
+    const [reportExtraInfo, setReportExtraInfo] = React.useState('');
     //console.log(isAdmin);
     // Fetch danh sách thông báo 
     const fetchNotiData = async () => {
@@ -55,6 +59,7 @@ function Header() {
           const list = response.data.reduce((accumulator, obj) => {
             if (obj != null ) {
                 const match = obj.message.match(/classId: (.+),assignmentId: (.+),message: (.+)/);
+                const report_match = obj.message.match(/studentId=(.*)&extraInfo=(.*)/);
                 if (match) {
                     setClassId(match[1]);
                     setAssignmentId( match[2]);
@@ -67,6 +72,12 @@ function Header() {
                     obj.assignmentId = match[2];
                     obj.message = match[3];
                 // Sử dụng classId, assignmentId, và message ở đây
+                } else if (report_match) {
+                  console.log(report_match);
+                  setReportId(obj['_id']);
+                  setReportSenderId(obj['sendId']);
+                  setReportedStudentId(report_match[1]);
+                  setReportExtraInfo(report_match[2]);
                 } else {
                     console.log('Không tìm thấy thông tin cần thiết trong message hoặc định dạng không đúng.');
                 
@@ -126,6 +137,10 @@ function Header() {
                 console.log('******* New Notification socket io :', data);
                 // Cập nhật số lượng thông báo chưa đọc
                 setUnreadCount((prevCount) => prevCount + 1);
+            });
+            socket.on('report_conflict_id', (data) => {
+              console.log('******* Report conflict student id: ', data);
+              setUnreadCount((prevCount) => prevCount + 1);
             });
     
             const notiData = fetchNotiData();
@@ -194,9 +209,24 @@ function Header() {
         else if (noti.type === 'final_decision'){
             console.log('final_decision');
             //navigate(`/classroom/class-detail/:classId}`, { state: { currentTab: 3 } });
+        } else if (noti.type === 'report_conflict_id') {
+          console.log('report_conflict_id');
+          const reportInfo = `${reportId}&&${reportSenderId}&&${reportedStudentId}&&${reportExtraInfo}`;
+          navigate(`/management/account/report-conflict-id/${reportInfo}`);
+        } else if (noti.type === 'resolve_report_conflict_id') {
+          console.log('resolve_report_conflict_id');
+          navigate('/user/profile');
         }
         handleClose();
     };
+    function renderNotificationMessage(notification) {
+      switch (notification.type.toLowerCase()) {
+        case 'report_conflict_id':
+          return `Report conflict id: ${reportExtraInfo}. From: ${reportSenderId}`
+        default:
+          return notification.message;
+      }
+    }
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -402,7 +432,7 @@ function Header() {
                                             overflow: 'hidden',
                                             WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
                                             }}
-                                        >{notification.message}</Typography>
+                                        >{renderNotificationMessage(notification)}</Typography>
                                         </ListItemButton>
                                         ))
                                     }

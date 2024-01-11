@@ -9,6 +9,10 @@ import { SortOrderEnum } from '../../../../enums/sort-order.enum';
 import { AccountStatusEnum } from '../../../../enums/account-status.enum';
 import { AccountActionEnum } from '../../../../enums/account-action.enum';
 import { AssignAccountStudentIdDto } from './dto/assign-account-student-id.dto';
+import { NotificationsService } from '../../../notifications/notifications.service';
+import { EventsGateway } from '../../../../gateway/events.gateway';
+import { NotificationTypeEnum } from '../../../../enums/notification-type.enum';
+import { NotificationStatusEnum } from '../../../../enums/notification-status.enum';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -20,6 +24,8 @@ export class AccountService {
     @InjectModel('BannedUser') private bannedUserModel: Model<BannedUser>,
     private usersService: UsersService,
     private classesService: ClassesService,
+    private notificationsService: NotificationsService,
+    private eventsGateway: EventsGateway,
   ) {}
 
   async getAccounts(
@@ -402,5 +408,81 @@ export class AccountService {
   }
   async assignStudentIds(userData: Array<AssignAccountStudentIdDto>) {
     return this.usersService.adminAssignStudentIds(userData);
+  }
+  async getConflictStudentIdUsers(sendId: string, studentId: string) {
+    console.log(sendId);
+    console.log(studentId);
+    const filter = { $or: [{ _id: sendId }, { studentId: studentId }] };
+    const userList = await this.usersService.findUsers(filter);
+    return userList.map((user) => {
+      return {
+        userId: user._id,
+        username: user.username,
+        fullName: user.fullName,
+        avatar: user.avatar,
+        studentId: user.studentId,
+      };
+    });
+  }
+  async resolveConflictStudentId(
+    adminId: string,
+    adminUsername: string,
+    notificationId: string,
+    selectedUserId: string,
+    userIdList: Array<string>,
+    studentId: string,
+  ) {
+    await this.notificationsService.deleteNotification(notificationId);
+    let changedUserList: any = [];
+    for (const userId of userIdList) {
+      const user = await this.usersService.findOneById(userId);
+      if (user) {
+        let notiData: any;
+        console.log(user._id.toString());
+        console.log(selectedUserId);
+        if (user._id.toString() !== selectedUserId) {
+          await this.usersService.updateUserByField(userId, {
+            studentId: null,
+          });
+          notiData = {
+            receiveId: user['_id'],
+            message: `Resolve report conflict id: Your account has been UNASSIGNED student ID, check out your profile for more details. From: ${adminUsername}`,
+            type: NotificationTypeEnum.ResolveReportConflictId,
+            status: NotificationStatusEnum.Unread,
+          };
+        } else {
+          await this.usersService.updateUserByField(userId, {
+            studentId: studentId,
+          });
+          notiData = {
+            receiveId: user['_id'],
+            message: `Resolve report conflict id: Your account has been assigned student ID, check out your profile for more details. From: ${adminUsername}`,
+            type: NotificationTypeEnum.ResolveReportConflictId,
+            status: NotificationStatusEnum.Unread,
+          };
+        }
+        const newNoti = await this.notificationsService.createNotification(
+          adminId,
+          notiData,
+        );
+        if (newNoti) {
+          this.eventsGateway.handleEmitSocket({
+            data: { newNoti },
+            event: NotificationTypeEnum.ResolveReportConflictId,
+            to: user['_id'],
+          });
+          const newSuccess = {
+            userId: user._id,
+            username: user.username,
+            fullName: user.fullName,
+            avatar: user.avatar,
+            studentId:
+              user._id.toString() === selectedUserId ? studentId : null,
+          };
+          changedUserList = [...changedUserList, newSuccess];
+        }
+      }
+    }
+    return changedUserList;
   }
 }
