@@ -220,9 +220,10 @@ function Header() {
 
 
         //Navigate
+        const timestamp = new Date().getTime();
         if (noti.type === 'public_grade') {
             console.log('public_grade');
-            navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}`);
+            navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}?timestamp=${timestamp}`);
         }
         else if (noti.type === 'request_gradeReview') {
             console.log('request_gradeReview');

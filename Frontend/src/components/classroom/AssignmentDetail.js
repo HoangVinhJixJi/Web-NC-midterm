@@ -28,6 +28,7 @@ const AssignmentDetail = () => {
     const { classId, assignmentId } = useParams();
     const [message, setMessage] = useState('');
     const [assignment, setAssignment] = useState(null);
+    const [gradeComposition, setGradeComposition] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [gradeReviews, setGradeReviews] = useState([]);
     const [expectedGrade, setExpectedGrade] = useState(null);
@@ -38,33 +39,48 @@ const AssignmentDetail = () => {
     const [studentId, setStudentId] = useState(null);
     const [currentGrade, setCurrentGrade] = useState(null);
     const navigate = useNavigate();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const timestamp = urlParams.get('timestamp');
 
     useEffect(() => {
         const fetchAssignmentDetail = async () => {
             try {
+                console.log('timestamp', timestamp);
                 // Lấy token từ localStorage hoặc nơi lưu trữ khác
                 const token = localStorage.getItem('token');
                 if (!token) {
-                console.error('Error fetching user data:', Error);
-                localStorage.setItem('classId', classId);
-                navigate('/signin');
+                    console.error('Error fetching user data:', Error);
+                    localStorage.setItem('classId', classId);
+                    navigate('/signin');
                 }
                 // Đặt token cho mọi yêu cầu
                 setAuthToken(token);
                 const _assignment = await api.get(`/assignments/get/assignment/${assignmentId}`);
-                setAssignment(_assignment.data);
+                if (_assignment.data) {
+                    setAssignment(_assignment.data);
+                    const _gradeComposition = await api.get(`gradeStructures/detail/${_assignment.data.gradeStructureId}`);
+                    setGradeComposition(_gradeComposition.data);
+                }
 
                 if (!isTeaching) {
-                    const u = await api.get('/auth/profile');
-                    console.log(u.data);
                     const getStudentId = await api.get(`/classes/my-studentId/${classId}`);
-                    const _studentId = getStudentId.data;
-                    setStudentId(_studentId);
-                    const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
-                    setGradeReviews(response.data);
+                    if (getStudentId.data) {
+                        const _studentId = getStudentId.data;
+                        setStudentId(_studentId);
+                        const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
+                        if (response.data) {
+                            setGradeReviews(response.data);
+                        }
+                    }
                     try {
                         const studentGrade = await api.get(`/grades/get/my-grade/${classId}/${assignmentId}`);
-                        setCurrentGrade(studentGrade.data.score);
+                        const gradeFetch = studentGrade.data.score;
+                        if (gradeFetch !== null) {
+                            setCurrentGrade(gradeFetch);
+                        } else {
+                            setCurrentGrade('Not Published Yet');
+                        }
                     }
                     catch {
                         setCurrentGrade('Not Graded Yet');
@@ -79,7 +95,7 @@ const AssignmentDetail = () => {
         };
 
         fetchAssignmentDetail();
-    }, [assignmentId, studentId]);
+    }, [assignmentId, timestamp]);
 
     const handleGoBack = () => {
         // navigate(-1); // Navigate back to the AssignmentList
@@ -144,7 +160,7 @@ const AssignmentDetail = () => {
             <Divider />
             <Paper elevation={3} sx={{ padding: '16px', mt: 2 }}>
                 <Typography gutterBottom sx={{ fontWeight: 'bold' }}>
-                    &lt;Midterm&gt;
+                    &lt;{gradeComposition.name}&gt;
                 </Typography>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
                     {assignment.assignmentName}
@@ -224,7 +240,7 @@ const AssignmentDetail = () => {
 
                     {/* Form for Submitting Grade Review */}
                     <div>
-                        {!openGradeReviews && (currentGrade !== 'Not Graded Yet') && (
+                        {!openGradeReviews && (currentGrade !== 'Not Graded Yet') && (currentGrade !== 'Not Published Yet') && (
                             <Button variant="contained" color="primary" onClick={handleOpenForm} sx={{ mt: 2 }}>
                                 Request A Grade Review
                             </Button>

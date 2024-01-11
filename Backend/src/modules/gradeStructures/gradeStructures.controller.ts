@@ -29,6 +29,14 @@ export class GradeStructuresController {
     return this.gradeStructuresService.findAllByClassId(classId);
   }
   @UseGuards(JwtAuthGuard)
+  @Get('detail/:gradeStructureId')
+  async getGradeStructureById(
+    @Request() req: any,
+    @Param('gradeStructureId') gradeStructureId: string,
+  ) {
+    return this.gradeStructuresService.findOneById(gradeStructureId);
+  }
+  @UseGuards(JwtAuthGuard)
   @Post('add/:classId')
   async addGradeComposition(
     @Request() req: any,

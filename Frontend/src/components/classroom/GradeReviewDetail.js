@@ -79,7 +79,7 @@ const GradeReviewDetail = () => {
     useEffect(() => {
 
         fetchGradeReviewDetail();
-    }, []);
+    }, [gradeReviewId]);
     const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
     useEffect(() => {
         // Kiểm tra nếu đã đăng nhập và có token

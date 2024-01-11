@@ -114,7 +114,7 @@ const ClassDetailTab = () => {
     console.log('studentId : ', studentId);
     const fetchStudentIdData = async () => {
       try {
-        const response = await api.post(`/enrollments/update/${classId}`, {
+        const response = await api.post(`/enrollments/update/studentid/${classId}`, {
           studentId,
         });
         console.log('Enrollment Data: ', response.data);

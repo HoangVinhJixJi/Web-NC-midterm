@@ -45,4 +45,9 @@ export class GradeStructuresService {
   async findAllByClassId(classId: string): Promise<GradeStructure[]> {
     return await this.gradeStructuresModel.find({ classId }).exec();
   }
+  async findOneById(gradeStructureId: string): Promise<GradeStructure> {
+    return await this.gradeStructuresModel
+      .findOne({ _id: gradeStructureId })
+      .exec();
+  }
 }
