@@ -32,6 +32,8 @@ import {
 } from '@mui/material';
 import { Send as SendIcon, Check as CheckIcon } from '@mui/icons-material';
 import api, { setAuthToken } from '../../api/api';
+import { useAuth as useAuthContext } from '../../api/AuthContext';
+import { io } from 'socket.io-client';
 
 const GradeReviewDetail = () => {
     const { classId, assignmentId, gradeReviewId } = useParams();
@@ -50,26 +52,92 @@ const GradeReviewDetail = () => {
     const [isOpen, setIsOpen] = useState(false);
     
     const u = JSON.parse(localStorage.getItem('user'));
-
-    useEffect(() => {
-        const fetchGradeReviewDetail = async () => {
-            try {
-                const response = await api.get(`/gradeReviews/gradeReviewId/${gradeReviewId}`);
-                setGradeReview(response.data);
-                setFinalScore(response.data.finalGrade);
-                setIsOpen(response.data.status === 'open');
-
-                const comments = await api.get(`/comments/gradeReviewId/${gradeReviewId}`);
-                console.log(comments.data);
-                setComments(comments.data);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Error fetching assignment data:', error);
+    const fetchGradeReviewDetail = async () => {
+        try {
+            // Lấy token từ localStorage hoặc nơi lưu trữ khác
+            const token = localStorage.getItem('token');
+            if (!token) {
+            console.error('Error fetching user data:', Error);
+            localStorage.setItem('classId', classId);
+            navigate('/signin');
             }
-        };
+            // Đặt token cho mọi yêu cầu
+            setAuthToken(token);
+            const response = await api.get(`/gradeReviews/gradeReviewId/${gradeReviewId}`);
+            setGradeReview(response.data);
+            setFinalScore(response.data.finalGrade);
+            setIsOpen(response.data.status === 'open');
+
+            const comments = await api.get(`/comments/gradeReviewId/${gradeReviewId}`);
+            console.log(comments.data);
+            setComments(comments.data);
+            setIsLoading(false);
+        } catch (error) {
+            console.error('Error fetching assignment data:', error);
+        }
+    };
+    useEffect(() => {
 
         fetchGradeReviewDetail();
     }, []);
+    const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
+    useEffect(() => {
+        // Kiểm tra nếu đã đăng nhập và có token
+        if (isLoggedIn) {
+            const token = localStorage.getItem('token');
+
+            // Khởi tạo socket và kết nối
+            const socket = io('http://localhost:5000', {
+                auth: { token },
+            });
+            // const socket = io('https://ptudwnc-final-project.vercel.app', {
+            //     auth: { token },
+            // });
+            console.log('dã đăng nhập');
+
+            
+            socket.on('request_gradeReview', (data) => {
+                console.log('******* New Notification request_gradeReview socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                fetchGradeReviewDetail();
+            });
+            socket.on('teacher_comment_gradeReview', (data) => {
+                console.log('******* New Notification teacher_comment_gradeReview socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                fetchGradeReviewDetail();
+            });
+            socket.on('fellow_teacher_comment_gradeReview', (data) => {
+                console.log('******* New Notification fellow_teacher_comment_gradeReview socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                fetchGradeReviewDetail();
+            });
+            socket.on('student_comment_gradeReview', (data) => {
+                console.log('******* New Notification student_comment_gradeReview socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                fetchGradeReviewDetail();
+            });
+            socket.on('mark_final_decision_gradeReview', (data) => {
+                console.log('******* New Notification mark_final_decision_gradeReview socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                fetchGradeReviewDetail();
+            });
+            socket.on('fellow_mark_final_decision_gradeReview', (data) => {
+                console.log('******* New Notification fellow_mark_final_decision_gradeReview socket io :', data);
+                // Cập nhật số lượng thông báo chưa đọc
+                fetchGradeReviewDetail();
+            });
+            
+
+            
+            // Trả về hàm cleanup để ngắt kết nối socket khi component unmount hoặc người dùng đăng xuất
+            return () => {
+                socket.disconnect();
+            };
+        }
+
+        // Người dùng không đăng nhập, không cần kết nối socket
+        return () => { };
+    }, [isLoggedIn]);
 
     const handleAddComment = async () => {
         try {

@@ -42,6 +42,15 @@ const AssignmentDetail = () => {
     useEffect(() => {
         const fetchAssignmentDetail = async () => {
             try {
+                // Lấy token từ localStorage hoặc nơi lưu trữ khác
+                const token = localStorage.getItem('token');
+                if (!token) {
+                console.error('Error fetching user data:', Error);
+                localStorage.setItem('classId', classId);
+                navigate('/signin');
+                }
+                // Đặt token cho mọi yêu cầu
+                setAuthToken(token);
                 const _assignment = await api.get(`/assignments/get/assignment/${assignmentId}`);
                 setAssignment(_assignment.data);
 

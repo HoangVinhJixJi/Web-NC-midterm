@@ -35,6 +35,15 @@ const GradeReviewListTab = ({ classId, isTeaching }) => {
     useEffect(() => {
         const fetchGradeReviewsData = async () => {
             try {
+                // Lấy token từ localStorage hoặc nơi lưu trữ khác
+                const token = localStorage.getItem('token');
+                if (!token) {
+                console.error('Error fetching user data:', Error);
+                localStorage.setItem('classId', classId);
+                navigate('/signin');
+                }
+                // Đặt token cho mọi yêu cầu
+                setAuthToken(token);
                 const allGradeReviews = await api.get(`/gradeReviews/classId/${classId}`);
                 const allAssignments = await api.get(`/assignments/${classId}`);
 

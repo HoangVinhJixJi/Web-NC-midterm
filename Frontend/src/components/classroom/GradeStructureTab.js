@@ -18,13 +18,14 @@ import {
   Divider,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import api from '../../api/api';
+import api, { setAuthToken } from '../../api/api';
 import {
   sortableContainer,
   sortableElement,
   sortableHandle,
 } from 'react-sortable-hoc';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
+import { useNavigate } from 'react-router-dom';
 
 
 const DragHandle = sortableHandle(() => <span className='Showcase__style__handle'>::</span>);
@@ -63,10 +64,19 @@ const GradeStructureTab = ({ classId, isTeaching }) => {
   const [newGradeScale, setNewGradeScale] = useState('');
   const [message, setMessage] = useState('');
   const [selectedGradeId, setSelectedGradeId] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchGradeStructure = async () => {
       try {
+        // Lấy token từ localStorage hoặc nơi lưu trữ khác
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('Error fetching user data:', Error);
+          localStorage.setItem('classId', classId);
+          navigate('/signin');
+        }
+        // Đặt token cho mọi yêu cầu
+        setAuthToken(token);
         const response = await api.get(`/gradeStructures/${classId}`);
         setGradeStructure(response.data);
       } catch (error) {
