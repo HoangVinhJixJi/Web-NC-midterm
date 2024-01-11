@@ -45,15 +45,15 @@ const AssignmentDetail = () => {
     const [isUpdateAssignmentDialogOpen, setIsUpdateAssignmentDialogOpen] = useState(false);
     const [assignmentName, setAssignmentName] = useState('');
     const [assignmentContent, setAssignmentContent] = useState('');
-    const [gradingScales, setGradingScales] = useState([]); 
-    const [selectedScale, setSelectedScale] = useState(''); 
+    const [gradingScales, setGradingScales] = useState([]);
+    const [selectedScale, setSelectedScale] = useState('');
 
 
     const navigate = useNavigate();
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     const timestamp = urlParams.get('timestamp');
-    
+
     //fetch lấy thông tin bài tập
     const fetchAssignmentDetail = async () => {
         try {
@@ -107,17 +107,17 @@ const AssignmentDetail = () => {
     //Lấy grade structure 
     const fetchGradingScales = async () => {
         try {
-          const response = await api.get(`/gradeStructures/${classId}`);
-          console.log('List gradeStuctures Data: ', response.data);
-          if(response.data){
-            setGradingScales(response.data);
-          }
-          setIsLoading(false);
+            const response = await api.get(`/gradeStructures/${classId}`);
+            console.log('List gradeStuctures Data: ', response.data);
+            if (response.data) {
+                setGradingScales(response.data);
+            }
+            setIsLoading(false);
         } catch (error) {
             navigate('/signin');
         }
     };
-    
+
     useEffect(() => {
         fetchAssignmentDetail();
     }, [assignmentId, timestamp]);
@@ -175,7 +175,7 @@ const AssignmentDetail = () => {
     };
 
     //Mở dialog update assignment
-    const handleUpdateAssignmentClick = () =>{
+    const handleUpdateAssignmentClick = () => {
         setIsUpdateAssignmentDialogOpen(true);
         setAssignmentName(assignment.assignmentName);
         setAssignmentContent(assignment.assignmentContent);
@@ -183,13 +183,13 @@ const AssignmentDetail = () => {
         fetchGradingScales();
     }
     //Cập nhật assignment
-    const handleUpdateAssignmentConfirm = async() => {
-    // Kiểm tra hợp lệ 
+    const handleUpdateAssignmentConfirm = async () => {
+        // Kiểm tra hợp lệ 
         try {
             if (assignmentName) {
                 const allAssignments = await api.get(`/assignments/${classId}`);
                 console.log(allAssignments.data);
-                const check = allAssignments.data.find(item => item.assignmentName === assignmentName);
+                const check = allAssignments.data.find(item => item.assignmentName === assignmentName && item._id !== assignment._id);
                 if (check) {
                     setMessage('Assignment Name is already in the class!');
                 }
@@ -203,12 +203,12 @@ const AssignmentDetail = () => {
                         gradeStructureId: selectedScale,
                     });
                     console.log('res create assignment: ', res);
-                    if(res.data){
+                    if (res.data) {
                         setMessage('Update Assignment successfully!');
-                    }else{
+                    } else {
                         throw new Error('Update Assignment fail');
                     }
-                    
+
                 }
             } else {
                 // Hiển thị thông báo lỗi hoặc thực hiện hành động phù hợp
@@ -218,7 +218,7 @@ const AssignmentDetail = () => {
             console.error(error);
             setMessage('Update Assignment fail!');
         }
-        
+
     };
 
     if (isLoading) {
@@ -232,7 +232,7 @@ const AssignmentDetail = () => {
             <Button variant="contained" color="primary" onClick={handleGoBack} sx={{ mb: 2 }}>
                 Go Back To The Class
             </Button>
-            
+
             <Divider />
             <Paper elevation={3} sx={{ padding: '16px', m: 2 }}>
                 <Typography gutterBottom sx={{ fontWeight: 'bold' }}>
@@ -356,56 +356,56 @@ const AssignmentDetail = () => {
                     </div>
                 </>)}
             </Paper>
-            <Divider/>
+            <Divider />
             {isTeaching &&
-            <Button variant="contained" color="primary" onClick={handleUpdateAssignmentClick} sx={{ mt: 2 }}>
-                Update Assignment
-            </Button>
+                <Button variant="contained" color="primary" onClick={handleUpdateAssignmentClick} sx={{ mt: 2 }}>
+                    Update Assignment
+                </Button>
             }
             <Dialog open={isUpdateAssignmentDialogOpen} onClose={handleCloseDialog}>
                 <DialogTitle>Update Assignment</DialogTitle>
                 <DialogContent>
-                <TextField
-                    label="Assignment Name"
-                    fullWidth
-                    value={assignmentName}
-                    onChange={(e) => setAssignmentName(e.target.value)}
-                    required
-                    sx={{ marginY: 2 }}
-                />
-                <TextField
-                    label="Assignment Content"
-                    fullWidth
-                    value={assignmentContent}
-                    onChange={(e) => setAssignmentContent(e.target.value)}
-                    required
-                    sx={{ marginY: 2 }}
-                />
-                <FormControl fullWidth sx={{ marginY: 2 }}>
-                    <InputLabel id="grading-scale-select-label"> Grading Scale </InputLabel>
-                    <Select
-                    labelId="grading-scale-select-label"
-                    id="grading-scale-select"
-                    value={selectedScale}
-                    label="Grading Scale"
-                    onChange={(e) => setSelectedScale(e.target.value)}
-                    >
-                    {gradingScales.map((scale) => (
-                        <MenuItem key={scale._id} value={scale._id}>
-                        {scale.name} - {scale.scale}%
-                        </MenuItem>
-                    ))}
-                    </Select>
-                </FormControl>
-                <Typography variant="body2" color="error" mt={2}>
-                    {message}
-                </Typography>
+                    <TextField
+                        label="Assignment Name"
+                        fullWidth
+                        value={assignmentName}
+                        onChange={(e) => setAssignmentName(e.target.value)}
+                        required
+                        sx={{ marginY: 2 }}
+                    />
+                    <TextField
+                        label="Assignment Content"
+                        fullWidth
+                        value={assignmentContent}
+                        onChange={(e) => setAssignmentContent(e.target.value)}
+                        required
+                        sx={{ marginY: 2 }}
+                    />
+                    <FormControl fullWidth sx={{ marginY: 2 }}>
+                        <InputLabel id="grading-scale-select-label"> Grading Scale </InputLabel>
+                        <Select
+                            labelId="grading-scale-select-label"
+                            id="grading-scale-select"
+                            value={selectedScale}
+                            label="Grading Scale"
+                            onChange={(e) => setSelectedScale(e.target.value)}
+                        >
+                            {gradingScales.map((scale) => (
+                                <MenuItem key={scale._id} value={scale._id}>
+                                    {scale.name} - {scale.scale}%
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <Typography variant="body2" color="error" mt={2}>
+                        {message}
+                    </Typography>
                 </DialogContent>
                 <DialogActions>
-                <Button onClick={handleCloseDialog}>Cancel</Button>
-                <Button onClick={handleUpdateAssignmentConfirm} color="primary">Create</Button>
+                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleUpdateAssignmentConfirm} color="primary">Create</Button>
                 </DialogActions>
-                
+
             </Dialog>
         </Box>
     );
