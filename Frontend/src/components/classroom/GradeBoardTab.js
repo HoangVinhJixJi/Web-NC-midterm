@@ -27,7 +27,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DownloadIcon from '@mui/icons-material/Download';
 import CloseIcon from '@mui/icons-material/Close';
-
+import BlockIcon from '@mui/icons-material/Block';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import api, {setAuthToken} from '../../api/api';
 import {
@@ -57,6 +57,7 @@ const VisuallyHiddenInput = styled('input')({
 //Gom nhóm các bảng tạo thành mảng data hiển thị bảng điểm
 const createDataSample = (students, assignments, grades) => {
   // Tạo initialData từ dữ liệu cơ sở dữ liệu
+  
   const initialData = students.map((student) => {
     const studentScores = grades.filter((score) => score.studentId === student.studentId);
     const studentAssignments = assignments.map((assignment) => {
@@ -73,9 +74,10 @@ const createDataSample = (students, assignments, grades) => {
       studentId: student.studentId,
       studentName: student.studentName,
       assignments: studentAssignments,
-      total: [],
+      total: null,
     };
   });
+  
   console.log('initialData: ', initialData);
   return initialData;
 }
@@ -94,13 +96,71 @@ const getAssignmentGrade = (data, assignmentName) =>{
   });
   return assignmentGrade;
 }
+//Lấy Scale trong structure tương ứng với assignmentId
+const getScaleAssignment = (structures, assignments) =>{
+  console.log(assignments);
+  console.log(structures);
+  const assignmentScale = [];
+  assignments.forEach((row) => {
+    console.log(' row: ', row);
+    const struc = structures.find((s)=> s._id === row.gradeStructureId);
+    assignmentScale.push({
+      assignmentId: row.assignmentId,
+      scale: struc.scale,
+    });
+  });
+  return assignmentScale;
+}
 
+// Tính tổng điểm cho từng học sinh 
+const totalGradeData = (data, gradeStructures, assignments) => {
+  const listScale = getScaleAssignment(gradeStructures, assignments);
+
+  const totalData = data.map((row) => {
+    let totalSum = 0;
+    let totalValidAssignments = 0;
+
+    listScale.forEach((scaleGroup) => {
+      let groupSum = 0;
+      let groupValidAssignments = 0;
+      row.assignments.forEach((assign) => {
+        if(scaleGroup.assignmentId === assign.id && assign.score !== '' 
+        && assign.score !== null && !isNaN(assign.score)){
+          groupSum += parseFloat(assign.score) * scaleGroup.scale * 0.01;
+          groupValidAssignments++;
+        };
+      });
+
+      totalSum += groupSum;
+      totalValidAssignments += groupValidAssignments;
+    });
+
+    const averageGrade = totalValidAssignments !== 0 ? (totalSum / totalValidAssignments).toFixed(2) : '';
+    return {
+      studentId: row.studentId,
+      grade: averageGrade,
+    };
+  });
+
+  return totalData;
+};
+
+
+
+//
+const getRandomId = (gradeStructures) => {
+  const randomIndex = Math.floor(Math.random() * gradeStructures.length);
+  return gradeStructures[randomIndex]._id;
+};
+
+//render component
 const GradeBoardTab = ({classId, isTeaching}) => {
   //Data
   
   const [students, setStudents] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [grades, setGrades] = useState([]);
+  const [gradeStructures, setGradeStructures] = useState([]);
   const [total, setTotal] = useState([]);
   const [data, setData] = useState([]);
   const [curValue, setCurValue] = useState('');
@@ -118,28 +178,30 @@ const GradeBoardTab = ({classId, isTeaching}) => {
   const [assignmentMenuAnchorEl, setAssignmentMenuAnchorEl] = useState(null);
   const [scoreMenuAnchorEl, setScoreMenuAnchorEl] = useState(null);
   const [fileTypeMenuAnchorEl, setFileTypeMenuAnchorEl] = useState(null);
-
+  
   const navigate = useNavigate();
-  // Tính tổng điểm cho từng học sinh 
-  const totalGradeData = (data) => {
-    const totalData = data.map((row) => {
-      let sum = 0;
-      let validAssignments = 0;
-      row.assignments.forEach((assign) => {
-        console.log(assign.score);
-        if (assign.score !== '' && assign.score !== null && !isNaN(assign.score)) {
-          sum += parseFloat(assign.score);
-          validAssignments++;
-        }
-      });
-      const averageGrade = validAssignments !== 0 ? (sum / validAssignments).toFixed(2) : '';
-      return {
-        studentId: row.studentId,
-        grade: averageGrade,
-      };
-    });
-    return totalData;
-  };
+  
+  const gradeStructureSample = [
+    {
+      _id: '65925c2618a5f502d23e7f11',
+      classId,
+      name: 'exercise',
+      scale: 30,
+    },
+    {
+      _id: '658d7f24937af6ccec181722',
+      classId,
+      name: 'midterm',
+      scale: 40,
+    },
+    {
+      _id: '65925c4018a5f502d23e7fb33',
+      classId,
+      name: 'final',
+      scale: 60,
+    },
+  ]
+  
 
   
   // * Call API render Grade Board
@@ -180,15 +242,21 @@ const GradeBoardTab = ({classId, isTeaching}) => {
         
       }
     };
+    
     const fetchAssignmentData = async () => {
       try {
         // Gọi API để lấy dữ liệu danh sách toàn bộ các bài tập của lớp học
         const response = await api.get(`/assignments/${classId}`);
         console.log('List Assignments Data: ', response.data);
+       
+        
         const dataAssignments = response.data.map((assignment) => {
+           const stId = getRandomId(gradeStructureSample);
+           console.log('strucId = ', stId);
           return {
             assignmentName: assignment.assignmentName,
             assignmentId: assignment._id,
+            gradeStructureId: stId,
           };
         });
         console.log("list Asignments : ", dataAssignments);
@@ -197,6 +265,24 @@ const GradeBoardTab = ({classId, isTeaching}) => {
         // Xử lý lỗi
         console.error('Error fetching user data:', error);
         
+      }
+    };
+
+    //fetch GradeStructure
+    
+    const fetchGradestructureData = async () => {
+      try {
+        // Gọi API để lấy dữ liệu danh sách toàn bộ các điểm số trong lớp học
+        const response = await api.get(`/gradeStructures/${classId}`);
+        //Lưu thông tin toàn bộ lớp học vào state
+        console.log('List Grade Structure Data: ', response.data);
+        if(response.data){
+          setGradeStructures(response.data);
+          return response.data;
+        }
+      } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching user data:', error);
       }
     };
     const fetchGradeData = async () => {
@@ -233,11 +319,22 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       //Tạo mảng data để hiện thị Grade Board
       const dataSample = createDataSample(StudentData,AssignmentData, GradeData );
       console.log('1. => data Merge : ', dataSample);
-      const totalData = totalGradeData(dataSample);
-      
+      const totalData = totalGradeData(dataSample, gradeStructureSample, AssignmentData);
       console.log('totalData: ', totalData);
+      const updatedData = dataSample.map((row) => {
+        const grade = totalData.find((score) => score.studentId === row.studentId);
+        console.log({
+          ...row,
+          total: grade ? grade.grade : null, 
+        });
+        return {
+          ...row,
+          total: grade ? grade.grade : null, 
+        };
+      });
+      console.log('2. => data Merge : ', updatedData);
       setTotal(totalData);
-      setData(dataSample);
+      setData(updatedData);
     }
     callGradeData();
   }
@@ -423,8 +520,8 @@ const GradeBoardTab = ({classId, isTeaching}) => {
         
         setSnackbarOpen(true);
         getDataAPI();
-        const totalData = totalGradeData(data);
-        setTotal(totalData);
+        //const totalData = totalGradeData(data);
+        //setTotal(totalData);
         setTimeout(() => {
           setSnackbarOpen(false);
         }, 3000);
@@ -559,13 +656,16 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       setAssignmentMenuAnchorEl(null);
     } catch (error) {
       console.error('Error reading Excel file:', error);
+      alert(error.message);
     }
   };
   //Xác nhận lưu data từ file vào database hay không?
   const handleSaveUploadFile = () => {
+    //
     const detailAssigment = assignments.find((row)=>
       row.assignmentName === selectedAssignment
     );
+    //Danh sách điểm của học sinh
     const gradeList = getAssignmentGrade(data, selectedAssignment);
     const gradeData ={
       classId,
@@ -583,6 +683,11 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       }
     };
     sendGradeAssignmentData(gradeData);
+    setIsUploadFile(false);
+    getDataAPI();
+  }
+  //Hủy xác nhận lưu data từ file 
+  const handleCancelUploadFile = () => {
     setIsUploadFile(false);
     getDataAPI();
   }
@@ -605,9 +710,15 @@ const GradeBoardTab = ({classId, isTeaching}) => {
           <VisuallyHiddenInput type="file" onChange={handleUploadFileChange}/>
         </Button>
         {isUploadFile && 
+          <>
           <Button variant="contained" color='error' startIcon={<SaveAltIcon />} onClick={handleSaveUploadFile}>
               Save Data
           </Button>
+          <Button variant="contained" sx={{backgroundColor: 'gray', margin: '8px'}} startIcon={<BlockIcon />} onClick={handleCancelUploadFile}>
+              Cancel
+          </Button>
+          </>
+          
         }
       </List>
       <Button

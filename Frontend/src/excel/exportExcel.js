@@ -18,7 +18,7 @@ export const exportGradeBoardToXLSX = (data) => {
   const uniqueAssignments = Array.from(
     new Set(data.flatMap((student) => student.assignments.map((assignment) => assignment.name)))
   );
-  const headerRow = ['Student ID', 'Student Name', ...uniqueAssignments];
+  const headerRow = ['Student ID', 'Student Name', ...uniqueAssignments, 'Total'];
   worksheet.addRow(headerRow);
   // Thêm dữ liệu học sinh và điểm vào bảng điểm
   data.forEach((student) => {
@@ -29,6 +29,7 @@ export const exportGradeBoardToXLSX = (data) => {
       const score = assignment ? assignment.score : '';
       rowValues.push(score !== null ? score : ''); // Nếu điểm là null thì để trống
     });
+    rowValues.push(student.total);
     worksheet.addRow(rowValues);
   });
   // Lưu file Excel
@@ -45,7 +46,7 @@ export const exportGradeBoardToCSV = (data) => {
   const uniqueAssignments = Array.from(
     new Set(data.flatMap((student) => student.assignments.map((assignment) => assignment.name)))
   );
-  const headerRow = ['Student ID', 'Student Name', ...uniqueAssignments];
+  const headerRow = ['Student ID', 'Student Name', ...uniqueAssignments, 'Total'];
   const csvData= [headerRow];
   // Thêm dữ liệu học sinh và điểm vào bảng điểm
   data.forEach((student) => {
@@ -56,6 +57,7 @@ export const exportGradeBoardToCSV = (data) => {
       const score = assignment ? assignment.score : '';
       rowValues.push(score !== null ? score : ''); // Nếu điểm là null thì để trống
     });
+    rowValues.push(student.total);
     csvData.push(rowValues);
   });
   // Tạo nội dung CSV
@@ -244,6 +246,7 @@ export const uploadGradeAssignment = async (file) => {
     await workbook.xlsx.load(file);
     const worksheet = workbook.getWorksheet(1);
     const sheetData = [];
+    
     worksheet.eachRow({ includeEmpty: false }, (row) => {
       const rowData = {
         studentId: row.getCell(1).value,
@@ -251,6 +254,10 @@ export const uploadGradeAssignment = async (file) => {
       };
       sheetData.push(rowData);
     });
+    const header = sheetData[0];
+    if(header.studentId!== 'StudentID' && header.grade!== 'Grade'){
+      throw new Error('Invalid CSV header. Expected columns: "StudentId" and "Grade".');
+    }
     return sheetData.slice(1);
   } else if (fileExtension === 'csv') {
     const reader = new FileReader();
@@ -258,16 +265,25 @@ export const uploadGradeAssignment = async (file) => {
       reader.onload = (event) => {
         const csvData = event.target.result;
         const lines = csvData.split(/\r\n|\n/);
-        const sheetData = lines.slice(1).map((line) => {
-          const values = line.split(',');
-          const rowData = {
-            studentId: values[0],
-            grade: values[1] || '',
-          };
-          return rowData;
-        });
-        console.log('sheetData : ', sheetData);
-        resolve(sheetData);
+        if(lines.length > 0){
+          const header = lines[0].split(',');
+          console.log(header);
+          if (header.length === 2 && header[0] === 'StudentID' && header[1] === 'Grade') {
+            const sheetData = lines.slice(1).map((line) => {
+              const values = line.split(',');
+              const rowData = {
+                studentId: values[0],
+                grade: values[1] || '',
+              };
+              return rowData;
+            });
+          resolve(sheetData);
+          } else {
+            reject(new Error('Invalid CSV header. Expected columns: "StudentId" and "Grade".'));
+          }
+        } else {
+          reject(new Error('CSV file is empty.'));
+        }
       };
       reader.onerror = (error) => {
         reject(error.message);
@@ -283,12 +299,12 @@ export const uploadGradeAssignment = async (file) => {
 export const exportStudentListToXLSX = (data) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Student List');
-  const headerRow = ['StudentID', 'FullName'];
+  const headerRow = ['StudentId', 'FullName', 'Email'];
   worksheet.addRow(headerRow);
 
   // Thêm dữ liệu học sinh và điểm vào bảng điểm
   data.forEach((student) => {
-    const rowValues = [student.studentId, student.fullName];
+    const rowValues = [student.studentId, student.fullName, student.email];
     worksheet.addRow(rowValues);
   });
 
@@ -304,11 +320,11 @@ export const exportStudentListToXLSX = (data) => {
 
 export const exportStudentListToCSV = (data) => {
   
-  const headerRow = ['StudentID', 'FullName'];
+  const headerRow = ['StudentId', 'FullName', 'Email'];
   const csvData = [headerRow];
   // Thêm dữ liệu học sinh và điểm vào bảng điểm
   data.forEach((student) => {
-    const rowValues = [student.studentId, student.fullName];
+    const rowValues = [student.studentId, student.fullName, student.email];
     csvData.push(rowValues);
   });
   // Tạo nội dung CSV
@@ -333,9 +349,14 @@ export const uploadStudentList = async (file) => {
       const rowData = {
         studentId: row.getCell(1).value.toString(),
         fullName: row.getCell(2).value,
+        email: row.getCell(3).value,
       };
       sheetData.push(rowData);
     });
+    const header = sheetData[0];
+    if(header.studentId!== 'StudentId' && header.fullName!== 'FullName' && header.email!== 'Email'){
+      throw new Error('Invalid CSV header. Expected columns: "StudentId", "FullName", "Email".');
+    }
     return sheetData.slice(1);
   } else if (fileExtension === 'csv') {
     const reader = new FileReader();
@@ -344,16 +365,24 @@ export const uploadStudentList = async (file) => {
       reader.onload = (event) => {
         const csvData = event.target.result;
         const lines = csvData.split(/\r\n|\n/);
-        const sheetData = lines.slice(1).map((line) => {
-          const values = line.split(',');
-          const rowData = {
-            studentId: values[0].toString(),
-            fullName: values[1],
-          };
-          return rowData;
-        });
-        console.log('sheetData : ', sheetData);
-        resolve(sheetData);
+        if(lines.length > 0){
+          const header = lines[0].split(',');
+            if (header[0] === 'StudentId' && header[1] === 'FullName'  && header[1] === 'Email') {
+              const sheetData = lines.slice(1).map((line) => {
+                const values = line.split(',');
+                const rowData = {
+                  studentId: values[0].toString(),
+                  fullName: values[1],
+                };
+                return rowData;
+              });
+            resolve(sheetData);
+          } else {
+            reject(new Error('Invalid CSV header. Expected columns: "StudentID" and "FullName".'));
+          }
+        } else {
+          reject(new Error('CSV file is empty.'));
+        }
       };
       reader.onerror = (error) => {
         reject(error.message);

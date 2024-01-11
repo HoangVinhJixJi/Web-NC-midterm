@@ -15,7 +15,11 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  ListItemButton
+  ListItemButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
@@ -24,53 +28,74 @@ import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
 
 const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
+  const sampleGradingScales = [
+    { id: '1', name: 'Assignment', scale: 30 },
+    { id: '2', name: 'Midterm', scale: 40 },
+    { id: '3', name: 'Final', scale: 60 },
+  ];
   const [isAddAssignmentDialogOpen, setIsAddAssignmentDialogOpen] = useState(false);
   const [assignmentName, setAssignmentName] = useState('');
   const [assignmentContent, setAssignmentContent] = useState('');
   const [assignments, setAssignments] = useState([]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [gradingScales, setGradingScales] = useState(sampleGradingScales); 
+  const [selectedScale, setSelectedScale] = useState(''); 
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchAssignmentData = async () => {
-      try {
-        // Lấy token từ localStorage hoặc nơi lưu trữ khác
-        const token = localStorage.getItem('token');
-        if(!token){
-          console.error('Error fetching user data:', Error);
-          navigate('/signin');
-        }
-        // Đặt token cho mọi yêu cầu
-        setAuthToken(token);
-        // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
-        const response = await api.get(`/assignments/${classId}`);
-        //Lưu thông tin toàn bộ lớp học vào state
-        console.log('List Assignment Data: ', response.data);
-        //Kiểm tra lại thông tin teacher:
-        const list = response.data;
-        console.log("list: ", list);
-        setAssignments(list);
-        setIsLoading(false);
-      } catch (error) {
-        // Xử lý lỗi
-        if (error.response && error.response.status === 401) {
-          navigate('/signin');
-        }else{
-            console.error('Error fetching user data:', error);
-            setAssignments([]);
-            setIsLoading(false);
-        }
+  const fetchAssignmentData = async () => {
+    try {
+      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        navigate('/signin');
       }
-    };
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
+      // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
+      const response = await api.get(`/assignments/${classId}`);
+      //Lưu thông tin toàn bộ lớp học vào state
+      console.log('List Assignment Data: ', response.data);
+      //Kiểm tra lại thông tin teacher:
+      const list = response.data;
+      console.log("list: ", list);
+      setAssignments(list);
+      setIsLoading(false);
+    } catch (error) {
+      // Xử lý lỗi
+      if (error.response && error.response.status === 401) {
+        navigate('/signin');
+      }else{
+          console.error('Error fetching user data:', error);
+          setAssignments([]);
+          setIsLoading(false);
+      }
+    }
+  };
+  const fetchGradingScales = async () => {
+    try {
+      const response = await api.get(`/gradestucture/${classId}`);
+      console.log('List Assignment Data: ', response.data);
+      if(response.data){
+        setGradingScales(response.data);
+      }
+      setIsLoading(false);
+    } catch (error) {
+        navigate('/signin');
+    }
+  };
 
+  useEffect(() => {
     // Gọi hàm lấy dữ liệu 
     fetchAssignmentData();
+    //fetchGradingScales();
   }, []); 
 
   const handleAddAssignmentClick = () => {
     setIsAddAssignmentDialogOpen(true);
   };
   const handleCloseDialog = () => {
+    fetchAssignmentData();
     setIsAddAssignmentDialogOpen(false);
     setMessage('');
   };
@@ -203,6 +228,22 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
             required
             sx={{ marginY: 2 }}
           />
+          <FormControl fullWidth sx={{ marginY: 2 }}>
+            <InputLabel id="grading-scale-select-label"> Grading Scale </InputLabel>
+            <Select
+              labelId="grading-scale-select-label"
+              id="grading-scale-select"
+              value={selectedScale}
+              label="Grading Scale"
+              onChange={(e) => setSelectedScale(e.target.value)}
+            >
+              {gradingScales.map((scale) => (
+                <MenuItem key={scale.id} value={scale.id}>
+                  {scale.name} - {scale.scale}%
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <Typography variant="body2" color="error" mt={2}>
             {message}
           </Typography>

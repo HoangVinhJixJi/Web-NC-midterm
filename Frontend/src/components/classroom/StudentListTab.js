@@ -23,6 +23,7 @@ import {
 import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/Download';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import BlockIcon from '@mui/icons-material/Block';
 
 import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
@@ -49,6 +50,7 @@ const StudentListTab = ({classId, isTeaching}) => {
   const [message, setMessage] = useState('');
   const [invitedEmails, setInvitedEmails] = useState([]);
   const [students, setStudents] = useState([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadFile, setIsUploadFile] = useState(false);
   const [fileTypeMenuAnchorEl, setFileTypeMenuAnchorEl] = useState(null);
@@ -66,11 +68,11 @@ const StudentListTab = ({classId, isTeaching}) => {
       
       // Đặt token cho mọi yêu cầu
       setAuthToken(token);
-      // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
+      // Gọi API để lấy dữ liệu danh sách toàn bộ các học sinh của lớp học
       const response = await api.get(`/enrollments/student/${classId}`);
       //Lưu thông tin toàn bộ lớp học vào state
       console.log('List Students Data: ', response.data);
-      //Kiểm tra lại thông tin teacher:
+      //Kiểm tra lại thông tin học sinh:
       const list = response.data.reduce((accumulator, obj) => {
         if (obj.memberInfo != null && obj.role === 'student') {
           obj.memberInfo['studentId'] = obj.studentId;
@@ -165,42 +167,69 @@ const StudentListTab = ({classId, isTeaching}) => {
       console.log("sheetData: ", sheetData);
       const studentData = students;
       studentData.forEach((row) => {
-        sheetData.forEach((studentData, index) => {
-          if(studentData.fullName !== '' && row.fullName === studentData.fullName ){
-            row.studentId = studentData.studentId;
-            sheetData.splice(index, 1);
+        sheetData.forEach((fileData, index) => {
+          console.log('fileData: ', fileData);
+          if(fileData.fullName !== '' && row.email === fileData.email
+           &&  row.studentId !== fileData.studentId){
+            console.log('update');
+            row.oldStudentId = row.studentId;
+            row.studentId = fileData.studentId;
             
           } 
         })
       })
-      console.log('studentData: ', studentData);
+      console.log('==>>>>> studentData after upload == : ', studentData);
       //gọi fetch data
       setStudents(studentData);
       setIsUploadFile(true);
     } catch (error) {
       console.error('Error reading Excel file:', error);
+      alert(error.message);
     }
   };
+ 
+
   //Xác nhận lưu data từ file vào database hay không?
   const handleSaveUploadFile = () => {
-    
-    const sendStudentIdChangeData = async (studentData) => {
+    const sendStudentIdChangeEnrollment = async (studentData) => {
       try {
         const response = await api.post(`/enrollments/update/list`, studentData);
         return response.data;
       } catch (error) {
         // Xử lý lỗi
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching update data `/enrollments/update/list :', error);
       }
     };
-    const updated = sendStudentIdChangeData({
+    const sendStudentIdChangeGrade = async (studentData) => {
+      try {
+        const response = await api.post(`/grades/update/studentid`, studentData);
+        return response.data;
+      } catch (error) {
+        // Xử lý lỗi
+        console.error('Error fetching update data grades/update/studentid:', error);
+      }
+    };
+    const sendObj = {
       classId,
-      userIds: students.map((s)=> {return s._id;}),
-      studentIds: students.map((s)=> {return s.studentId;}),
-    });
-    console.log('=> updated list sutdent ID : ', updated);
+      list: students.filter((s) => s.oldStudentId).map((s) => (
+        {
+          userId: s._id,
+          oldStudentId: s.oldStudentId,
+          studentId: s.studentId,
+        })),
+    };
+    console.log('sendObj: ', sendObj);
+    const updatedEnroll = sendStudentIdChangeEnrollment(sendObj);
+    const updatedGrade = sendStudentIdChangeGrade(sendObj);
+    console.log('=> updated list sutdent ID updatedEnroll : ', updatedEnroll);
+    console.log('=> updated list sutdent ID updatedGrade: ', updatedGrade);
     setIsUploadFile(false);
   }
+   //Hủy thao tác update student 
+  const handleCancelUploadFile = ()=> {
+    fetchStudentData();
+    setIsUploadFile(false);
+  };
 
   //Kiểm tra nếu là giáo viên thì hiển thị Button Thêm học sinh còn nếu là học sinh thì chỉ cho xem số lượng học sinh
     return (
@@ -260,9 +289,15 @@ const StudentListTab = ({classId, isTeaching}) => {
         Download Student List
       </Button>
       {isUploadFile && 
+        <>
           <Button variant="contained" color='error' startIcon={<SaveAltIcon />} onClick={handleSaveUploadFile}>
               Save Data
           </Button>
+          <Button variant="contained" sx={{backgroundColor: 'gray', margin: '8px'}} startIcon={<BlockIcon />} 
+                  onClick={handleCancelUploadFile}>
+              Cancel
+          </Button>
+          </>
         }
       <Menu
         open={Boolean(fileTypeMenuAnchorEl)}

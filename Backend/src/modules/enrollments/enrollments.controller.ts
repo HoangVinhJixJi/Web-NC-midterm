@@ -45,7 +45,7 @@ export class EnrollmentsController {
   ) {
     return this.enrollmentsService.findAllByClassId(classId);
   }
-  @Post('update/:classId')
+  @Post('update/studentid/:classId')
   async updateStudentId(
     @Request() req: any,
     @Param('classId') classId: string,

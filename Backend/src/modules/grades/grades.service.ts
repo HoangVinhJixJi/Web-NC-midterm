@@ -92,7 +92,7 @@ export class GradesService {
     //Lưu vào Notification
     const notiData = {
       receiveId: enroll['userId'],
-      message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Điểm số ${detailAssign['assignmentName']} của bạn là: ${updated.score}`,
+      message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Your score for ${detailAssign['assignmentName']} is: ${updated.score} points`,
       type: 'public_grade',
       status: 'unread',
     };
@@ -111,6 +111,29 @@ export class GradesService {
       });
     }
   }
+  //Chỉnh sửa status cho 1 học sinh
+  async updateStudentIdsGrade(data: any): Promise<any> {
+    const classId = data.classId;
+    const updated = [];
+    for (const row of data.list) {
+      if (row && row.oldStudentId && row.studentId) {
+        // Kiểm tra xem row, oldStudentId và studentId có giá trị hợp lệ
+        // Thực hiện cập nhật
+        const result = await this.gradesModel
+          .updateMany(
+            { classId, studentId: row.oldStudentId },
+            { $set: { studentId: row.studentId } },
+          )
+          .exec();
+        updated.push(result);
+        console.log(`Updated records for student ${row.oldStudentId}`);
+      } else {
+        console.log(`Invalid row: ${JSON.stringify(row)}`);
+      }
+    }
+    return updated;
+  }
+
   //Chỉnh sửa status điểm số của 1 bài tập cho tất cả học sinh
   async updateStatusGradeOfAssignment(
     userId: string,
@@ -142,7 +165,7 @@ export class GradesService {
         //Lưu vào Notification
         const notiData = {
           receiveId: enroll['userId'],
-          message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Điểm số ${detailAssign['assignmentName']} của bạn là: ${updated.score}`,
+          message: `classId: ${data.classId},assignmentId: ${data.assignmentId},message: Your score for ${detailAssign['assignmentName']} is: ${updated.score} points`,
           type: 'public_grade',
           status: 'unread',
         };

@@ -185,7 +185,7 @@ function Header() {
         //Navigate
         if(noti.type === 'public_grade'){
             console.log('public_grade');
-            navigate(`/classroom/class-detail/${classId}/assignment-detail/${assignmentId}`);
+            navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}`);
         }
         else if (noti.type === 'comment'){
             console.log('comment');
