@@ -63,6 +63,12 @@ export class GradesService {
       .deleteOne({ classId, assignmentId, studentId })
       .exec();
   }
+  async deleteGradeAssignment(
+    classId: string,
+    assignmentId: string,
+  ): Promise<any> {
+    return await this.gradesModel.deleteMany({ classId, assignmentId }).exec();
+  }
   async updateOneGrade(colName: string, data: any): Promise<any> {
     const classId = data.classId;
     const assignmentId = data.assignmentId;

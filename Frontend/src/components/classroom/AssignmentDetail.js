@@ -20,7 +20,11 @@ import {
     DialogActions,
     Card,
     CardContent,
-    Icon
+    Icon,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from '@mui/material';
 import api, { setAuthToken } from '../../api/api'; // Import your API functions
 
@@ -37,47 +41,67 @@ const AssignmentDetail = () => {
     const isTeaching = location.state ? location.state.isTeaching : false;
     const [studentId, setStudentId] = useState(null);
     const [currentGrade, setCurrentGrade] = useState(null);
+    const [isUpdateAssignmentDialogOpen, setIsUpdateAssignmentDialogOpen] = useState(false);
+    const [assignmentName, setAssignmentName] = useState('');
+    const [assignmentContent, setAssignmentContent] = useState('');
+    const [gradingScales, setGradingScales] = useState([]); 
+    const [selectedScale, setSelectedScale] = useState(''); 
+
+
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchAssignmentDetail = async () => {
-            try {
-                // Lấy token từ localStorage hoặc nơi lưu trữ khác
-                const token = localStorage.getItem('token');
-                if (!token) {
-                console.error('Error fetching user data:', Error);
-                localStorage.setItem('classId', classId);
-                navigate('/signin');
-                }
-                // Đặt token cho mọi yêu cầu
-                setAuthToken(token);
-                const _assignment = await api.get(`/assignments/get/assignment/${assignmentId}`);
-                setAssignment(_assignment.data);
-
-                if (!isTeaching) {
-                    const u = await api.get('/auth/profile');
-                    console.log(u.data);
-                    const getStudentId = await api.get(`/classes/my-studentId/${classId}`);
-                    const _studentId = getStudentId.data;
-                    setStudentId(_studentId);
-                    const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
-                    setGradeReviews(response.data);
-                    try {
-                        const studentGrade = await api.get(`/grades/get/my-grade/${classId}/${assignmentId}`);
-                        setCurrentGrade(studentGrade.data.score);
-                    }
-                    catch {
-                        setCurrentGrade('Not Graded Yet');
-                    }
-                    console.log('STUDENTID', studentId);
-                }
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Error fetching assignment data:', error);
-                // Handle error (e.g., redirect to an error page)
+    //fetch lấy thông tin bài tập
+    const fetchAssignmentDetail = async () => {
+        try {
+            // Lấy token từ localStorage hoặc nơi lưu trữ khác
+            const token = localStorage.getItem('token');
+            if (!token) {
+            console.error('Error fetching user data:', Error);
+            localStorage.setItem('classId', classId);
+            navigate('/signin');
             }
-        };
-
+            // Đặt token cho mọi yêu cầu
+            setAuthToken(token);
+            const _assignment = await api.get(`/assignments/get/assignment/${assignmentId}`);
+            setAssignment(_assignment.data);
+            console.log(_assignment.data);
+            if (!isTeaching) {
+                const u = await api.get('/auth/profile');
+                console.log(u.data);
+                const getStudentId = await api.get(`/classes/my-studentId/${classId}`);
+                const _studentId = getStudentId.data;
+                setStudentId(_studentId);
+                const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
+                setGradeReviews(response.data);
+                try {
+                    const studentGrade = await api.get(`/grades/get/my-grade/${classId}/${assignmentId}`);
+                    setCurrentGrade(studentGrade.data.score);
+                }
+                catch {
+                    setCurrentGrade('Not Graded Yet');
+                }
+                console.log('STUDENTID', studentId);
+            }
+            setIsLoading(false);
+        } catch (error) {
+            console.error('Error fetching assignment data:', error);
+            // Handle error (e.g., redirect to an error page)
+        }
+    };
+    //Lấy grade structure 
+    const fetchGradingScales = async () => {
+        try {
+          const response = await api.get(`/gradeStructures/${classId}`);
+          console.log('List gradeStuctures Data: ', response.data);
+          if(response.data){
+            setGradingScales(response.data);
+          }
+          setIsLoading(false);
+        } catch (error) {
+            navigate('/signin');
+        }
+    };
+    
+    useEffect(() => {
         fetchAssignmentDetail();
     }, [assignmentId, studentId]);
 
@@ -89,13 +113,16 @@ const AssignmentDetail = () => {
     const handleDiscussClick = (gradeReviewId, isOpen) => {
         navigate(`/classroom/class-detail/${classId}/assignment-detail/${assignmentId}/gradeReview-detail/${gradeReviewId}`, { state: { isTeaching, isOpen } });
     }
-
     const handleOpenForm = () => {
         setIsFormOpen(true);
     };
-
     const handleCloseForm = () => {
         setIsFormOpen(false);
+    };
+    const handleCloseDialog = () => {
+        fetchAssignmentDetail();
+        setIsUpdateAssignmentDialogOpen(false);
+        setMessage('');
     };
 
     const handleSubmitForm = async () => {
@@ -130,6 +157,53 @@ const AssignmentDetail = () => {
         handleCloseForm();
     };
 
+    //Mở dialog update assignment
+    const handleUpdateAssignmentClick = () =>{
+        setIsUpdateAssignmentDialogOpen(true);
+        setAssignmentName(assignment.assignmentName);
+        setAssignmentContent(assignment.assignmentContent);
+        setSelectedScale(assignment.gradeStructureId);
+        fetchGradingScales();
+    }
+    //Cập nhật assignment
+    const handleUpdateAssignmentConfirm = async() => {
+    // Kiểm tra hợp lệ 
+        try {
+            if (assignmentName) {
+                const allAssignments = await api.get(`/assignments/${classId}`);
+                console.log(allAssignments.data);
+                const check = allAssignments.data.find(item => item.assignmentName === assignmentName);
+                if (check) {
+                    setMessage('Assignment Name is already in the class!');
+                }
+                else {
+                    const res = await api.post(`/assignments/update`, {
+                        _id: assignment._id,
+                        assignmentName,
+                        assignmentContent,
+                        classId,
+                        maxScore: 100,
+                        gradeStructureId: selectedScale,
+                    });
+                    console.log('res create assignment: ', res);
+                    if(res.data){
+                        setMessage('Update Assignment successfully!');
+                    }else{
+                        throw new Error('Update Assignment fail');
+                    }
+                    
+                }
+            } else {
+                // Hiển thị thông báo lỗi hoặc thực hiện hành động phù hợp
+                setMessage('Please enter Assignment Name!');
+            }
+        } catch (error) {
+            console.error(error);
+            setMessage('Update Assignment fail!');
+        }
+        
+    };
+
     if (isLoading) {
         return <CircularProgress />;
     }
@@ -141,8 +215,9 @@ const AssignmentDetail = () => {
             <Button variant="contained" color="primary" onClick={handleGoBack} sx={{ mb: 2 }}>
                 Go Back To The Class
             </Button>
+            
             <Divider />
-            <Paper elevation={3} sx={{ padding: '16px', mt: 2 }}>
+            <Paper elevation={3} sx={{ padding: '16px', m: 2 }}>
                 <Typography gutterBottom sx={{ fontWeight: 'bold' }}>
                     &lt;Midterm&gt;
                 </Typography>
@@ -264,6 +339,57 @@ const AssignmentDetail = () => {
                     </div>
                 </>)}
             </Paper>
+            <Divider/>
+            {isTeaching &&
+            <Button variant="contained" color="primary" onClick={handleUpdateAssignmentClick} sx={{ mt: 2 }}>
+                Update Assignment
+            </Button>
+            }
+            <Dialog open={isUpdateAssignmentDialogOpen} onClose={handleCloseDialog}>
+                <DialogTitle>Update Assignment</DialogTitle>
+                <DialogContent>
+                <TextField
+                    label="Assignment Name"
+                    fullWidth
+                    value={assignmentName}
+                    onChange={(e) => setAssignmentName(e.target.value)}
+                    required
+                    sx={{ marginY: 2 }}
+                />
+                <TextField
+                    label="Assignment Content"
+                    fullWidth
+                    value={assignmentContent}
+                    onChange={(e) => setAssignmentContent(e.target.value)}
+                    required
+                    sx={{ marginY: 2 }}
+                />
+                <FormControl fullWidth sx={{ marginY: 2 }}>
+                    <InputLabel id="grading-scale-select-label"> Grading Scale </InputLabel>
+                    <Select
+                    labelId="grading-scale-select-label"
+                    id="grading-scale-select"
+                    value={selectedScale}
+                    label="Grading Scale"
+                    onChange={(e) => setSelectedScale(e.target.value)}
+                    >
+                    {gradingScales.map((scale) => (
+                        <MenuItem key={scale._id} value={scale._id}>
+                        {scale.name} - {scale.scale}%
+                        </MenuItem>
+                    ))}
+                    </Select>
+                </FormControl>
+                <Typography variant="body2" color="error" mt={2}>
+                    {message}
+                </Typography>
+                </DialogContent>
+                <DialogActions>
+                <Button onClick={handleCloseDialog}>Cancel</Button>
+                <Button onClick={handleUpdateAssignmentConfirm} color="primary">Create</Button>
+                </DialogActions>
+                
+            </Dialog>
         </Box>
     );
 };

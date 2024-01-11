@@ -79,7 +79,8 @@ const Classroom = () => {
           <Route path="/class-code/:classCode" element={<NotificationJoinClass />} />
           <Route path="/class-detail/:classId/assignment-detail/:assignmentId" 
                 element={<AssignmentDetail />} />
-          <Route path="/class-detail/:classId/assignment-detail/:assignmentId/gradeReview-detail/:gradeReviewId" element={<GradeReviewDetail />} />
+          <Route path="/class-detail/:classId/assignment-detail/:assignmentId/gradeReview-detail/:gradeReviewId" 
+                element={<GradeReviewDetail />} />
         </Routes>
 
       </MainContent>

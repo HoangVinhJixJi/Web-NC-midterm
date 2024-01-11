@@ -55,4 +55,14 @@ export class AssignmentsController {
     //const userId = req.user.sub;
     return this.assignemntsService.create(assignmentData);
   }
+  @Post('update')
+  @UseGuards(JwtAuthGuard)
+  async updateNewAssignment(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    assignmentData: any,
+  ): Promise<Assignment> {
+    //const userId = req.user.sub;
+    return await this.assignemntsService.findOneAndUpdate(assignmentData);
+  }
 }
