@@ -51,6 +51,7 @@ const StudentListTab = ({classId, isTeaching}) => {
   const [invitedEmails, setInvitedEmails] = useState([]);
   const [students, setStudents] = useState([]);
 
+  const [isCreator, setIsCreator] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadFile, setIsUploadFile] = useState(false);
   const [fileTypeMenuAnchorEl, setFileTypeMenuAnchorEl] = useState(null);
@@ -95,9 +96,41 @@ const StudentListTab = ({classId, isTeaching}) => {
       }
     }
   };
+  //fetch enrollment 
+  const fetchEnrollment = async () => {
+    try {
+      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        
+        navigate('/signin');
+      }
+      
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
+      // Gọi API để lấy dữ liệu enrollment
+      const response = await api.get(`/enrollments/get/one/${classId}`);
+      //Lưu thông tin toàn bộ lớp học vào state
+      console.log('get/ones Data: ', response.data);
+      //Kiểm tra lại thông tin học sinh:
+      if(response.data.isCreator){
+        setIsCreator(response.data.isCreator);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      // Xử lý lỗi
+      console.error('Error fetching user data:', error);
+      // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
+      if (error.response && error.response.status === 401) {
+        navigate('/signin');
+      }
+    }
+  };
   useEffect(() => {
     // Gọi hàm lấy dữ liệu người dùng
     fetchStudentData();
+    fetchEnrollment();
 
   }, []); 
   const handleAddStudentClick = () => {
@@ -277,10 +310,10 @@ const StudentListTab = ({classId, isTeaching}) => {
       </Grid>
       {isTeaching && 
         <>
-        <Button component="label" variant="contained" startIcon={<UploadIcon />}>
+        {isCreator && <Button component="label" variant="contained" startIcon={<UploadIcon />}>
           Upload Student List
           <VisuallyHiddenInput type="file" onChange={handleUploadFileChange}/>
-        </Button>
+        </Button>}
         <Button
           variant="contained"
           color="primary"
