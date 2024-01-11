@@ -50,32 +50,48 @@ const AssignmentDetail = () => {
 
 
     const navigate = useNavigate();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const timestamp = urlParams.get('timestamp');
+    
     //fetch lấy thông tin bài tập
     const fetchAssignmentDetail = async () => {
         try {
+            console.log('timestamp', timestamp);
             // Lấy token từ localStorage hoặc nơi lưu trữ khác
             const token = localStorage.getItem('token');
             if (!token) {
-            console.error('Error fetching user data:', Error);
-            localStorage.setItem('classId', classId);
-            navigate('/signin');
+                console.error('Error fetching user data:', Error);
+                localStorage.setItem('classId', classId);
+                navigate('/signin');
             }
             // Đặt token cho mọi yêu cầu
             setAuthToken(token);
             const _assignment = await api.get(`/assignments/get/assignment/${assignmentId}`);
-            setAssignment(_assignment.data);
-            console.log(_assignment.data);
+            if (_assignment.data) {
+                setAssignment(_assignment.data);
+                const _gradeComposition = await api.get(`gradeStructures/detail/${_assignment.data.gradeStructureId}`);
+                setGradeComposition(_gradeComposition.data);
+            }
+
             if (!isTeaching) {
-                const u = await api.get('/auth/profile');
-                console.log(u.data);
                 const getStudentId = await api.get(`/classes/my-studentId/${classId}`);
-                const _studentId = getStudentId.data;
-                setStudentId(_studentId);
-                const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
-                setGradeReviews(response.data);
+                if (getStudentId.data) {
+                    const _studentId = getStudentId.data;
+                    setStudentId(_studentId);
+                    const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
+                    if (response.data) {
+                        setGradeReviews(response.data);
+                    }
+                }
                 try {
                     const studentGrade = await api.get(`/grades/get/my-grade/${classId}/${assignmentId}`);
-                    setCurrentGrade(studentGrade.data.score);
+                    const gradeFetch = studentGrade.data.score;
+                    if (gradeFetch !== null) {
+                        setCurrentGrade(gradeFetch);
+                    } else {
+                        setCurrentGrade('Not Published Yet');
+                    }
                 }
                 catch {
                     setCurrentGrade('Not Graded Yet');
