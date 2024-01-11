@@ -213,7 +213,7 @@ function Header() {
         //Cập nhật status notification
         if (noti.status === 'unread') {
             const updated = await updateNotiStatus(notificationId);
-            if (updated && updated.status !== 'read') {
+            if (updated && updated.status !== 'unread') {
                 setUnreadCount((prevCount) => prevCount - 1);
             }
         }
