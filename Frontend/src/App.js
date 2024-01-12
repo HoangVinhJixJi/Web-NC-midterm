@@ -20,6 +20,7 @@ import AdminSignIn from "./components/AdminSignIn";
 import Admin from "./components/Admin";
 import AdminAccountManagement from "./components/AdminAccountManagement";
 import AdminClassManagement from './components/AdminClassManagement';
+import Forbidden from './components/Forbidden';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
