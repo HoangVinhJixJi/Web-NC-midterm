@@ -172,4 +172,7 @@ export class GradeReviewsService {
       })
       .exec();
   }
+  async adminClearGradeReviewByClass(classId: any) {
+    return this.gradeReviewsModel.deleteMany({ classId: classId }).exec();
+  }
 }

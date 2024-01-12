@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Request,
-  UseGuards,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UseGuards, ValidationPipe, } from '@nestjs/common';
 import { GradesService } from './grades.service';
 import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 // import { ClassesService } from '../classes/classes.service';
@@ -17,7 +8,12 @@ import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 // import { UsersService } from '../users/users.service';
 import { Grade } from './schema/grade.schema';
 import { CreateGradeDto } from './dto/create-grade.dto';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
 
+@Roles(Role.User)
 @Controller('grades')
 export class GradesController {
   constructor(private readonly gradesService: GradesService) {}
@@ -29,7 +25,7 @@ export class GradesController {
   //   return await this.classesService.getClasses(userId, null, 'active');
   // }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('/class/:classId')
   async getAllGradesByClasstId(
     @Request() req: any,
@@ -46,7 +42,7 @@ export class GradesController {
     return this.gradesService.findAllByAssignmentId(classId, assignmentId);
   }
   @Post('/create')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   async createNewGrade(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true }))
@@ -57,7 +53,7 @@ export class GradesController {
     return newGrade;
   }
   @Post('/create/assignment')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   async createNewGradeAssignment(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true }))
@@ -67,7 +63,7 @@ export class GradesController {
     return newGrade;
   }
   @Post('/delete')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   async deleteGrade(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true }))
@@ -86,7 +82,7 @@ export class GradesController {
   }
   //Public điểm số của 1 học sinh
   @Post('/change-status')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   async changeStatusGrade(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true }))
@@ -101,7 +97,7 @@ export class GradesController {
   }
   //Public điểm số toàn bộ học sinh của 1 bài tập
   @Post('/assignment/change-status')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   async changeStatusAssignmentGrade(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true }))
@@ -117,7 +113,7 @@ export class GradesController {
   }
   //Lấy thông tin điểm bài tập của mình
   @Get('/get/my-grade/:classId/:assignmentId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   async getMyGrade(
     @Request() req: any,
     @Param('assignmentId') assignmentId: string,
@@ -133,7 +129,7 @@ export class GradesController {
   }
   //Update studentId
   @Post('/update/studentid')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   async updateStudentIdGrade(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true }))

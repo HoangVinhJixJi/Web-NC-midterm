@@ -8,6 +8,7 @@ import { ClassesModule } from '../../../classes/classes.module';
 import { BannedUsersModule } from './banned-users/banned-users.module';
 import { NotificationsModule } from '../../../notifications/notifications.module';
 import { EventsModule } from '../../../../gateway/events.module';
+import { CommentsModule } from '../../../comments/comments.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { EventsModule } from '../../../../gateway/events.module';
     BannedUsersModule,
     NotificationsModule,
     EventsModule,
+    CommentsModule,
   ],
   providers: [AccountService],
   controllers: [AccountController],

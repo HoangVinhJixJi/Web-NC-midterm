@@ -17,7 +17,10 @@ import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 // import { UsersService } from '../users/users.service';
 import { Notification } from './schema/notification.schema';
 import { CreateNotiDto } from './dto/create-notification.dto';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
 
+@Roles(Role.User, Role.Admin)
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}

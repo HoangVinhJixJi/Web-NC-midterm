@@ -8,6 +8,8 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
 import { AssignmentsModule } from '../assignments/assignments.module';
 import { GradeReviewsModule } from '../gradeReviews/gradeReviews.module';
 import { EventsModule } from 'src/gateway/events.module';
+import { BannedUsersModule } from '../admin/management/account/banned-users/banned-users.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { EventsModule } from 'src/gateway/events.module';
     AssignmentsModule,
     GradeReviewsModule,
     EventsModule,
+    BannedUsersModule,
+    UsersModule,
   ],
   providers: [CommentsService],
   exports: [CommentsService],
