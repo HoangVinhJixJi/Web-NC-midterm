@@ -131,4 +131,17 @@ export class GradesController {
     );
     return mygrade;
   }
+  //Update studentId
+  @Post('/update/studentid')
+  @UseGuards(JwtAuthGuard)
+  async updateStudentIdGrade(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    data: any,
+  ): Promise<any> {
+    //const userId = req.user.sub;
+    const updated = await this.gradesService.updateStudentIdsGrade(data);
+    console.log('/update/studentid: => updated: ', updated);
+    return updated;
+  }
 }

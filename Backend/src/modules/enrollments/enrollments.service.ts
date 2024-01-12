@@ -148,7 +148,7 @@ export class EnrollmentsService {
         const select =
           member.role === 'teacher'
             ? '_id fullName email avatar'
-            : 'fullName avatar -_id';
+            : 'fullName avatar email -_id';
         const notEqual = member.role === 'student' ? member.userId : null;
         const enrollments = await this.getEnrollmentsPopulatedClass(
           classId,
@@ -204,13 +204,17 @@ export class EnrollmentsService {
     // Tìm kiếm enrollment dựa trên classId và userId
     const classId = data.classId;
     const updated = [];
-    for (const row of data) {
+    for (const row of data.list) {
       // Tìm kiếm enrollment dựa trên classId và userId
       const existingEnrollment = await this.enrollmentsModel
         .findOne({ classId, userId: row.userId })
         .exec();
       // Nếu tồn tại enrollment, thì cập nhật giá trị studentId
-      if (existingEnrollment) {
+      if (
+        existingEnrollment &&
+        existingEnrollment.studentId !== row.studentId
+      ) {
+        //Cập nhật trong enrollment
         existingEnrollment.studentId = row['studentId'];
         await existingEnrollment.save();
         console.log('existingEnrollment: ', existingEnrollment);
@@ -243,6 +247,13 @@ export class EnrollmentsService {
       return false;
     }
   }
+  async getStudentId(userId: string, classId: string): Promise<string> {
+    const enrollment = await this.enrollmentsModel.findOne({
+      userId,
+      classId,
+    });
+    return enrollment.studentId;
+  }
   async findEnrollments(filter: any = {}) {
     return this.enrollmentsModel.find(filter).exec();
   }
@@ -260,5 +271,12 @@ export class EnrollmentsService {
       { isCreator: true },
       { new: true },
     );
+  }
+  async getTeacherId(classId: any) {
+    const enrollments = await this.enrollmentsModel
+      .find({ classId, role: 'teacher' })
+      .exec();
+    const userIds = enrollments.map((enrollment) => enrollment.userId);
+    return userIds;
   }
 }

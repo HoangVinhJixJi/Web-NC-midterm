@@ -37,12 +37,12 @@ export class NotificationsService {
     };
     const createNotification = new this.notificationsModel(newNotificationData);
     const newNotification = await createNotification.save();
-    console.log('=====  newNotification  ==== ', newNotification);
-    this.eventsGateway.handleEmitSocket({
-      data: { message: notificationData.message },
-      event: 'public_grade',
-      to: notificationData.receiveId,
-    });
+    // console.log('=====  newNotification  ==== ', newNotification);
+    // this.eventsGateway.handleEmitSocket({
+    //   data: { message: notificationData.message },
+    //   event: 'public_grade',
+    //   to: notificationData.receiveId,
+    // });
     return newNotification;
   }
   async createNotificationForEntireClass(

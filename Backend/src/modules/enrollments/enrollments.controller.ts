@@ -43,14 +43,14 @@ export class EnrollmentsController {
   ) {
     return this.enrollmentsService.getEmailsByClassId(classId);
   }
-  @Get(':classId')
+  @Get('/class/:classId')
   async getAllByClassId(
     @Request() req: any,
     @Param('classId') classId: string,
   ) {
     return this.enrollmentsService.findAllByClassId(classId);
   }
-  @Post('update/:classId')
+  @Post('update/studentid/:classId')
   async updateStudentId(
     @Request() req: any,
     @Param('classId') classId: string,
@@ -67,5 +67,13 @@ export class EnrollmentsController {
     data: any,
   ): Promise<any[]> {
     return this.enrollmentsService.updateListStudentId(data);
+  }
+  @Get('get/one/:classId')
+  async getOneEnrollment(
+    @Request() req: any,
+    @Param('classId') classId: string,
+  ) {
+    const userId = req.user.sub;
+    return this.enrollmentsService.getOne(classId, userId);
   }
 }

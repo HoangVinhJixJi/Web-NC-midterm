@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {  
@@ -15,7 +14,11 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  ListItemButton
+  ListItemButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
@@ -24,53 +27,82 @@ import AddIcon from '@mui/icons-material/Add';
 import api, {setAuthToken} from '../../api/api';
 
 const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
+  const sampleGradingScales = [
+    { id: '1', name: 'Assignment', scale: 30 },
+    { id: '2', name: 'Midterm', scale: 40 },
+    { id: '3', name: 'Final', scale: 60 },
+  ];
   const [isAddAssignmentDialogOpen, setIsAddAssignmentDialogOpen] = useState(false);
   const [assignmentName, setAssignmentName] = useState('');
   const [assignmentContent, setAssignmentContent] = useState('');
   const [assignments, setAssignments] = useState([]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [gradingScales, setGradingScales] = useState([]); 
+  const [selectedScale, setSelectedScale] = useState(''); 
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchAssignmentData = async () => {
-      try {
-        // Lấy token từ localStorage hoặc nơi lưu trữ khác
-        const token = localStorage.getItem('token');
-        if(!token){
-          console.error('Error fetching user data:', Error);
-          navigate('/signin');
-        }
-        // Đặt token cho mọi yêu cầu
-        setAuthToken(token);
-        // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
-        const response = await api.get(`/assignments/${classId}`);
-        //Lưu thông tin toàn bộ lớp học vào state
-        console.log('List Assignment Data: ', response.data);
-        //Kiểm tra lại thông tin teacher:
-        const list = response.data;
-        console.log("list: ", list);
-        setAssignments(list);
-        setIsLoading(false);
-      } catch (error) {
-        // Xử lý lỗi
-        if (error.response && error.response.status === 401) {
-          navigate('/signin');
-        }else{
-            console.error('Error fetching user data:', error);
-            setAssignments([]);
-            setIsLoading(false);
-        }
+  const fetchAssignmentData = async () => {
+    try {
+      // Lấy token từ localStorage hoặc nơi lưu trữ khác
+      const token = localStorage.getItem('token');
+      if(!token){
+        console.error('Error fetching user data:', Error);
+        navigate('/signin');
       }
-    };
+      // Đặt token cho mọi yêu cầu
+      setAuthToken(token);
+      // Gọi API để lấy dữ liệu danh sách toàn bộ các giáo viên của lớp học
+      const response = await api.get(`/assignments/${classId}`);
+      //Lưu thông tin toàn bộ lớp học vào state
+      console.log('List Assignment Data: ', response.data);
+      //Kiểm tra lại thông tin teacher:
+      const list = response.data;
+      console.log("list: ", list);
+      setAssignments(list);
+      setIsLoading(false);
+    } catch (error) {
+      // Xử lý lỗi
+      if (error.response && error.response.status === 401) {
+        navigate('/signin');
+      }else{
+          console.error('Error fetching user data:', error);
+          setAssignments([]);
+          setIsLoading(false);
+      }
+    }
+  };
+  const fetchGradingScales = async () => {
+    try {
+      const response = await api.get(`/gradeStructures/${classId}`);
+      console.log('List gradeStuctures Data: ', response.data);
+      if(response.data){
+        setGradingScales(response.data);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+        navigate('/signin');
+    }
+  };
+  
 
+  useEffect(() => {
     // Gọi hàm lấy dữ liệu 
     fetchAssignmentData();
+    fetchGradingScales();
   }, []); 
+  
+  const handleAssignmentClick = (assignmentId) => {
+      // Navigate to the detailed view of the assignment using the assignmentId
+      navigate(`/classroom/class-detail/${classId}/assignment-detail/${assignmentId}`, { state: { isTeaching } });
+      // navigate(`assignment/${assignmentId}`, { state: { isTeaching } });
+  };
 
   const handleAddAssignmentClick = () => {
     setIsAddAssignmentDialogOpen(true);
   };
   const handleCloseDialog = () => {
+    fetchAssignmentData();
     setIsAddAssignmentDialogOpen(false);
     setMessage('');
   };
@@ -89,7 +121,7 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
             assignmentContent,
             classId,
             maxScore: 100,
-            gradeStructureId: '002',
+            gradeStructureId: selectedScale,
         });
         console.log('res create assignment: ', res);
         setMessage('Create New Assignment successfully!');
@@ -131,22 +163,13 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
       }
     </Grid>
     <Divider sx={{ margin: '16px 0' }} />
-    {!isTeaching && 
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={handleViewScoresClick}
-        startIcon={<AssignmentIndIcon />}
-      >
-        View your assignments
-      </Button>
-    }
       {assignments && <List sx={{overflowY: 'auto', maxHeight: 'calc(100vh - 160px)'}}>
         {assignments.map((assignment) => (
           <ListItemButton 
           //onClick={() => onAssignmentClick(assignment)}
-          component={Link}
-          to={`/classroom/class-detail/${classId}/assignment-detail/${assignment._id}`}
+          // component={Link}
+          // to={`/classroom/class-detail/${classId}/assignment-detail/${assignment._id}`}
+          onClick={() => handleAssignmentClick(assignment._id)}
           key={assignment._id} 
           sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <AssignmentIcon sx={{marginRight: '16px', color: 'orange'}}/>
@@ -170,11 +193,7 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
                   {assignment.assignmentName}
                 </Typography>} />
             </ListItem>  
-            { !isTeaching &&
-              <Typography variant='body' fontWeight='bold'>
-              Grade 10/100
-            </Typography>
-            }
+            
             
           </ListItemButton>
         ))}
@@ -182,7 +201,18 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
       }
 
       {/* Dialog để thêm học sinh */}
+
+      { gradingScales.length === 0 ? 
+        <Dialog open={isAddAssignmentDialogOpen} onClose={handleCloseDialog}>
+          <DialogTitle>Error </DialogTitle>
+          <DialogContent>You need to have at least one grade compositon to add an assignment</DialogContent>
+          <DialogActions>
+          <Button onClick={handleCloseDialog}>Close</Button>
+        </DialogActions>
+        </Dialog>
+        :
       <Dialog open={isAddAssignmentDialogOpen} onClose={handleCloseDialog}>
+        
         <DialogTitle>Add Assignment</DialogTitle>
         
         <DialogContent>
@@ -203,6 +233,24 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
             required
             sx={{ marginY: 2 }}
           />
+
+          <FormControl fullWidth sx={{ marginY: 2 }}>
+            <InputLabel id="grading-scale-select-label"> Grading Scale </InputLabel>
+            <Select
+              labelId="grading-scale-select-label"
+              id="grading-scale-select"
+              value={selectedScale}
+              label="Grading Scale"
+              onChange={(e) => setSelectedScale(e.target.value)}
+            >
+              
+              {gradingScales.map((scale) => (
+                <MenuItem key={scale._id} value={scale._id}>
+                  {scale.name} - {scale.scale}%
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <Typography variant="body2" color="error" mt={2}>
             {message}
           </Typography>
@@ -211,7 +259,9 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleAddAssignmentConfirm} color="primary">Create</Button>
         </DialogActions>
+        
       </Dialog>
+      }
     </div>}
     </>
   );

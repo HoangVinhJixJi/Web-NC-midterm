@@ -22,6 +22,9 @@ import { BannedUsersModule } from './modules/admin/management/account/banned-use
 import { ClassModule } from './modules/admin/management/class/class.module';
 import { ReportsController } from './modules/reports/reports.controller';
 import { ReportsModule } from './modules/reports/reports.module';
+import { GradeStructuresModule } from './modules/gradeStructures/gradeStructures.module';
+import { GradeReviewsModule } from './modules/gradeReviews/gradeReviews.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -55,6 +58,9 @@ import { ReportsModule } from './modules/reports/reports.module';
     BannedUsersModule,
     ClassModule,
     ReportsModule,
+    GradeStructuresModule,
+    GradeReviewsModule,
+    CommentsModule,
   ],
   controllers: [AppController, ReportsController],
   providers: [AppService, AuthService],
