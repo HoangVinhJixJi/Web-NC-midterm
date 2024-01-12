@@ -39,10 +39,6 @@ const Classroom = () => {
     // Chuyển hướng đến trang chi tiết lớp học
     navigate(`/classroom/class-detail/${classId}`);
   };
-  const handleReturnAssignmentList = (classId) => {
-    // Chuyển hướng đến trang chi tiết lớp học
-    navigate(`/classroom/class-detail/${classId}`);
-  };
 
   return (
     <>

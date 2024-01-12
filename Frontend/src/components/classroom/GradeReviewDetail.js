@@ -143,6 +143,9 @@ const GradeReviewDetail = () => {
     }, [isLoggedIn]);
 
     const handleAddComment = async () => {
+        if(newComment === ''){
+            return ;
+        }
         try {
             // Perform API call to add a new comment
             const userData = {

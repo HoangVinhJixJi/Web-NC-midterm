@@ -816,8 +816,8 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       open={Boolean(assignmentMenuAnchorEl)}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleUpdateAssignment}>Chỉnh sửa</MenuItem>
-      <MenuItem onClick={handlePublicAssignmentGrade}>Trả bài tất cả</MenuItem>
+      <MenuItem onClick={handleUpdateAssignment}>Update</MenuItem>
+      <MenuItem onClick={handlePublicAssignmentGrade}>Finalize All</MenuItem>
       <MenuItem onClick={handleFileTypeClick}>Download Assignment</MenuItem>
       <MenuItem onClick={handleFileTypeClick}>Download Template</MenuItem>
       
@@ -859,7 +859,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       open={Boolean(scoreMenuAnchorEl)}
       onClose={handleMenuClose}
     >
-      <MenuItem disabled={isPublic}  onClick={handlePublicGrade}>Trả bài</MenuItem>
+      <MenuItem disabled={isPublic}  onClick={handlePublicGrade}>Finalize</MenuItem>
       {/* <MenuItem onClick={handleOpenGradeDetail}>Thao tác với điểm</MenuItem> */}
     </Menu>
     {/* { ===== Thông báo lỗi input ========} */}

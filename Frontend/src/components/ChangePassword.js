@@ -10,6 +10,7 @@ import {
   Grid,
   InputAdornment,
   IconButton,
+  FormHelperText,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -24,7 +25,8 @@ const ChangePassword = () => {
   const [saveStatus, setSaveStatus] = useState('');
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-
+  const [oldPasswordError, setOldPasswordError] = useState(false);
+  const [newPasswordError, setNewPasswordError] = useState(false);
   const handleClickShowPassword = (field) => {
     if (field === 'oldPassword') {
       setShowOldPassword(!showOldPassword);
@@ -38,9 +40,20 @@ const ChangePassword = () => {
       ...pass,
       [field]: value,
     });
+    if (field === 'oldPassword') {
+      setOldPasswordError(!value); // Nếu giá trị không tồn tại, đặt lỗi là true
+    }
+    // Kiểm tra nếu field là 'newPassword' và giá trị không tồn tại
+    if (field === 'newPassword') {
+      setNewPasswordError(!value); // Nếu giá trị không tồn tại, đặt lỗi là true
+    }
   };
 
   const handleSave = async () => {
+    if(oldPasswordError || newPasswordError){
+      console.log('return failed');
+      return ;
+    }
     try {
       // Lấy token từ localStorage 
       const token = localStorage.getItem('token');
@@ -70,7 +83,7 @@ const ChangePassword = () => {
   };
   return (
     <Container>
-      <Typography variant="h4" align="center" gutterBottom mt={4}>
+      <Typography variant="h4" align="center" gutterBottom my={4}>
        Change Password
       </Typography>
       <Grid container spacing={2}>
@@ -86,15 +99,23 @@ const ChangePassword = () => {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={()=>handleClickShowPassword('oldPassword')}>
+                  <IconButton onClick={() => handleClickShowPassword('oldPassword')}>
                     {showOldPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
                   </IconButton>
                 </InputAdornment>
               ),
             }}
+            error={oldPasswordError}
           />
         </Grid>
-        <Grid item xs={12} >
+        {oldPasswordError && (
+          <Grid item xs={12}>
+            <FormHelperText error>
+              Please enter your old password.
+            </FormHelperText>
+          </Grid>
+        )}
+        <Grid item xs={12}>
           <TextField
             label="Your New Password: "
             fullWidth
@@ -106,19 +127,29 @@ const ChangePassword = () => {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={()=>handleClickShowPassword('newPassword')}>
+                  <IconButton onClick={() => handleClickShowPassword('newPassword')}>
                     {showNewPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
                   </IconButton>
                 </InputAdornment>
               ),
             }}
+            error={newPasswordError}
           />
         </Grid>
-        {saveStatus && <Grid item xs={12}>
-          <Typography color='primary'>
+        {newPasswordError && (
+          <Grid item xs={12}>
+            <FormHelperText error>
+              Please enter your new password.
+            </FormHelperText>
+          </Grid>
+        )}
+        {saveStatus && (
+          <Grid item xs={12}>
+            <Typography color='primary'>
               {saveStatus}
-          </Typography>
-        </Grid>}
+            </Typography>
+          </Grid>
+        )}
         <Grid item xs={12}>
           <Button variant="contained" color="primary" onClick={handleSave}>
             Save

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { Container, CssBaseline, Box } from '@mui/material';
+import { Container, CssBaseline, Box, CircularProgress } from '@mui/material';
 import { AuthProvider } from './api/AuthContext';
 import Header from './components/Header'; 
 import Footer from './components/Footer'; 
@@ -24,17 +24,24 @@ import Forbidden from './components/Forbidden';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const handleSignOut = () => {
     // Handle sign out logic
     setIsLoggedIn(false);
   };
-
+  useEffect(()=>{
+    setIsLoading(false);
+  }, [])
   
 
   return (
     <AuthProvider>
-    
+    {isLoading ?
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </div>
+        :
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CssBaseline />
         <Header isLoggedIn={isLoggedIn} handleSignOut={handleSignOut}/>
@@ -61,7 +68,7 @@ const App = () => {
           </Routes>
         </Container>
         <Footer />
-      </Box>
+      </Box>}
     </AuthProvider>
     
   );

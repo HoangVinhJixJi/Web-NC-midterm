@@ -19,24 +19,25 @@ const Footer = () => {
                                 <ListItemButton href='/about'>
                                     <ListItemText primary="About" />
                                 </ListItemButton>
-                                
-                                {/* Thêm các mục khác theo cần thiết */}
+                                <ListItemButton href='/classroom'>
+                                    <ListItemText primary="Classroom" />
+                                </ListItemButton>
                             </List>
                         </Grid>
 
                         {/* Cột 2: Thông tin liên hệ */}
                         <Grid item xs={12} md={4}>
                             <Typography variant="h6" gutterBottom>
-                                Thông tin liên hệ
+                                Contact Information
                             </Typography>
                             <Typography variant="body1">
-                                Đại diện: Nguyễn Minh Trí
+                                Represent: Nguyễn Minh Trí
                             </Typography>
                             <Typography variant="body1">
-                                Địa chỉ: KTX khu B ĐHQGHCM
+                                Address: KTX khu B ĐHQGHCM
                             </Typography>
                             <Typography variant="body1">
-                                Số điện thoại: 0392129065
+                                Phone Number: 0392129065
                             </Typography>
                             <Typography variant="body1">
                                 Email: 20120602@student.hcmus.edu.vn
