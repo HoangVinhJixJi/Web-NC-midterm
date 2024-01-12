@@ -21,6 +21,8 @@ import UnbanAccountDialog from './dialogs/UnbanAccountDialog';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignStudentIdToAllDialog from './dialogs/AssignStudentIdToAllDialog';
 import AssignStudentIdDialog from './dialogs/AssignStudentIdDialog';
+import ActiveAccountDialog from './dialogs/ActiveAccountDialog';
+import DeleteAccountDialog from './dialogs/DeleteAccountDialog';
 
 const titleNames = [ "User ID", "User Info", "Student ID", "Status", "Action", "Details" ];
 const status = ["Pending", "Active", "Banned"];
@@ -35,7 +37,6 @@ export default function AccountListTab() {
   const [isDisplayClearStatusButton, setIsDisplayClearStatusButton] = useState(false);
   const [selectedAction, setSelectedAction] = useState("");
   const [isDisplayClearActionButton, setIsDisplayClearActionButton] = useState(false);
-  const [filteredAccounts, setFilteredAccounts] = useState([]);
   const { renderTableColumnTitle } = RenderFunctions();
   const [sortedTitleMap, setSortedTitleMap] = useState({
     sortByUserId: { name: 'User ID', query: 'userId', order: 'asc' },
@@ -48,8 +49,10 @@ export default function AccountListTab() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenActiveAccountDialog, setIsOpencActiveAccountDialog] = useState(false);
   const [isOpenBanAccountDialog, setIsOpenBanAccountDialog] = useState(false);
   const [isOpenUnbanAccountDialog, setIsOpenUnbanAccountDialog] = useState(false);
+  const [isOpenDeleteAccountDialog, setIsOpenDeleteAccountDialog] = useState(false);
   const [isOpenAssignStudentIdDialog, setIsOpenAssignStudentIdDialog] = useState(false);
   const [isOpenAssignStudentIdToAllDialog, setIsOpenAssignStudentIdToAllDialog] = useState(false);
   const [actionUserId, setActionUserId] = useState('');
@@ -75,13 +78,10 @@ export default function AccountListTab() {
   function handleFilterSwitchChange() {
     setIsDisplayFilterSide(isDisplayFilterSide => !isDisplayFilterSide);
   }
-  function handleActiveClick(userId) {
-    const updatedAccounts = accounts.map((account) => {
-      return account['userId'] === userId ? {...account, status: 'Active'} : account;
-    });
-    const updatedFilteredAccounts = filteredAccounts.filter((account) => account['userId'] !== userId);
-    setAccounts(updatedAccounts);
-    setFilteredAccounts(updatedFilteredAccounts);
+  function handleActiveClick(userId, username) {
+    setActionUserId(userId);
+    setActionUsername(username);
+    setIsOpencActiveAccountDialog(true);
   }
   function handleBanClick(userId, username) {
     setActionUserId(userId);
@@ -93,11 +93,10 @@ export default function AccountListTab() {
     setActionUsername(username);
     setIsOpenUnbanAccountDialog(true);
   }
-  function handleDeleteClick(userId) {
-    const updatedAccounts = accounts.filter((account) => account['userId'] !== userId);
-    const updatedFilteredAccounts = filteredAccounts.filter((account) => account['userId'] !== userId);
-    setAccounts(updatedAccounts);
-    setFilteredAccounts(updatedFilteredAccounts);
+  function handleDeleteClick(userId, username) {
+    setActionUserId(userId);
+    setActionUsername(username);
+    setIsOpenDeleteAccountDialog(true);
   }
   function handleAssignStudentIdClick(userId, fullName, avatar, studentId) {
     setActionUserId(userId);
@@ -114,10 +113,10 @@ export default function AccountListTab() {
     return accounts.map((account) => (
       <AccountItem
         user={account}
-        onActiveClick={() => handleActiveClick(account['userId'])}
+        onActiveClick={() => handleActiveClick(account['userId'], account['username'])}
         onBanClick={() => handleBanClick(account['userId'], account['username'])}
         onUnbanClick={() => handleUnbanClick(account['userId'], account['username'])}
-        onDeleteClick={() => handleDeleteClick(account['userId'])}
+        onDeleteClick={() => handleDeleteClick(account['userId'], account['username'])}
         onAssignStudentIdClick={() => handleAssignStudentIdClick(account['userId'], account['fullName'], account['avatar'], account['studentId'])}
       />
     ));
@@ -172,6 +171,16 @@ export default function AccountListTab() {
   function handlePageChange(page) {
     setCurrentPage(page);
   }
+  function handleCloseActiveAccountDialog(userId) {
+    setIsOpencActiveAccountDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.map((account) => {
+        return account['userId'] === userId ? {...account, status: 'Active'} : account;
+      });
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
+  }
   function handleCloseBanAccountDialog(userId) {
     setIsOpenBanAccountDialog(false);
     if (isSuccess) {
@@ -188,6 +197,14 @@ export default function AccountListTab() {
       const updatedAccounts = accounts.map((account) => {
         return account['userId'] === userId ? {...account, status: 'Active'} : account;
       });
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
+  }
+  function handleCloseDeleteAccountDialog(userId) {
+    setIsOpenDeleteAccountDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.filter((account) => account['userId'] !== userId);
       setAccounts(updatedAccounts);
     }
     setIsSuccess(false);
@@ -318,6 +335,13 @@ export default function AccountListTab() {
         </TableContainer>
       </Grid>
       <AdminPagination count={totalPages} curPage={currentPage} onPageChange={handlePageChange} />
+      <ActiveAccountDialog
+        userId={actionUserId}
+        username={actionUsername}
+        isOpenActiveAccountDialog={isOpenActiveAccountDialog}
+        onCloseActiveAccountDialog={handleCloseActiveAccountDialog}
+        setIsSuccess={setIsSuccess}
+      />
       <BanAccountDialog
         userId={actionUserId}
         username={actionUsername}
@@ -330,6 +354,13 @@ export default function AccountListTab() {
         username={actionUsername}
         isOpenUnbanAccountDialog={isOpenUnbanAccountDialog}
         onCloseUnbanAccountDialog={handleCloseUnbanAccountDialog}
+        setIsSuccess={setIsSuccess}
+      />
+      <DeleteAccountDialog
+        userId={actionUserId}
+        username={actionUsername}
+        isOpenDeleteAccountDialog={isOpenDeleteAccountDialog}
+        onCloseDeleteAccountDialog={handleCloseDeleteAccountDialog}
         setIsSuccess={setIsSuccess}
       />
       <AssignStudentIdDialog

@@ -18,9 +18,10 @@ import { AccountStatusGuard } from '../../auth/account-status/account-status.gua
 import { RolesGuard } from '../../auth/roles/roles.guard';
 import { Roles } from '../../auth/roles/roles.decorator';
 import { Role } from '../../enums/role.enum';
+import { ReportConflictStudentIdDto } from '../reports/dto/report-conflict-student-id.dto';
 
 @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
-@Roles(Role.User)
+@Roles(Role.User, Role.Admin)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -78,6 +79,7 @@ export class UsersController {
       gender: updatedUser.gender,
       birthday: updatedUser.birthday,
       avatar: updatedUser.avatar,
+      studentId: updatedUser.studentId,
     };
   }
   @Post('update-password')
@@ -107,5 +109,14 @@ export class UsersController {
       }
     }
     throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+  }
+  @Post('add-studentId')
+  async addStudentId(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    userData: Record<string, any>,
+  ) {
+    const userId = req.user.sub;
+    return this.usersService.addStudentId(userId, userData['studentId']);
   }
 }

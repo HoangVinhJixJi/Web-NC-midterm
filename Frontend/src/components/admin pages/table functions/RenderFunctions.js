@@ -82,6 +82,7 @@ function renderStatus(status) {
 function renderActionButtonColor(action) {
   switch (action.toLowerCase()) {
     case "active":
+    case "active id":
     case "assign_id":
       return "secondary";
     case "archive":
@@ -96,6 +97,7 @@ function renderActionButtonColor(action) {
 function renderActionButtonIcon(action) {
   switch (action.toLowerCase()) {
     case "active":
+    case "active id":
       return <HowToRegIcon />;
     case "assign_id":
       return <AssignmentIndIcon />;

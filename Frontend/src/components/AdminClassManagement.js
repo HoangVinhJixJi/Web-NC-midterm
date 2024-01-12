@@ -13,6 +13,8 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import ClassIcon from '@mui/icons-material/Class';
 import Admin from './Admin';
+import {useAuth as useAuthContext} from '../api/AuthContext';
+import Forbidden from './Forbidden';
 
 const classListTabs = [
   { text: 'List', path: '/management/class/list', icon: <ClassIcon />, component: ClassListTab },
@@ -27,52 +29,63 @@ export default function AdminClassManagement() {
   const navigate = useNavigate();
   const location = useLocation();
   const isDetailsPage = location.pathname.includes("/details/");
+  const { isLoggedIn, isAdmin } = useAuthContext();
 
   const handleTabChange = (path) => {
     setCurrentTab(path);
     navigate(path);
   };
   useEffect(() => {
-    if (location.pathname === "/management/class") {
-      if (isFirstLoading) {
-        setIsFirstLoading(false);
-      } else if (isBack) {
-        setIsBack(false);
-        navigate(currentTab);
-      } else {
-        setCurrentTab("/management/class/list");
-      }
+    if (!isLoggedIn) {
+      navigate('/admin');
     } else {
-      if (isDetailsPage) {
-        setIsBack(true);
+      if (location.pathname === "/management/class") {
+        if (isFirstLoading) {
+          setIsFirstLoading(false);
+        } else if (isBack) {
+          setIsBack(false);
+          navigate(currentTab);
+        } else {
+          setCurrentTab("/management/class/list");
+        }
       } else {
-        setCurrentTab(location.pathname);
+        if (isDetailsPage) {
+          setIsBack(true);
+        } else {
+          setCurrentTab(location.pathname);
+        }
       }
     }
   }, [location.pathname]);
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
-      {/* Sidebar */}
-      {!isDetailsPage &&
-        <Sidebar
-          title="Class Management"
-          tabs={classListTabs}
-          currentTab={currentTab}
-          onTabChange={handleTabChange}
-        />
-      }
+    <>
+      {isAdmin ?
+        <Box sx={{ display: 'flex', height: '100vh' }}>
+          {/* Sidebar */}
+          {!isDetailsPage &&
+            <Sidebar
+              title="Class Management"
+              tabs={classListTabs}
+              currentTab={currentTab}
+              onTabChange={handleTabChange}
+            />
+          }
 
-      {/* Main Content */}
-      <MainContent>
-        <Routes>
-          <Route path="/" element={<ClassListTab />} />
-          <Route path="/list" element={<ClassListTab />} />
-          <Route path="/active" element={<ActiveClassListTab />} />
-          <Route path="/archived" element={<ArchivedClassListTab />} />
-          <Route path="/details/:classId/*" element={<ClassDetailsTab />} />
-        </Routes>
-      </MainContent>
-    </Box>
+          {/* Main Content */}
+          <MainContent>
+            <Routes>
+              <Route path="/" element={<ClassListTab />} />
+              <Route path="/list" element={<ClassListTab />} />
+              <Route path="/active" element={<ActiveClassListTab />} />
+              <Route path="/archived" element={<ArchivedClassListTab />} />
+              <Route path="/details/:classId/*" element={<ClassDetailsTab />} />
+            </Routes>
+          </MainContent>
+        </Box>
+        :
+        <Forbidden />
+      }
+    </>
   );
 }

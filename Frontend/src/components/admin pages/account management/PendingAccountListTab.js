@@ -15,6 +15,7 @@ import {useNavigate} from "react-router-dom";
 import api, {setAuthToken} from "../../../api/api";
 import LoadingDataItem from "../LoadingDataItem";
 import NoResultsFoundItem from "../NoResultsFoundItem";
+import ActiveAccountDialog from './dialogs/ActiveAccountDialog';
 
 const titleNames = [ "User ID", "User Info", "Action", "Details" ];
 export default function PendingAccountListTab() {
@@ -33,6 +34,10 @@ export default function PendingAccountListTab() {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenActiveAccountDialog, setIsOpencActiveAccountDialog] = useState(false);
+  const [actionUserId, setActionUserId] = useState('');
+  const [actionUsername, setActionUsername] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   function handleSort(columnName) {
     const updatedTitleMap = { ...sortedTitleMap };
@@ -47,16 +52,26 @@ export default function PendingAccountListTab() {
     });
     setSortedTitleMap(updatedTitleMap);
   }
-  function handleActiveClick(userId) {
-    const updatedAccounts = accounts.map((account) => {
-      return account['userId'] === userId ? {...account, status: 'Active'} : account;
-    }).filter((account) => account['userId'] !== userId);
-    setAccounts(updatedAccounts);
+  function handleActiveClick(userId, username) {
+    setActionUserId(userId);
+    setActionUsername(username);
+    setIsOpencActiveAccountDialog(true);
   }
   function renderAccountList(accounts) {
     return accounts.map((account) => (
-      <PendingAccountItem user={account} onActiveClick={() => handleActiveClick(account['userId'])} />
+      <PendingAccountItem
+        user={account}
+        onActiveClick={() => handleActiveClick(account['userId'], account['username'])}
+      />
     ));
+  }
+  function handleCloseActiveAccountDialog(userId) {
+    setIsOpencActiveAccountDialog(false);
+    if (isSuccess) {
+      const updatedAccounts = accounts.filter((account) => account['userId'] !== userId);
+      setAccounts(updatedAccounts);
+    }
+    setIsSuccess(false);
   }
   function handleClearClick() {
     setSearchTerm("");
@@ -142,6 +157,13 @@ export default function PendingAccountListTab() {
         </TableContainer>
       </Grid>
       <AdminPagination count={totalPages} curPage={currentPage} onPageChange={handlePageChange} />
+      <ActiveAccountDialog
+        userId={actionUserId}
+        username={actionUsername}
+        isOpenActiveAccountDialog={isOpenActiveAccountDialog}
+        onCloseActiveAccountDialog={handleCloseActiveAccountDialog}
+        setIsSuccess={setIsSuccess}
+      />
     </Container>
   );
 }

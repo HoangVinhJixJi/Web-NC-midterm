@@ -38,26 +38,31 @@ function Header() {
     const [unreadCount, setUnreadCount] = React.useState(0);
     const { isLoggedIn, isAdmin, user, logout } = useAuthContext();
     const navigate = useNavigate();
+    const [reportId, setReportId] = React.useState('');
+    const [reportSenderId, setReportSenderId] = React.useState('');
+    const [reportedStudentId, setReportedStudentId] = React.useState('');
+    const [reportExtraInfo, setReportExtraInfo] = React.useState('');
     //console.log(isAdmin);
     // Fetch danh sách thông báo 
     const fetchNotiData = async () => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                console.error('Error fetching user data:', Error);
-                navigate('/signin');
-            }
-            setAuthToken(token);
-            // Gọi API để lấy dữ liệu danh sách toàn bộ các thông báo
-            const response = await api.get(`/notifications/get/receive`);
-            console.log('List Notifications Data response.data: ', response.data);
-
-            // kiểm tra thông tin học sinh
-            const list = response.data.reduce((accumulator, obj) => {
-                if (obj != null) {
-                    const match = obj.message.match(/classId: (.+),assignmentId: (.+),gradeReviewId: (.+),message: (.+)/);
-                    if (match) {
-                        setClassId(match[1]);
+          const token = localStorage.getItem('token');
+          if(!token){
+            console.error('Error fetching user data:', Error);
+            navigate('/signin');
+          }
+          setAuthToken(token);
+          // Gọi API để lấy dữ liệu danh sách toàn bộ các thông báo
+          const response = await api.get(`/notifications/get/receive`);
+          console.log('List Notifications Data response.data: ', response.data);
+          
+          // kiểm tra thông tin học sinh
+          const list = response.data.reduce((accumulator, obj) => {
+            if (obj != null ) {
+                const match = obj.message.match(/classId: (.+),assignmentId: (.+),gradeReviewId: (.+),message: (.+)/);
+                const report_match = obj.message.match(/studentId=(.*)&extraInfo=(.*)/);
+                if (match) {
+                    setClassId(match[1]);
                         setAssignmentId(match[2]);
                         setGradeReviewId(match[3])
                         setMessage(match[4]);
@@ -71,8 +76,14 @@ function Header() {
                         obj.gradeReviewId = match[3];
                         obj.message = match[4];
                         // Sử dụng classId, assignmentId, và message ở đây
-                    } else {
-                        console.log('Không tìm thấy thông tin cần thiết trong message hoặc định dạng không đúng.');
+                } else if (report_match) {
+                  console.log(report_match);
+                  setReportId(obj['_id']);
+                  setReportSenderId(obj['sendId']);
+                  setReportedStudentId(report_match[1]);
+                  setReportExtraInfo(report_match[2]);
+                } else {
+                    console.log('Không tìm thấy thông tin cần thiết trong message hoặc định dạng không đúng.');
 
                     }
                     accumulator.push(obj);
@@ -158,6 +169,10 @@ function Header() {
                 // Cập nhật số lượng thông báo chưa đọc
                 setUnreadCount((prevCount) => prevCount + 1);
             });
+            socket.on('report_conflict_id', (data) => {
+              console.log('******* Report conflict student id: ', data);
+              setUnreadCount((prevCount) => prevCount + 1);
+            });
             //
             // socket.on('message', (data) => {
             //     console.log('******* New Notification socket io :', data);
@@ -229,6 +244,17 @@ function Header() {
             console.log('request_gradeReview');
             navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}/gradeReview-detail/${noti.gradeReviewId}`, { state: { isTeaching: true } });
         }
+        else if (noti.type === 'final_decision'){
+            console.log('final_decision');
+            //navigate(`/classroom/class-detail/:classId}`, { state: { currentTab: 3 } });
+        } else if (noti.type === 'report_conflict_id') {
+          console.log('report_conflict_id');
+          const reportInfo = `${reportId}&&${reportSenderId}&&${reportedStudentId}&&${reportExtraInfo}`;
+          navigate(`/management/account/report-conflict-id/${reportInfo}`);
+        } else if (noti.type === 'resolve_report_conflict_id') {
+          console.log('resolve_report_conflict_id');
+          navigate('/user/profile');
+        }
         else if (noti.type === 'teacher_comment_gradeReview') {
             console.log('teacher_comment_gradeReview');
             navigate(`/classroom/class-detail/${noti.classId}/assignment-detail/${noti.assignmentId}/gradeReview-detail/${noti.gradeReviewId}`, { state: { isTeaching: false } });
@@ -251,6 +277,14 @@ function Header() {
         }
         handleClose();
     };
+    function renderNotificationMessage(notification) {
+      switch (notification.type.toLowerCase()) {
+        case 'report_conflict_id':
+          return `Report conflict id: ${reportExtraInfo}. From: ${reportSenderId}`
+        default:
+          return notification.message;
+      }
+    }
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -430,36 +464,36 @@ function Header() {
                                         horizontal: 'left',
                                     }}
                                 >
-                                    <List sx={{ maxWidth: '30vw', maxHeight: '300px', overflowY: 'auto' }}>
-                                        {notifications && notifications.length === 0 ?
-                                            <ListItemButton>
-                                                <Typography
-                                                    style={{
-                                                        display: '-webkit-box',
-                                                        WebkitBoxOrient: 'vertical',
-                                                        overflow: 'hidden',
-                                                        WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
-                                                    }}
-                                                >Không có thông báo!</Typography>
-                                            </ListItemButton>
-                                            :
-                                            notifications.map((notification, index) => (
-                                                <ListItemButton
-                                                    key={notification._id}
-                                                    onClick={() => handleNotificationClick(notification._id)}
-                                                    sx={{ borderTop: index === 0 ? 'none' : '1px solid #ccc' }}
-                                                >
-                                                    <Typography
-                                                        style={{
-                                                            display: '-webkit-box',
-                                                            WebkitBoxOrient: 'vertical',
-                                                            overflow: 'hidden',
-                                                            WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
-                                                        }}
-                                                    >{notification.message}</Typography>
-                                                </ListItemButton>
-                                            ))
-                                        }
+                                    <List sx={{maxWidth: '30vw',  maxHeight: '300px', overflowY: 'auto'}}>
+                                    {notifications && notifications.length === 0 ? 
+                                        <ListItemButton>
+                                        <Typography
+                                        style={{
+                                            display: '-webkit-box',
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
+                                            }}
+                                        >Không có thông báo!</Typography>
+                                        </ListItemButton>
+                                        :
+                                        notifications.map((notification, index) => (
+                                        <ListItemButton
+                                        key={notification._id}
+                                        onClick={() => handleNotificationClick(notification._id)}
+                                        sx={{ borderTop: index === 0 ? 'none':'1px solid #ccc'}}
+                                        >
+                                        <Typography
+                                        style={{
+                                            display: '-webkit-box',
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
+                                            }}
+                                        >{renderNotificationMessage(notification)}</Typography>
+                                        </ListItemButton>
+                                        ))
+                                    }
                                     </List>
                                 </Popover>
 

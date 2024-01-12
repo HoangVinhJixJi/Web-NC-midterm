@@ -5,6 +5,7 @@ import { NotificationSchema } from './schema/notification.schema';
 import { NotificationsService } from './notifications.service';
 import { EnrollmentsModule } from '../enrollments/enrollments.module';
 import { EventsModule } from 'src/gateway/events.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [

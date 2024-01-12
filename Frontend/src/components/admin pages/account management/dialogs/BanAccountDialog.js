@@ -16,7 +16,7 @@ const reasons = [
   'Sending malicious links.',
   'Impersonating others.'
 ];
-const FOREVER_BAN_DAYS = 999999999999999;
+const ONE_YEAR_BANNED = 365;
 export default function BanAccountDialog(
   {
     userId, username,
@@ -116,7 +116,7 @@ export default function BanAccountDialog(
             <MenuItem value={1}>1 day</MenuItem>
             <MenuItem value={7}>7 days</MenuItem>
             <MenuItem value={30}>30 days</MenuItem>
-            <MenuItem value={FOREVER_BAN_DAYS}>Forever</MenuItem>
+            <MenuItem value={ONE_YEAR_BANNED}>1 year</MenuItem>
           </Select>
         </FormControl>
         <Typography>

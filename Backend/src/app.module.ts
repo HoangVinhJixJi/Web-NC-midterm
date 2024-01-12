@@ -20,6 +20,8 @@ import { AccountModule } from './modules/admin/management/account/account.module
 import { ScheduleModule } from '@nestjs/schedule';
 import { BannedUsersModule } from './modules/admin/management/account/banned-users/banned-users.module';
 import { ClassModule } from './modules/admin/management/class/class.module';
+import { ReportsController } from './modules/reports/reports.controller';
+import { ReportsModule } from './modules/reports/reports.module';
 import { GradeStructuresModule } from './modules/gradeStructures/gradeStructures.module';
 import { GradeReviewsModule } from './modules/gradeReviews/gradeReviews.module';
 import { CommentsModule } from './modules/comments/comments.module';
@@ -55,11 +57,12 @@ import { CommentsModule } from './modules/comments/comments.module';
     AccountModule,
     BannedUsersModule,
     ClassModule,
+    ReportsModule,
     GradeStructuresModule,
     GradeReviewsModule,
     CommentsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ReportsController],
   providers: [AppService, AuthService],
 })
 export class AppModule {}

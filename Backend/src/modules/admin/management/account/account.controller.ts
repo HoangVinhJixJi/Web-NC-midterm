@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Query,
+  Request,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +17,9 @@ import { BanUserDto } from './dto/ban-user.dto';
 import { UnbanUserDto } from './dto/unban-user.dto';
 import { AssignAccountStudentIdDto } from './dto/assign-account-student-id.dto';
 import { AccountStatusGuard } from '../../../../auth/account-status/account-status.guard';
+import { ResolveConflictStudentIdDto } from './dto/resolve-conflict-student-id.dto';
+import { ActiveUserDto } from './dto/active-user.dto';
+import { DeleteUserDto } from './dto/delete-user.dto';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -68,6 +72,12 @@ export class AccountController {
       sortOrder,
     );
   }
+  @Post('active')
+  async activeAccount(
+    @Body(new ValidationPipe({ transform: true })) userData: ActiveUserDto,
+  ) {
+    return this.accountService.activeAccount(userData.userId);
+  }
   @Post('ban')
   async banAccount(
     @Body(new ValidationPipe({ transform: true })) userData: BanUserDto,
@@ -83,6 +93,12 @@ export class AccountController {
     @Body(new ValidationPipe({ transform: true })) userData: UnbanUserDto,
   ) {
     return this.accountService.unbanAccount(userData.userId);
+  }
+  @Post('delete')
+  async deleteAccount(
+    @Body(new ValidationPipe({ transform: true })) userData: DeleteUserDto,
+  ) {
+    return this.accountService.deleteAccount(userData.userId);
   }
   @Get('personal-info')
   async getPersonalInfo(@Query('username') username: string) {
@@ -126,5 +142,33 @@ export class AccountController {
     userData: Array<AssignAccountStudentIdDto>,
   ) {
     return this.accountService.assignStudentIds(userData);
+  }
+  @Get('report-conflict-id')
+  async getConflictStudentIdUsers(
+    @Query('sendId') sendId: string,
+    @Query('studentId') studentId: string,
+  ) {
+    return this.accountService.getConflictStudentIdUsers(sendId, studentId);
+  }
+  @Post('resolve-conflict-id')
+  async resolveConflictStudentId(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    userData: ResolveConflictStudentIdDto,
+  ) {
+    const adminId = req.user.sub;
+    const adminUsername = req.user.username;
+    return this.accountService.resolveConflictStudentId(
+      adminId,
+      adminUsername,
+      userData.notificationId,
+      userData.selectedUserId,
+      userData.userIdList,
+      userData.studentId,
+    );
+  }
+  @Get('add-creator-to-class')
+  async addCreatorToClass() {
+    return this.accountService.addCreatorToClass();
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schema/user.schema';
@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateFbUserDto } from './dto/create-fb-user.dto';
 import { SortOrderEnum } from '../../enums/sort-order.enum';
 import { AssignAccountStudentIdDto } from '../admin/management/account/dto/assign-account-student-id.dto';
+import { Role } from '../../enums/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -193,9 +194,10 @@ export class UsersService {
   }
   async adminAssignStudentId(userId: string, studentId: string) {
     if (studentId !== '') {
-      const user = await this.usersModel
-        .findOne({ studentId: studentId })
-        .exec();
+      const filter = {
+        $and: [{ studentId: studentId }, { _id: { $ne: userId } }],
+      };
+      const user = await this.usersModel.findOne(filter).exec();
       return !user
         ? this.usersModel
             .findOneAndUpdate(
@@ -225,5 +227,26 @@ export class UsersService {
           : { userId: user.userId, studentId: null };
       }),
     );
+  }
+  async addStudentId(userId: any, studentId: any) {
+    const filter = {
+      $and: [{ studentId: studentId }, { _id: { $ne: userId } }],
+    };
+    const isExist = await this.usersModel.findOne(filter);
+    if (!isExist) {
+      return this.usersModel.findOneAndUpdate(
+        { _id: userId },
+        { studentId: studentId },
+        { new: true },
+      );
+    } else {
+      throw new HttpException('Conflict Student ID', HttpStatus.CONFLICT);
+    }
+  }
+  async findUsersByRole(Admin: Role) {
+    return this.usersModel.find({ role: Admin }).exec();
+  }
+  async findUsers(filter: any = {}) {
+    return this.usersModel.find(filter).exec();
   }
 }
