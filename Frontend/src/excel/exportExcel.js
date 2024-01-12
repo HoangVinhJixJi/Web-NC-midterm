@@ -112,7 +112,7 @@ export const exportGradeAssignmentToCSV = (data, assignmentName) => {
 export const gradeAssignmentTemplateXLSX = (assignmentName) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Grade Board');
-  const headerRow = ['StudentID', assignmentName];
+  const headerRow = ['StudentID', 'Grade'];
   worksheet.addRow(headerRow);
   workbook.xlsx.writeBuffer().then((buffer) => {
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -367,7 +367,7 @@ export const uploadStudentList = async (file) => {
         const lines = csvData.split(/\r\n|\n/);
         if(lines.length > 0){
           const header = lines[0].split(',');
-            if (header[0] === 'StudentId' && header[1] === 'FullName'  && header[1] === 'Email') {
+            if (header[0] === 'StudentId' && header[1] === 'FullName'  && header[2] === 'Email') {
               const sheetData = lines.slice(1).map((line) => {
                 const values = line.split(',');
                 const rowData = {

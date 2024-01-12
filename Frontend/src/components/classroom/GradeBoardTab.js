@@ -537,6 +537,12 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     console.log('updated: ', updated);
     getDataAPI();
   }  
+
+  //Xử lý vào trang cập nhật bài tập 
+  const handleUpdateAssignment = async ()=>{
+    const assignmentId =  assignments.find((a)=>{return a.assignmentName === selectedAssignment} ).assignmentId;
+    navigate(`/classroom/class-detail/${classId}/assignment-detail/${assignmentId}`, { state: { isTeaching } });
+  }
   //Xử lý trả bài cho toàn bộ học sinh
   const handlePublicAssignmentGrade = async () =>{
     handleMenuClose();
@@ -560,28 +566,9 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     getDataAPI();
   }  
   //Thử thao tác tạo NOtification
-  const handlePublicTestNoti = async () => {
+  const handleOpenGradeDetail = async () => {
     handleMenuClose();
-
-    const notiData = {
-      receiveId: students.find((stu)=> stu.studentId === selectedStudent).userId,
-      message: 'Thông báo đây là 1 thông báo để thông báo có thông báo',
-      type: 'public_grade',
-      status: 'unread',
-    }
-    console.log('notidata : ', notiData);
-    
-    const sendData = async (notiData) => {
-      try {
-        const response = await api.post(`/notifications/send`, notiData);
-        return response.data;
-      } catch (error) {
-        // Xử lý lỗi
-        console.error('Error fetching user data:', error);
-      }
-    };
-    const updated = await sendData(notiData);
-    console.log('updated: ', updated);
+    navigate();
   } 
 
   
@@ -688,9 +675,14 @@ const GradeBoardTab = ({classId, isTeaching}) => {
     {/* { ===== Button download và save  Grade board ========} */}
     <Container>
       <List>
-        <Button component="label" disabled variant="contained" color="primary" startIcon={<UploadIcon />} sx={{margin: '8px'}}>
-          Upload Grade Board
-          <VisuallyHiddenInput type="file" onChange={handleUploadFileChange}/>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<DownloadIcon />}
+          onClick={handleFileTypeClick}
+          sx={{margin: '8px'}}
+        >
+          Download Grade Board
         </Button>
         {isUploadFile && 
           <>
@@ -704,15 +696,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
           
         }
       </List>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<DownloadIcon />}
-        onClick={handleFileTypeClick}
-        sx={{margin: '8px'}}
-      >
-        Download Grade Board
-      </Button>
+      
     </Container>
     {/* { ===== Header của Grade board ========} */}
     <TableContainer component={Paper} sx={{ overflowY: 'auto' , maxHeight: 'calc(100vh - 200px)' ,overflowX: 'auto', maxWidth: 'calc(100vw - 200px)'}}>
@@ -748,13 +732,6 @@ const GradeBoardTab = ({classId, isTeaching}) => {
           ))}
           <TableCell style={{ width: '150px' , borderRight: '1px solid #ddd' }}>
             Total Grade
-            <IconButton
-                  aria-controls="assignment-menu"
-                  aria-haspopup="true"
-                  onClick={(event) => handleAssignmentMenuOpen(event, '')}
-                >
-                  <MoreVertIcon />
-                </IconButton>
           </TableCell>
         </TableRow>
       </TableHead>
@@ -819,13 +796,6 @@ const GradeBoardTab = ({classId, isTeaching}) => {
                           }}
                         />
                       </span>
-                      <IconButton
-                        aria-controls="score-menu"
-                        aria-haspopup="true"
-                        onClick={(event) => handleScoreMenuOpen(event, '')}
-                      >
-                        <MoreVertIcon />
-                      </IconButton>
                     </div>
                   </TableCell>
                 );
@@ -846,8 +816,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       open={Boolean(assignmentMenuAnchorEl)}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Chỉnh sửa</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Xóa</MenuItem>
+      <MenuItem onClick={handleUpdateAssignment}>Chỉnh sửa</MenuItem>
       <MenuItem onClick={handlePublicAssignmentGrade}>Trả bài tất cả</MenuItem>
       <MenuItem onClick={handleFileTypeClick}>Download Assignment</MenuItem>
       <MenuItem onClick={handleFileTypeClick}>Download Template</MenuItem>
@@ -891,7 +860,7 @@ const GradeBoardTab = ({classId, isTeaching}) => {
       onClose={handleMenuClose}
     >
       <MenuItem disabled={isPublic}  onClick={handlePublicGrade}>Trả bài</MenuItem>
-      <MenuItem onClick={handlePublicTestNoti}>Thao tác với điểm</MenuItem>
+      {/* <MenuItem onClick={handleOpenGradeDetail}>Thao tác với điểm</MenuItem> */}
     </Menu>
     {/* { ===== Thông báo lỗi input ========} */}
     <Snackbar

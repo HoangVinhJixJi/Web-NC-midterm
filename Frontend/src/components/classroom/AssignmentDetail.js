@@ -104,7 +104,8 @@ const AssignmentDetail = () => {
             setIsLoading(false);
         } catch (error) {
             console.error('Error fetching assignment data:', error);
-            // Handle error (e.g., redirect to an error page)
+            navigate(`/classroom/class-detail/${classId}`, { state: { currentTab: 3 } });
+            
         }
     };
     //Lấy grade structure 

@@ -151,8 +151,8 @@ const ClassDetailTab = () => {
         <Tab label="Teacher List" />
         <Tab label="Student List" />
         <Tab label="Assignment List" />
-        <Tab label="Grade board" />
         <Tab label="Grade Structure" />
+        {isTeaching && (<Tab label="Grade board" />)}
         {isTeaching && (<Tab label="Grade Reviews" />)}
       </Tabs>
 
@@ -168,22 +168,13 @@ const ClassDetailTab = () => {
       </TabPanel>
       <TabPanel value={currentTab} index={3}>
         <AssignmentListTab classId={classId} isTeaching={isTeaching} onAssignmentClick={handleAssignmentClick} />
-        {/* {selectedAssignment === null ? 
-        <AssignmentListTab classId={classId} isTeaching={isTeaching} onAssignmentClick={handleAssignmentClick} />
-        :
-        <AssignmentDetail
-            assignment={selectedAssignment}
-            isTeaching={isTeaching}
-            classId={classId}
-            onClose= {handleAssignmentClose}
-          />} */}
       </TabPanel>
       <TabPanel value={currentTab} index={4}>
-        <GradeBoardTab classId={classId} isTeaching={isTeaching} />
-      </TabPanel>
-      <TabPanel value={currentTab} index={5}>
         <GradeStructureTab classId={classId} isTeaching={isTeaching} />
       </TabPanel>
+      {isTeaching && (<TabPanel value={currentTab} index={5}>
+        <GradeBoardTab classId={classId} isTeaching={isTeaching} />
+      </TabPanel>)}
       {isTeaching && (<TabPanel value={currentTab} index={6}>
         <GradeReviewListTab classId={classId} isTeaching={isTeaching} />
       </TabPanel>)}
