@@ -98,11 +98,23 @@ export class ClassService {
   async getClassInfo(classId: string) {
     return this.classesService.adminGetClassInfo(classId);
   }
-  async getClassTeachers(classId: string) {
-    return this.classesService.adminGetClassTeachers(classId);
+  async getClassTeachers(classId: string, searchTerm: string = '') {
+    const teachers = await this.classesService.adminGetClassTeachers(classId);
+    return teachers.filter(
+      (teacher) =>
+        teacher !== null &&
+        teacher.fullName.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
   }
-  async getClassStudents(classId: string) {
-    return this.classesService.adminGetClassStudents(classId);
+  async getClassStudents(classId: string, searchTerm: string = '') {
+    const students = await this.classesService.adminGetClassStudents(classId);
+    return students.filter((student) => {
+      return (
+        student !== null &&
+        (student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (student.studentId && student.studentId.includes(searchTerm)))
+      );
+    });
   }
   async assignStudentId(userId: string, classId: string, studentId: string) {
     return this.classesService.adminAssignStudentId(userId, classId, studentId);

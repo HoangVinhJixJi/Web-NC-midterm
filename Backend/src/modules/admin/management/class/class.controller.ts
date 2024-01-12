@@ -73,12 +73,18 @@ export class ClassController {
     return this.classService.getClassInfo(classId);
   }
   @Get('teacher')
-  async getClassTeacers(@Query('classId') classId: string) {
-    return this.classService.getClassTeachers(classId);
+  async getClassTeacers(
+    @Query('classId') classId: string,
+    @Query('searchTerm') searchTerm: string,
+  ) {
+    return this.classService.getClassTeachers(classId, searchTerm);
   }
   @Get('student')
-  async getClassStudents(@Query('classId') classId: string) {
-    return this.classService.getClassStudents(classId);
+  async getClassStudents(
+    @Query('classId') classId: string,
+    @Query('searchTerm') searchTerm: string,
+  ) {
+    return this.classService.getClassStudents(classId, searchTerm);
   }
   @Post('assign-student-id')
   async assignStudentId(

@@ -20,7 +20,7 @@ import UnbanAccountDialog from './dialogs/UnbanAccountDialog';
 import DeleteAccountDialog from './dialogs/DeleteAccountDialog';
 
 const titleNames = [ "User ID", "User Info", "Total Days Banned", "Start Time", "End Time", "Action", "Details" ];
-const totalDaysBanned = ["1 day", "7 days", "30 days", "Forever"];
+const totalDaysBanned = ["1 day", "7 days", "30 days", "1 year"];
 export default function BannedAccountListTab() {
   const [accounts, setAccounts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -152,8 +152,13 @@ export default function BannedAccountListTab() {
           query = query + `&&searchTerm=${searchTerm}`;
         }
         if (selectedTotalDaysBanned !== '') {
-          const dayNumber = selectedTotalDaysBanned.split(' ')[0];
-          query = query + `&&totalDaysBanned=${dayNumber}`;
+          if (selectedTotalDaysBanned !== '1 year') {
+            const dayNumber = selectedTotalDaysBanned.split(' ')[0];
+            query = query + `&&totalDaysBanned=${dayNumber}`;
+          } else {
+            const dayNumber = 365;
+            query = query + `&&totalDaysBanned=${dayNumber}`;
+          }
         }
         url = url + query;
         const response = await api.get(url);

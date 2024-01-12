@@ -16,7 +16,7 @@ import { NotificationStatusEnum } from '../../../../enums/notification-status.en
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
-const FOREVER_BAN_DAYS = 999999999999999;
+const ONE_YEAR_BANNED = 365;
 
 @Injectable()
 export class AccountService {
@@ -85,8 +85,7 @@ export class AccountService {
       const username = user.username;
       const bannedReason = reason;
       const currentTimes = new Date();
-      const bannedDaysNumber =
-        parseInt(numOfDaysBanned, 10) || FOREVER_BAN_DAYS;
+      const bannedDaysNumber = parseInt(numOfDaysBanned, 10) || ONE_YEAR_BANNED;
       let expiredBans: any = null;
       if (typeof bannedDaysNumber === 'number') {
         expiredBans = dayjs(currentTimes)
@@ -366,7 +365,7 @@ export class AccountService {
   ) {
     let filter: any =
       totalDaysBanned !== ''
-        ? [{ numOfDaysBanned: parseInt(totalDaysBanned) || FOREVER_BAN_DAYS }]
+        ? [{ numOfDaysBanned: parseInt(totalDaysBanned) || ONE_YEAR_BANNED }]
         : [];
     let match: any = {};
     if (searchTerm !== '') {

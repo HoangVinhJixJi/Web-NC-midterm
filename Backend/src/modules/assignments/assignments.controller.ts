@@ -17,7 +17,13 @@ import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 // import { UsersService } from '../users/users.service';
 import { Assignment } from './schema/assignment.schema';
 import { CreateAssignmentDto } from './dto/create-assigment.dto';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
 
+@Roles(Role.User)
+@UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
 @Controller('assignments')
 export class AssignmentsController {
   constructor(private readonly assignemntsService: AssignmentsService) {}
@@ -29,7 +35,6 @@ export class AssignmentsController {
   //   return await this.classesService.getClasses(userId, null, 'active');
   // }
 
-  @UseGuards(JwtAuthGuard)
   @Get('/:classId')
   async getAllAssignmentsByClassId(
     @Request() req: any,
@@ -37,7 +42,6 @@ export class AssignmentsController {
   ) {
     return this.assignemntsService.findAllByClassId(classId);
   }
-  @UseGuards(JwtAuthGuard)
   @Get('/get/assignment/:assignmentId')
   async getAssignmentsByAssignmentId(
     @Request() req: any,
@@ -46,7 +50,6 @@ export class AssignmentsController {
     return this.assignemntsService.findOneById(assignmentId);
   }
   @Post('create')
-  @UseGuards(JwtAuthGuard)
   async createNewAssignment(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true }))

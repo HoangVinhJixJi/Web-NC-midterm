@@ -11,7 +11,7 @@ export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick })
   const location = useLocation();
 
   function renderTotalDaysBannedUnit(day) {
-    return day === 1 ? 'day' : 'days';
+    return day === 1 ? 'day' : day !== 365 ? 'days' : 'year';
   }
 
   return (
@@ -27,7 +27,7 @@ export default function BannedAccountItem({ user, onUnbanClick, onDeleteClick })
         {user['userInfo']['studentId'] ? `(sID: ${user['userInfo']['studentId']})` : '(No Student ID)'}
       </TableCell>
       <TableCell>
-        {user['bannedInfo']['numOfDaysBanned']} {renderTotalDaysBannedUnit(user['bannedInfo']['numOfDaysBanned'])}
+        {user['bannedInfo']['numOfDaysBanned'] !== 365 ? user['bannedInfo']['numOfDaysBanned'] : 1} {renderTotalDaysBannedUnit(user['bannedInfo']['numOfDaysBanned'])}
       </TableCell>
       <TableCell>
         {formatDateTime(user['bannedInfo']['bannedStartTime'])}

@@ -80,6 +80,11 @@ export default function StudentTab({ classId }) {
   function handleSearchClick() {
     setIsSearchClick(isSearchClick => !isSearchClick);
   }
+  function handleClearClick() {
+    setSearchTerm("");
+    setIsSearchEnabled(false);
+    setIsSearchClick(isSearchClick => !isSearchClick);
+  }
 
   useEffect(() => {
     const fetchData = async (searchTerm) => {
@@ -109,7 +114,7 @@ export default function StudentTab({ classId }) {
   }, [isSearchClick]);
 
   return (
-    <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '55em' }}>
+    <Container sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '57em' }}>
       <Container sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 1.5 }}>
         <SearchBar
           placeholder="Search Student ID, Name"
@@ -117,6 +122,7 @@ export default function StudentTab({ classId }) {
           onSearchTermChange={handleSearchChange}
           isButtonSearchEnabled={isSearchEnabled}
           onSearchClick={handleSearchClick}
+          onClearClick={handleClearClick}
         />
       </Container>
       <Grid container spacing={3} sx={{ marginTop: '20px',paddingBottom: '20px',  overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
