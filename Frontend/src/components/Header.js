@@ -173,6 +173,10 @@ function Header() {
               console.log('******* Report conflict student id: ', data);
               setUnreadCount((prevCount) => prevCount + 1);
             });
+            socket.on('resolve_report_conflict_id', (data) => {
+                console.log('******* Resolve report conflict student id: ', data);
+                setUnreadCount((prevCount) => prevCount + 1);
+            });
             //
             // socket.on('message', (data) => {
             //     console.log('******* New Notification socket io :', data);
