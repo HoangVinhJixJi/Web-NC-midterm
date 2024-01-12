@@ -249,4 +249,7 @@ export class UsersService {
   async findUsers(filter: any = {}) {
     return this.usersModel.find(filter).exec();
   }
+  async deleteOne(filter: { _id: string }) {
+    return this.usersModel.findOneAndDelete(filter).exec();
+  }
 }

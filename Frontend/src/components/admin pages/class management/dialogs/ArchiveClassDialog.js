@@ -20,11 +20,11 @@ export default function ArchiveClassDialog(
       const response = await api.post('/admin/management/class/archive', data);
       console.log('Archived class info: ', response.data);
       if (response.data) {
-        setMessageColor("success");
+        setMessageColor("success.main");
         setMessage(`The class with name '${className}' has been successfully archived`);
         setIsSuccess(true);
       } else {
-        setMessageColor("error");
+        setMessageColor("error.main");
         setMessage(`Class archive failed, please try again.`);
         setIsSuccess(false);
       }

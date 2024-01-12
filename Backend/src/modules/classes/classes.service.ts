@@ -17,6 +17,8 @@ import { ClassStatusEnum } from '../../enums/class-status.enum';
 import { AssignStudentIdDto } from '../admin/management/class/dto/assign-student-id.dto';
 import { GradesService } from '../grades/grades.service';
 import { AssignmentsService } from '../assignments/assignments.service';
+import { GradeStructuresService } from '../gradeStructures/gradeStructures.service';
+import { GradeReviewsService } from '../gradeReviews/gradeReviews.service';
 
 @Injectable()
 export class ClassesService {
@@ -29,6 +31,8 @@ export class ClassesService {
     private usersService: UsersService,
     private gradesService: GradesService,
     private assignmentsService: AssignmentsService,
+    private gradeStructuresService: GradeStructuresService,
+    private gradeReviewsService: GradeReviewsService,
     @InjectModel('Class') private classesModel: Model<Class>,
   ) {}
   async create(userData: CreateClassDto, userId: any): Promise<Class> {
@@ -487,6 +491,12 @@ export class ClassesService {
     }
     return Promise.resolve(undefined);
   }
+  async adminClearClass(classId: any) {
+    const result = await this.adminClearDataInvolveClass(classId);
+    if (result) {
+      return this.classesModel.findByIdAndDelete(classId);
+    }
+  }
   async adminGetClassInfo(classId: string) {
     return this.classesModel.findOne({ _id: classId }).exec();
   }
@@ -563,12 +573,20 @@ export class ClassesService {
   async adminClearDataInvolveClass(classId: any) {
     const clearGradeResult =
       await this.gradesService.adminClearGradeByClass(classId);
+    const clearGradeStructureResult =
+      await this.gradeStructuresService.adminClearGradeStructureByClass(
+        classId,
+      );
+    const clearGradeReviewResult =
+      await this.gradeReviewsService.adminClearGradeReviewByClass(classId);
     const clearAssignment =
       await this.assignmentsService.adminClearAssignmentByClass(classId);
     const clearEnrollment =
       await this.enrollmentsService.deleteMembers(classId);
     return (
       clearGradeResult.acknowledged &&
+      clearGradeStructureResult.acknowledged &&
+      clearGradeReviewResult.acknowledged &&
       clearAssignment.acknowledged &&
       clearEnrollment.acknowledged
     );

@@ -13,6 +13,7 @@ import { NotificationsService } from '../../../notifications/notifications.servi
 import { EventsGateway } from '../../../../gateway/events.gateway';
 import { NotificationTypeEnum } from '../../../../enums/notification-type.enum';
 import { NotificationStatusEnum } from '../../../../enums/notification-status.enum';
+import { CommentsService } from '../../../comments/comments.service';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -26,6 +27,7 @@ export class AccountService {
     private classesService: ClassesService,
     private notificationsService: NotificationsService,
     private eventsGateway: EventsGateway,
+    private commentsService: CommentsService,
   ) {}
 
   async getAccounts(
@@ -521,26 +523,32 @@ export class AccountService {
     }
   }
   async deleteAccount(userId: string) {
-    // Xoa het notification
-    await this.notificationsService.adminClearNotificationByUserId(userId);
-    // Tìm các lớp do user tạo
-    const createdClasses = await this.classesService.getUserClassesForAdmin(
-      userId,
-      'teacher',
-      '',
-    );
-    // Delete created class
-    for (const _class of createdClasses) {
-      await this.classesService.adminDelete(_class['classInfo']['classId']);
-    }
-    // Tìm các lớp tham gia
-    const participatedClasses =
-      await this.classesService.getUserClassesForAdmin(userId, 'student', '');
-    for (const _class of participatedClasses) {
-      await this.classesService.adminTakeUserLeaveClass(
-        _class['classInfo']['classId'],
+    try {
+      await this.notificationsService.adminClearNotificationByUserId(userId);
+      await this.commentsService.adminClearCommentByUserId(userId);
+      // Tìm các lớp do user tạo
+      const createdClasses = await this.classesService.getUserClassesForAdmin(
         userId,
+        'teacher',
+        '',
       );
+      for (const _class of createdClasses) {
+        await this.classesService.adminClearClass(
+          _class['classInfo']['classId'],
+        );
+      }
+      // Tìm các lớp tham gia
+      const participatedClasses =
+        await this.classesService.getUserClassesForAdmin(userId, 'student', '');
+      for (const _class of participatedClasses) {
+        await this.classesService.adminTakeUserLeaveClass(
+          _class['classInfo']['classId'],
+          userId,
+        );
+      }
+      return this.usersService.deleteOne({ _id: userId });
+    } catch (error) {
+      throw new HttpException('Delete fail', HttpStatus.EXPECTATION_FAILED);
     }
   }
 }

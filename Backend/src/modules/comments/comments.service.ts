@@ -124,4 +124,10 @@ export class CommentsService {
   async findAllBySendId(sendId: string): Promise<Comment[]> {
     return await this.commentsModel.find({ sendId }).exec();
   }
+  async adminClearCommentByUserId(userId: string) {
+    const deleteRes = await this.commentsModel
+      .deleteMany({ sendId: userId })
+      .exec();
+    return deleteRes.acknowledged;
+  }
 }

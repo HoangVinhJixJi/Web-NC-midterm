@@ -87,9 +87,9 @@ export default function AccountItem({ user, onActiveClick, onBanClick, onUnbanCl
           open={Boolean(anchorElActions)}
           onClose={handleCloseActionMenu}
         >
-          {user.status === "pending" && renderActionMenu(Actions.pending)}
-          {user.status === "active" && renderActionMenu(Actions.active)}
-          {user.status === "banned" && renderActionMenu(Actions.banned)}
+          {user.status.toLowerCase() === "pending" && renderActionMenu(Actions.pending)}
+          {user.status.toLowerCase() === "active" && renderActionMenu(Actions.active)}
+          {user.status.toLowerCase() === "banned" && renderActionMenu(Actions.banned)}
         </Menu>
       </TableCell>
       <TableCell>

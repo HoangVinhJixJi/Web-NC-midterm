@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
-  Get,
-  Post,
   Delete,
+  Get,
   Param,
+  Post,
   Request,
   UseGuards,
   ValidationPipe,
@@ -13,11 +13,16 @@ import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { Comment } from './schema/comment.schema';
 import { PostCommentDto } from './dto/post-comment.dto';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
 
+@Roles(Role.User)
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('gradeReviewId/:gradeReviewId')
   async getAllByGradeReviewId(
     @Request() req: any,
@@ -25,12 +30,12 @@ export class CommentsController {
   ) {
     return this.commentsService.findAllByGradeReviewId(gradeReviewId);
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('sendId/:sendId')
   async getAllBySendId(@Request() req: any, @Param('sendId') sendId: string) {
     return this.commentsService.findAllBySendId(sendId);
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Post('post/:gradeReviewId')
   async postComment(
     @Request() req: any,
@@ -41,7 +46,7 @@ export class CommentsController {
     const sendId = req.user.sub;
     return this.commentsService.add(gradeReviewId, sendId, userData);
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Delete('delete/:commentId')
   async deleteComment(
     @Request() req: any,

@@ -1,24 +1,19 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Param,
-  Request,
-  UseGuards,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Request, UseGuards, ValidationPipe, } from '@nestjs/common';
 import { GradeReviewsService } from './gradeReviews.service';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { GradeReview } from './schema/gradeReview.schema';
 import { AddGradeReviewDto } from './dto/add-gradeReview.dto';
 import { UpdateGradeReviewDto } from './dto/update-gradeReview.dto';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
 
+@Roles(Role.User)
 @Controller('gradeReviews')
 export class GradeReviewsController {
   constructor(private readonly gradeReviewsService: GradeReviewsService) {}
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('classId/:classId')
   async getAllByClassId(
     @Request() req: any,
@@ -26,7 +21,7 @@ export class GradeReviewsController {
   ) {
     return this.gradeReviewsService.findAllByClassId(classId);
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('assignmentId/:assignmentId')
   async getAllByAssignmentId(
     @Request() req: any,
@@ -34,7 +29,7 @@ export class GradeReviewsController {
   ) {
     return this.gradeReviewsService.findAllByAssignmentId(assignmentId);
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('gradeReviewId/:gradeReviewId')
   async getOneByGradeReviewId(
     @Request() req: any,
@@ -42,7 +37,7 @@ export class GradeReviewsController {
   ) {
     return this.gradeReviewsService.findOneById(gradeReviewId);
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('studentId/:studentId')
   async getAllByStudentId(
     @Request() req: any,
@@ -50,7 +45,7 @@ export class GradeReviewsController {
   ) {
     return this.gradeReviewsService.findAllByStudentId(studentId);
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get(':classId/:assignmentId/:studentId')
   async getAllByEachStudent(
     @Request() req: any,
@@ -64,7 +59,7 @@ export class GradeReviewsController {
       studentId,
     );
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Post('add/:classId/:assignmentId')
   async addGradeReview(
     @Request() req: any,
@@ -81,7 +76,7 @@ export class GradeReviewsController {
       userData,
     );
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Delete('remove/:gradeReviewId')
   async removeGradeReview(
     @Request() req: any,
@@ -89,7 +84,7 @@ export class GradeReviewsController {
   ) {
     return this.gradeReviewsService.delete(gradeReviewId);
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Post('update/:gradeReviewId')
   async updateGradeReview(
     @Request() req: any,

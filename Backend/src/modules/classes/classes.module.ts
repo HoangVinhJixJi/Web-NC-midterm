@@ -12,6 +12,8 @@ import { EventsModule } from 'src/gateway/events.module';
 import { BannedUsersModule } from '../admin/management/account/banned-users/banned-users.module';
 import { GradesModule } from '../grades/grades.module';
 import { AssignmentsModule } from '../assignments/assignments.module';
+import { GradeStructuresModule } from '../gradeStructures/gradeStructures.module';
+import { GradeReviewsModule } from '../gradeReviews/gradeReviews.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { AssignmentsModule } from '../assignments/assignments.module';
     BannedUsersModule,
     GradesModule,
     AssignmentsModule,
+    GradeStructuresModule,
+    GradeReviewsModule,
   ],
   providers: [ClassesService],
   exports: [ClassesService],
