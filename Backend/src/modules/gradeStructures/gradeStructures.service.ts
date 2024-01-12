@@ -50,4 +50,7 @@ export class GradeStructuresService {
       .findOne({ _id: gradeStructureId })
       .exec();
   }
+  async adminClearGradeStructureByClass(classId: any) {
+    return this.gradeStructuresModel.deleteMany({ classId: classId }).exec();
+  }
 }

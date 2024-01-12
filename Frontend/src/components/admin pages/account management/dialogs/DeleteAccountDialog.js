@@ -30,7 +30,19 @@ export default function DeleteAccountDialog(
       }
       setIsDisplayCloseButton(true);
     } catch (error) {
+      if (error.response) {
+        switch (error.response.status) {
+          case 417:
+            setMessageColor("error.main");
+            setMessage('Error delete account!');
+            break;
+          default:
+            setMessageColor("error.main");
+            setMessage(`Account deleted failed, please try again.`);
+        }
+      }
       console.log("Deleting account error: ", error);
+      setIsDisplayCloseButton(true);
     }
   }
 
