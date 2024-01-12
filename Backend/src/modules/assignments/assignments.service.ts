@@ -44,16 +44,14 @@ export class AssignmentsService {
       throw error;
     }
   }
-  async findOneAndUpdate(
-    classId: string,
-    assigmentId: string,
-    updatedData: any,
-  ): Promise<Assignment | null> {
-    return await this.assignmentsModel
-      .findOneAndUpdate({ classId, _id: assigmentId }, updatedData, {
+  async findOneAndUpdate(data: any): Promise<Assignment | null> {
+    const { _id, ...updateData } = data;
+    const rs = await this.assignmentsModel
+      .findOneAndUpdate({ _id }, updateData, {
         new: true,
       })
       .exec();
+    return rs;
   }
   async findOneById(assignmentId: string): Promise<Assignment | null> {
     try {

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -24,6 +24,8 @@ import GradeBoardTab from './GradeBoardTab';
 import AssignmentListTab from './AssignmentListTab';
 import AssignmentDetail from './AssignmentDetail';
 
+import GradeStructureTab from './GradeStructureTab';
+import GradeReviewListTab from './GradeReviewListTab';
 
 const ClassDetailTab = () => {
   const location = useLocation();
@@ -35,16 +37,16 @@ const ClassDetailTab = () => {
   const [studentId, setStudentId] = useState('');
   const [checkStudentId, setCheckStudentId] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
- 
-  
+
+
   const handleAssignmentClick = (assignment) => {
     setSelectedAssignment(assignment);
-    
+
   };
   const handleReturnAssignmentList = () => {
     setSelectedAssignment(null);
 
-    
+
   };
   const handleAssignmentClose = () => {
     setSelectedAssignment(null);
@@ -79,7 +81,7 @@ const ClassDetailTab = () => {
           setIsTeaching(true);
         }
         setClassInfo(response.data.classInfo);
-        if(!response.data.checkStudentId){
+        if (!response.data.checkStudentId) {
           console.log('*********** Do not have StudentID!!!**********');
         }
         setCheckStudentId(response.data.checkStudentId);
@@ -101,7 +103,7 @@ const ClassDetailTab = () => {
 
   }, [navigate, classId]);
 
-  
+
 
   const handleStudentIdChange = (event) => {
     setStudentId(event.target.value);
@@ -112,20 +114,20 @@ const ClassDetailTab = () => {
     console.log('studentId : ', studentId);
     const fetchStudentIdData = async () => {
       try {
-        const response = await api.post(`/enrollments/update/${classId}`,{
+        const response = await api.post(`/enrollments/update/studentid/${classId}`, {
           studentId,
         });
         console.log('Enrollment Data: ', response.data);
-        
+
       } catch (error) {
         // Xử lý lỗi
         // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
         if (error.response && error.response.status === 401) {
           navigate('/signin');
-        }else{
-            console.error('Error fetching user data :', error);
-            
-            
+        } else {
+          console.error('Error fetching user data :', error);
+
+
         }
       }
     };
@@ -135,7 +137,7 @@ const ClassDetailTab = () => {
   };
   return (
     <Box sx={{ width: '100%' }}>
-    
+
       {/* Tabs */}
       <Tabs
         value={currentTab}
@@ -150,6 +152,8 @@ const ClassDetailTab = () => {
         <Tab label="Student List" />
         <Tab label="Assignment List" />
         <Tab label="Grade board" />
+        <Tab label="Grade Structure" />
+        {isTeaching && (<Tab label="Grade Reviews" />)}
       </Tabs>
 
       {/* Tab Panels */}
@@ -177,35 +181,41 @@ const ClassDetailTab = () => {
       <TabPanel value={currentTab} index={4}>
         <GradeBoardTab classId={classId} isTeaching={isTeaching} />
       </TabPanel>
-        
-      
-      { isLoading ? 
+      <TabPanel value={currentTab} index={5}>
+        <GradeStructureTab classId={classId} isTeaching={isTeaching} />
+      </TabPanel>
+      {isTeaching && (<TabPanel value={currentTab} index={6}>
+        <GradeReviewListTab classId={classId} isTeaching={isTeaching} />
+      </TabPanel>)}
+
+
+      {isLoading ?
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
           <CircularProgress />
         </div>
         :
         <Dialog open={!checkStudentId}>
-        <DialogTitle>*** Enter StudentID to join the class! ***</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="studentId"
-            label="Student ID"
-            type="text"
-            fullWidth
-            value={studentId}
-            onChange={handleStudentIdChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleStudentIdSave} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <DialogTitle>*** Enter StudentID to join the class! ***</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="studentId"
+              label="Student ID"
+              type="text"
+              fullWidth
+              value={studentId}
+              onChange={handleStudentIdChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleStudentIdSave} color="primary">
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
       }
-      
+
     </Box>
   );
 };
