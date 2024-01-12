@@ -66,11 +66,6 @@ function Header() {
                         setAssignmentId(match[2]);
                         setGradeReviewId(match[3])
                         setMessage(match[4]);
-
-                        console.log('classId:', match[1]);
-                        console.log('assignmentId:', match[2]);
-                        console.log('gradeReviewId:', match[3]);
-                        console.log('message:', match[4]);
                         obj.classId = match[1];
                         obj.assignmentId = match[2];
                         obj.gradeReviewId = match[3];
@@ -177,12 +172,6 @@ function Header() {
                 console.log('******* Resolve report conflict student id: ', data);
                 setUnreadCount((prevCount) => prevCount + 1);
             });
-            //
-            // socket.on('message', (data) => {
-            //     console.log('******* New Notification socket io :', data);
-            //     // Cập nhật số lượng thông báo chưa đọc
-            //     setUnreadCount((prevCount) => prevCount + 1);
-            // });
 
             const notiData = fetchNotiData();
             notiData.then((result) => {

@@ -131,10 +131,6 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
       setMessage('Please enter Assignment Name!');
     }
   };
-  const handleViewScoresClick = () => {
-    // Viết logic để mở tab hiển thị thông tin điểm số ở đây
-    console.log('Xem bài tập của bạn');
-  };
   
   return (
     <>
@@ -166,9 +162,6 @@ const AssignmentListTab = ({classId, isTeaching, onAssignmentClick}) => {
       {assignments && <List sx={{overflowY: 'auto', maxHeight: 'calc(100vh - 160px)'}}>
         {assignments.map((assignment) => (
           <ListItemButton 
-          //onClick={() => onAssignmentClick(assignment)}
-          // component={Link}
-          // to={`/classroom/class-detail/${classId}/assignment-detail/${assignment._id}`}
           onClick={() => handleAssignmentClick(assignment._id)}
           key={assignment._id} 
           sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
