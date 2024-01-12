@@ -476,7 +476,7 @@ function Header() {
                                             display: '-webkit-box',
                                             WebkitBoxOrient: 'vertical',
                                             overflow: 'hidden',
-                                            WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
+                                            // WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
                                             }}
                                         >Không có thông báo!</Typography>
                                         </ListItemButton>
@@ -492,7 +492,7 @@ function Header() {
                                             display: '-webkit-box',
                                             WebkitBoxOrient: 'vertical',
                                             overflow: 'hidden',
-                                            WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
+                                            // WebkitLineClamp: 2, // Số dòng tối đa muốn hiển thị
                                             }}
                                         >{renderNotificationMessage(notification)}</Typography>
                                         </ListItemButton>
