@@ -37,7 +37,10 @@ const ClassDetailTab = () => {
   const [studentId, setStudentId] = useState('');
   const [checkStudentId, setCheckStudentId] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
-
+  const [message, setMessage] = useState('');
+  const [messageColor, setMessageColor] = useState("success");
+  const [isDisabledSaveButton, setIsDisabledSaveButton] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleAssignmentClick = (assignment) => {
     setSelectedAssignment(assignment);
@@ -106,34 +109,69 @@ const ClassDetailTab = () => {
 
 
   const handleStudentIdChange = (event) => {
+    setIsDisabledSaveButton(false);
     setStudentId(event.target.value);
   };
 
   const handleStudentIdSave = () => {
+    setIsDisabledSaveButton(true);
+    setIsSaving(true);
     //Gọi API kiểm tra sutdentId có tồn tại chưa?
     console.log('studentId : ', studentId);
+    let isSuccess = false;
     const fetchStudentIdData = async () => {
       try {
-        const response = await api.post(`/enrollments/update/studentid/${classId}`, {
-          studentId,
-        });
-        console.log('Enrollment Data: ', response.data);
-
-      } catch (error) {
-        // Xử lý lỗi
-        // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
-        if (error.response && error.response.status === 401) {
-          navigate('/signin');
+        const data = { studentId: studentId };
+        const response = await api.post('/users/add-studentId', data);
+        console.log('Added student Id user: ', response.data);
+        if (response.data) {
+          isSuccess = true;
+          setMessageColor("success.main");
+          setMessage(`Save student ID '${studentId}' successfully`);
         } else {
-          console.error('Error fetching user data :', error);
-
-
+          setMessageColor("error.main");
+          setMessage(`Save student ID failed, please try again.`);
+          isSuccess = false;
         }
+        setIsSaving(false);
+        setIsDisabledSaveButton(false);
+        console.log(isSuccess);
+        setCheckStudentId(isSuccess);
+      } catch (error) {
+        setIsSaving(false);
+        setIsDisabledSaveButton(false);
+        // Xử lý lỗi
+        if (error.response) {
+          switch (error.response.status) {
+            case 401:
+              navigate('/signin');
+              break;
+            case 409:
+              setMessageColor("error.main");
+              setMessage('Save student ID fail. The student ID that you want to use was being used by others. ' +
+                'Please enter another student ID and Save again.');
+              break;
+            default:
+              setMessageColor("error.main");
+              setMessage('Save student ID fail. Try again!');
+          }
+        } else {
+          setMessageColor("error.main");
+          setMessage('Add student ID fail. Try again!');
+        }
+        setCheckStudentId(false);
+        console.error('Error fetching user data :', error);
+        // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
+        // if (error.response && error.response.status === 401) {
+        //   navigate('/signin');
+        // } else {
+        //   console.error('Error fetching user data :', error);
+        //
+        //
+        // }
       }
     };
     fetchStudentIdData();
-    //Nếu có studentId rồi hiện thông báo để gửi phản hồi
-    setCheckStudentId(true);
   };
   return (
     <Box sx={{ width: '100%' }}>
@@ -198,10 +236,11 @@ const ClassDetailTab = () => {
               value={studentId}
               onChange={handleStudentIdChange}
             />
+            <Typography sx={{ color: messageColor }}><i>{message}</i></Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleStudentIdSave} color="primary">
-              Save
+            <Button disabled={isDisabledSaveButton} onClick={handleStudentIdSave} color="primary">
+              <strong>{isSaving ? 'Saving...' : 'Save'}</strong>
             </Button>
           </DialogActions>
         </Dialog>
