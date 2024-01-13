@@ -14,6 +14,7 @@ import { EventsGateway } from '../../../../gateway/events.gateway';
 import { NotificationTypeEnum } from '../../../../enums/notification-type.enum';
 import { NotificationStatusEnum } from '../../../../enums/notification-status.enum';
 import { CommentsService } from '../../../comments/comments.service';
+import { EnrollmentsService } from '../../../enrollments/enrollments.service';
 
 const PAGE_NUMBER_DEFAULT: number = 1;
 const PAGE_SIZE_NUMBER_DEFAULT: number = 8;
@@ -28,6 +29,7 @@ export class AccountService {
     private notificationsService: NotificationsService,
     private eventsGateway: EventsGateway,
     private commentsService: CommentsService,
+    private enrollmentsService: EnrollmentsService,
   ) {}
 
   async getAccounts(
@@ -405,10 +407,25 @@ export class AccountService {
     return null;
   }
   async assignStudentId(userId: string, studentId: string) {
-    return this.usersService.adminAssignStudentId(userId, studentId);
+    const assignedUser = await this.usersService.adminAssignStudentId(
+      userId,
+      studentId,
+    );
+    return this.enrollmentsService.mapStudentIdFromUser(
+      assignedUser._id.toString(),
+      assignedUser.studentId,
+    );
   }
   async assignStudentIds(userData: Array<AssignAccountStudentIdDto>) {
-    return this.usersService.adminAssignStudentIds(userData);
+    const assignedUserList =
+      await this.usersService.adminAssignStudentIds(userData);
+    for (const element of assignedUserList) {
+      await this.enrollmentsService.mapStudentIdFromUser(
+        element.userId,
+        element.studentId,
+      );
+    }
+    return assignedUserList;
   }
   async getConflictStudentIdUsers(sendId: string, studentId: string) {
     console.log(sendId);

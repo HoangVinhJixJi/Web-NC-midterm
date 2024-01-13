@@ -8,10 +8,14 @@ import { CreateFbUserDto } from './dto/create-fb-user.dto';
 import { SortOrderEnum } from '../../enums/sort-order.enum';
 import { AssignAccountStudentIdDto } from '../admin/management/account/dto/assign-account-student-id.dto';
 import { Role } from '../../enums/role.enum';
+import { Enrollment } from '../enrollments/schema/enrollment.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private usersModel: Model<User>) {}
+  constructor(
+    @InjectModel('User') private usersModel: Model<User>,
+    @InjectModel('Enrollment') private enrollmentsModel: Model<Enrollment>,
+  ) {}
   async create(newUserData: UserInterface): Promise<User> {
     const createUser = new this.usersModel(newUserData);
     return createUser.save();
@@ -234,11 +238,18 @@ export class UsersService {
     };
     const isExist = await this.usersModel.findOne(filter);
     if (!isExist) {
-      return this.usersModel.findOneAndUpdate(
+      const addedUser = await this.usersModel.findOneAndUpdate(
         { _id: userId },
         { studentId: studentId },
         { new: true },
       );
+      await this.enrollmentsModel
+        .updateMany(
+          { userId: addedUser._id.toString() },
+          { studentId: addedUser.studentId },
+        )
+        .exec();
+      return addedUser;
     } else {
       throw new HttpException('Conflict Student ID', HttpStatus.CONFLICT);
     }

@@ -18,7 +18,6 @@ import { AccountStatusGuard } from '../../auth/account-status/account-status.gua
 import { RolesGuard } from '../../auth/roles/roles.guard';
 import { Roles } from '../../auth/roles/roles.decorator';
 import { Role } from '../../enums/role.enum';
-import { ReportConflictStudentIdDto } from '../reports/dto/report-conflict-student-id.dto';
 
 @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
 @Roles(Role.User, Role.Admin)
