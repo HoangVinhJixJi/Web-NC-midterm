@@ -5,6 +5,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
   const [emailRegistration, setEmailRegistration] = useState('');
 
@@ -14,8 +15,11 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
+      const userInfo = JSON.parse(storedUser);
+      console.log(userInfo.role);
       setIsLoggedIn(true);
-      setUser(JSON.parse(storedUser));
+      setIsAdmin(userInfo.role === "admin");
+      setUser(userInfo);
     }
   }, []);
 
@@ -25,6 +29,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = (token, userData) => {
     setIsLoggedIn(true);
+    setIsAdmin(userData.role === "admin");
     setUser(userData);
 
     // Lưu thông tin đăng nhập vào localStorage
@@ -34,6 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setIsLoggedIn(false);
+    setIsAdmin(false);
     setUser(null);
 
     // Xoá thông tin đăng nhập khỏi localStorage
@@ -42,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn,user,emailRegistration, register,login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn,isAdmin,user,emailRegistration, register,login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schema/user.schema';
 import { UserInterface } from './interface/user.interface';
 import * as bcrypt from 'bcrypt';
 import { CreateFbUserDto } from './dto/create-fb-user.dto';
+import { SortOrderEnum } from '../../enums/sort-order.enum';
+import { AssignAccountStudentIdDto } from '../admin/management/account/dto/assign-account-student-id.dto';
+import { Role } from '../../enums/role.enum';
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private usersModel: Model<User>) {}
@@ -130,5 +134,122 @@ export class UsersService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async getUserListByPage(
+    param: { take: number; skip: number },
+    filter: any = {},
+    sort: { sortedBy: string; sortOrder: string },
+  ) {
+    const total = await this.usersModel.countDocuments(filter);
+    if (total === 0 || param.skip >= total) {
+      return { totalPages: total, users: [] };
+    }
+    const totalPages = Math.ceil(total / param.take);
+    let sortCondition: any = {};
+    switch (sort.sortedBy.toLowerCase()) {
+      case 'userid':
+        sortCondition = {
+          ...sortCondition,
+          _id: sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
+        };
+        break;
+      case 'studentid':
+        sortCondition = {
+          ...sortCondition,
+          studentId:
+            sort.sortOrder.toLowerCase() === SortOrderEnum.Increase ? 1 : -1,
+        };
+        break;
+      case 'fullname':
+        break;
+      default:
+        sortCondition = { ...sortCondition, _id: 1 };
+    }
+    if (Object.keys(sortCondition).length !== 0) {
+      const users = await this.usersModel
+        .find(filter)
+        .sort(sortCondition)
+        .skip(param.skip)
+        .limit(param.take)
+        .exec();
+      return { totalPages, users };
+    } else {
+      const users = await this.usersModel.find(filter).exec();
+      const sortedUsers = users.sort((a, b) => {
+        const lastNameA = a.fullName.split(' ').pop().toLowerCase();
+        const lastNameB = b.fullName.split(' ').pop().toLowerCase();
+        return sort.sortOrder === SortOrderEnum.Increase
+          ? lastNameA.localeCompare(lastNameB)
+          : lastNameB.localeCompare(lastNameA);
+      });
+      return {
+        totalPages,
+        users: sortedUsers.slice(param.skip, param.skip + param.take),
+      };
+    }
+  }
+  async findOneById(userId: any) {
+    return this.usersModel.findOne({ _id: userId }).exec();
+  }
+  async adminAssignStudentId(userId: string, studentId: string) {
+    if (studentId !== '') {
+      const filter = {
+        $and: [{ studentId: studentId }, { _id: { $ne: userId } }],
+      };
+      const user = await this.usersModel.findOne(filter).exec();
+      return !user
+        ? this.usersModel
+            .findOneAndUpdate(
+              { _id: userId },
+              { studentId: studentId },
+              { new: true },
+            )
+            .exec()
+        : null;
+    } else {
+      return this.usersModel
+        .findOneAndUpdate({ _id: userId }, { studentId: null }, { new: true })
+        .exec();
+    }
+  }
+  async adminAssignStudentIds(userData: Array<AssignAccountStudentIdDto>) {
+    return Promise.all(
+      userData.map(async (user) => {
+        console.log(user);
+        const assignResuld = await this.adminAssignStudentId(
+          user.userId,
+          user.studentId,
+        );
+        console.log(assignResuld);
+        return assignResuld
+          ? { userId: assignResuld._id, studentId: assignResuld.studentId }
+          : { userId: user.userId, studentId: null };
+      }),
+    );
+  }
+  async addStudentId(userId: any, studentId: any) {
+    const filter = {
+      $and: [{ studentId: studentId }, { _id: { $ne: userId } }],
+    };
+    const isExist = await this.usersModel.findOne(filter);
+    if (!isExist) {
+      return this.usersModel.findOneAndUpdate(
+        { _id: userId },
+        { studentId: studentId },
+        { new: true },
+      );
+    } else {
+      throw new HttpException('Conflict Student ID', HttpStatus.CONFLICT);
+    }
+  }
+  async findUsersByRole(Admin: Role) {
+    return this.usersModel.find({ role: Admin }).exec();
+  }
+  async findUsers(filter: any = {}) {
+    return this.usersModel.find(filter).exec();
+  }
+  async deleteOne(filter: { _id: string }) {
+    return this.usersModel.findOneAndDelete(filter).exec();
   }
 }

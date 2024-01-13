@@ -12,7 +12,6 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { SignInDto } from './dto/sign-in.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local/local-auth.guard';
 import { JwtAuthGuard } from './jwt/jwt-auth.guard'; // Thêm import JwtAuthGuard
@@ -27,6 +26,11 @@ import * as useragent from 'express-useragent';
 import { ConfigService } from '@nestjs/config';
 import { PendingInvitesService } from 'src/modules/pendingInvites/pendingInvites.service';
 import { EnrollmentsService } from 'src/modules/enrollments/enrollments.service';
+import { Role } from '../enums/role.enum';
+import { LoginByRoleGuard } from './roles/login-by-role.guard';
+import { Roles } from './roles/roles.decorator';
+import { AccountStatusGuard } from './account-status/account-status.guard';
+import { RolesGuard } from './roles/roles.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -202,10 +206,18 @@ export class AuthController {
     };
   }
 
-  @UseGuards(LocalAuthGuard) // Sử dụng LocalAuthGuard cho đăng nhập local
+  @UseGuards(LocalAuthGuard, LoginByRoleGuard)
+  @Roles(Role.User)
   @Post('login')
-  signIn(@Body(new ValidationPipe({ transform: true })) signInData: SignInDto) {
-    return this.authService.signIn(signInData.username, signInData.password);
+  signIn(@Request() req: any) {
+    return req.user;
+    //return this.authService.respondSignIn(req.user, role);
+  }
+  @UseGuards(LocalAuthGuard, LoginByRoleGuard)
+  @Roles(Role.Admin)
+  @Post('admin-login')
+  adminSignIn(@Request() req: any) {
+    return req.user;
   }
 
   @UseGuards(JwtAuthGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
@@ -220,7 +232,8 @@ export class AuthController {
     return req.user;
   }
 
-  @UseGuards(JwtAuthGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
+  @Roles(Role.User)
   @Get('profile')
   async getProfile(@Request() req): Promise<UserDto> {
     const { username } = req.user;
@@ -233,6 +246,7 @@ export class AuthController {
       gender: user.gender,
       birthday: user.birthday,
       avatar: user.avatar,
+      studentId: user.studentId,
     };
   }
 

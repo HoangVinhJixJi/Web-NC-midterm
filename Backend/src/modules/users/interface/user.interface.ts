@@ -9,4 +9,5 @@ export interface UserInterface {
   isActivated: boolean;
   activationToken: string;
   resetPasswordToken: string;
+  role: string;
 }

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Container, CssBaseline, Box } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { Container, CssBaseline, Box, CircularProgress } from '@mui/material';
 import { AuthProvider } from './api/AuthContext';
 import Header from './components/Header'; 
 import Footer from './components/Footer'; 
@@ -16,31 +16,46 @@ import './App.css';
 import ActivateAccount from "./components/ActivateAccount";
 import ForgotPassword from "./components/ForgotPassword";
 import Classroom from './components/Classroom';
-import ClassDetailTab from './components/classroom/ClassDetailTab';
+import AdminSignIn from "./components/AdminSignIn";
+import Admin from "./components/Admin";
+import AdminAccountManagement from "./components/AdminAccountManagement";
+import AdminClassManagement from './components/AdminClassManagement';
+import Forbidden from './components/Forbidden';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const handleSignOut = () => {
     // Handle sign out logic
     setIsLoggedIn(false);
   };
-
+  useEffect(()=>{
+    setIsLoading(false);
+  }, [])
   
 
   return (
     <AuthProvider>
-    
+    {isLoading ?
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </div>
+        :
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CssBaseline />
         <Header isLoggedIn={isLoggedIn} handleSignOut={handleSignOut}/>
-        <Container component="main" maxWidth="md" sx={{ flexGrow: 1, mt: 4, mb: 4 }}>
+        <Container component="main" sx={{ flexGrow: 1, mt: 4, mb: 4 }}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signup/:pendingInviteId" element={<SignUp />} />
             <Route path="/account/activate" element={<ActivateAccount />} />
             <Route path="/signin" element={<SignIn />} />
+            <Route path="/admin-signin" element={<AdminSignIn />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/management/account/*" element={<AdminAccountManagement />} />
+            <Route path="/management/class/*" element={<AdminClassManagement />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
@@ -53,7 +68,7 @@ const App = () => {
           </Routes>
         </Container>
         <Footer />
-      </Box>
+      </Box>}
     </AuthProvider>
     
   );

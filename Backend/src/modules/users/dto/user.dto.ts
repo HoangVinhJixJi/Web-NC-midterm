@@ -21,4 +21,7 @@ export class UserDto {
 
   @IsString()
   avatar: string;
+
+  @IsString()
+  studentId: any;
 }

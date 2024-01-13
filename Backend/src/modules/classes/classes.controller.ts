@@ -3,8 +3,8 @@ import {
   Controller,
   Delete,
   Get,
-  Post,
   Param,
+  Post,
   Put,
   Query,
   Request,
@@ -23,7 +23,13 @@ import { UsersService } from '../users/users.service';
 import { Class } from './schema/class.schema';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { EventsGateway } from 'src/gateway/events.gateway';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
 
+@Roles(Role.User)
 @Controller('classes')
 export class ClassesController {
   constructor(
@@ -33,33 +39,34 @@ export class ClassesController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly eventsGateway: EventsGateway,
   ) {}
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('/')
-  @UseGuards(JwtAuthGuard)
   async getAllClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, null, 'active');
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('teaching')
-  @UseGuards(JwtAuthGuard)
   async getTeachingClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, 'teacher', 'active');
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('enrolled')
-  @UseGuards(JwtAuthGuard)
   async getEnrolledClasses(@Request() req: any) {
     const userId = req.user.sub;
     return await this.classesService.getClasses(userId, 'student', 'active');
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('archived')
-  @UseGuards(JwtAuthGuard)
   async getArchivedClasses(@Request() req: any) {
     const userId = req.user.sub;
     return this.classesService.getClasses(userId, null, 'archive');
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Post('create')
-  @UseGuards(JwtAuthGuard)
   async createNewClass(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true })) userData: CreateClassDto,
@@ -67,14 +74,22 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.create(userData, userId);
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('info/:classId')
-  @UseGuards(JwtAuthGuard)
   async getClassInfo(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
-    return this.classesService.getClassInfo(userId, classId);
+    const checkStudentId = await this.enrollmentsService.checkStudentId(
+      userId,
+      classId,
+    );
+    const classInfo = await this.classesService.getClassInfo(userId, classId);
+    return {
+      checkStudentId,
+      classInfo,
+    };
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Post('update/:classId')
-  @UseGuards(JwtAuthGuard)
   async update(
     @Request() req: any,
     @Param('classId') classId: string,
@@ -83,8 +98,8 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.update(userId, classId, userData);
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('class-code/:classCode')
-  @UseGuards(JwtAuthGuard)
   async getClassInfoAndUserJoinedSatus(
     @Request() req: any,
     @Param('classCode') classCode: string,
@@ -95,8 +110,8 @@ export class ClassesController {
       classCode,
     );
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Post('class-code/:classCode')
-  @UseGuards(JwtAuthGuard)
   async joinClassByClassCodeOrLink(
     @Request() req: any,
     @Param('classCode') classCode: string,
@@ -104,8 +119,8 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.joinClass(userId, classCode);
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Get('email/:classId')
-  @UseGuards(JwtAuthGuard)
   async getAllEmailsByClassId(
     @Request() req: any,
     @Param('classId') classId: string,
@@ -121,8 +136,8 @@ export class ClassesController {
 
     return uniqueEmails;
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Post('invite-email/:classId')
-  @UseGuards(JwtAuthGuard)
   async inviteEmail(
     @Request() req: any,
     @Body(new ValidationPipe({ transform: true })) userData: InviteEmailsDto,
@@ -209,8 +224,8 @@ export class ClassesController {
       res.render('invitation-expired');
     }
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Delete('remove-member/:classId')
-  @UseGuards(JwtAuthGuard)
   async removeMember(
     @Request() req: any,
     @Param('classId') classId: string,
@@ -219,28 +234,34 @@ export class ClassesController {
     const userId = req.user.sub;
     return this.classesService.removeMember(userId, classId, rmvId);
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Put('archive/:classId')
-  @UseGuards(JwtAuthGuard)
   async archiveClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.archive(userId, classId);
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Put('restore/:classId')
-  @UseGuards(JwtAuthGuard)
   async restoreClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.restore(userId, classId);
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Delete('delete/:classId')
-  @UseGuards(JwtAuthGuard)
   async deleteClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.delete(userId, classId);
   }
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
   @Delete('leave/:classId')
-  @UseGuards(JwtAuthGuard)
   async leaveClass(@Request() req: any, @Param('classId') classId: string) {
     const userId = req.user.sub;
     return this.classesService.leaveClass(classId, userId);
+  }
+  @Get('my-studentId/:classId')
+  @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
+  async getMyStudentId(@Request() req: any, @Param('classId') classId: string) {
+    const userId = req.user.sub;
+    return this.enrollmentsService.getStudentId(userId, classId);
   }
 }

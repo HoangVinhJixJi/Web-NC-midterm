@@ -27,6 +27,8 @@ const ClassInfoTab = ({ classInfo, isTeaching }) => {
     console.log('classInfo in ClassInfotab: ', classInfo);
     const [anchorEl, setAnchorEl] = useState(null);
     const [isSnackbarOpen, setSnackbarOpen] = useState(false);
+    
+
     const handleClick = (event) => {
       setAnchorEl(event.currentTarget);
     };

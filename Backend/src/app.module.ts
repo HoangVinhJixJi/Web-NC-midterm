@@ -12,6 +12,19 @@ import { MailModule } from './mail/mail.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { ClassesModule } from './modules/classes/classes.module';
 import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.module';
+import { AssignmentsModule } from './modules/assignments/assignments.module';
+import { GradesModule } from './modules/grades/grades.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { EventsModule } from './gateway/events.module';
+import { AccountModule } from './modules/admin/management/account/account.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { BannedUsersModule } from './modules/admin/management/account/banned-users/banned-users.module';
+import { ClassModule } from './modules/admin/management/class/class.module';
+import { ReportsController } from './modules/reports/reports.controller';
+import { ReportsModule } from './modules/reports/reports.module';
+import { GradeStructuresModule } from './modules/gradeStructures/gradeStructures.module';
+import { GradeReviewsModule } from './modules/gradeReviews/gradeReviews.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -29,6 +42,7 @@ import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.mo
         uri: configService.get<string>('database.db_connection_uri'),
       }),
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     PassportModule,
@@ -36,8 +50,19 @@ import { PendingInvitesModule } from './modules/pendingInvites/pendingInvites.mo
     EnrollmentsModule,
     ClassesModule,
     PendingInvitesModule,
+    AssignmentsModule,
+    GradesModule,
+    NotificationsModule,
+    EventsModule,
+    AccountModule,
+    BannedUsersModule,
+    ClassModule,
+    ReportsModule,
+    GradeStructuresModule,
+    GradeReviewsModule,
+    CommentsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ReportsController],
   providers: [AppService, AuthService],
 })
 export class AppModule {}

@@ -33,19 +33,48 @@ const EditUser = () => {
   const [saveStatus, setSaveStatus] = useState('');
   const [curUsername, setCurUsername] = useState('');
   const [curEmail, setCurEmail] = useState('');
+  const [fullNameError, setFullNameError] = useState(false);
+  const [usernameError, setUsernameError] = useState(false);
+  const [dobError, setDobError] = useState(false);
+
   const handleChange = (field, value) => {
     setUser({
       ...user,
       [field]: value,
     });
+    if(field === 'fullName' && !value){
+      setFullNameError(true);
+    }else{
+      setFullNameError(false);
+    }
+    if(field === 'username' && !value){
+      setUsernameError(true);
+    }else{
+      setUsernameError(false);
+    }
+    if (field === 'birthday') {
+      const currentDate = new Date();
+      const inputDate = new Date(value);
+      console.log(inputDate);
+      console.log(inputDate > currentDate);
+      if(inputDate > currentDate){
+        setDobError(true);
+      }else{
+        setDobError(false);
+      }
+    }
     // Kiểm tra validation email
     if (field === 'email') {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        setEmailError(!emailRegex.test(value));
-      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      setEmailError(!emailRegex.test(value));
+    }
+    
   };
 
   const handleSave = async () => {
+    if(emailError || usernameError || fullNameError || dobError){
+      return;
+    }
     try {
       // Lấy token từ localStorage hoặc nơi lưu trữ khác
       const token = localStorage.getItem('token');
@@ -128,7 +157,13 @@ const EditUser = () => {
             fullWidth
             value={user.username || ''}
             onChange={(e) => handleChange('username', e.target.value)}
+            error={usernameError}
           />
+          {usernameError && (
+            <FormHelperText error>
+            Please enter your username.
+            </FormHelperText>
+          )}
         </Grid>
         <Grid item xs={12}>
           <InputLabel >Full Name</InputLabel>
@@ -136,7 +171,13 @@ const EditUser = () => {
             fullWidth
             value={user.fullName || ''}
             onChange={(e) => handleChange('fullName', e.target.value)}
+            error={fullNameError}
           />
+          {fullNameError && (
+            <FormHelperText error>
+              Please enter your full name.
+            </FormHelperText>
+          )}
         </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl component="fieldset">
@@ -161,7 +202,13 @@ const EditUser = () => {
             InputLabelProps={{
               shrink: true,
             }}
+            error={dobError}
           />
+          {dobError && (
+            <FormHelperText error>
+              Date of birth cannot be in the future.
+            </FormHelperText>
+          )}
         </Grid>
         <Grid item xs={12} >
           <InputLabel >Email</InputLabel>
@@ -174,10 +221,10 @@ const EditUser = () => {
             error={emailError}
           />
           {emailError && (
-          <FormHelperText error>
-            Invalid email format
-          </FormHelperText>
-  )}
+            <FormHelperText error>
+              Invalid email format
+            </FormHelperText>
+          )}
         </Grid>
         <Grid item xs={12}>
           <InputLabel >Avatar</InputLabel>

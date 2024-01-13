@@ -10,15 +10,21 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "array-move": "^4.0.0",
     "axios": "^1.6.0",
     "bcrypt": "^5.1.1",
+    "exceljs": "^4.4.0",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
+    "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.18.0",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "react-sortable-hoc": "^2.0.0",
+    "socket.io-client": "^4.7.3",
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

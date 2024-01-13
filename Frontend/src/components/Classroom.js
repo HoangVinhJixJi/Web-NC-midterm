@@ -12,37 +12,24 @@ import MainHomepageTab from './classroom/MainHomepageTab';
 import TeachingTab from './classroom/TeachingTab';
 import JoinedClassTab from './classroom/JoinedClassTab';
 import ClassDetailTab from './classroom/ClassDetailTab';
+import SidebarContainer from "./tab and sidebar/SidebarContainer";
+import SidebarItem from "./tab and sidebar/SidebarItem";
+import MainContent from "./tab and sidebar/MainContent";
+import GradeReviewDetail from './classroom/GradeReviewDetail';
 
 import { Container } from '@mui/material';
 import NotificationJoinClass from './classroom/NotificationJoinClass';
-const SidebarContainer = styled('div')(({ theme }) => ({
-  width: 200,
-  padding: theme.spacing(3),
-  backgroundColor: theme.palette.background.default,
-  borderRight: `1px solid ${theme.palette.divider}`,
-}));
+import AssignmentDetail from './classroom/AssignmentDetail';
+import {useAuth as useAuthContext} from '../api/AuthContext';
+import Forbidden from './Forbidden';
 
-const SidebarItem = styled('div')(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  transition: 'background-color 0.3s ease',
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-    cursor: 'pointer',
-  },
-}));
-
-const MainContent = styled('div')(({ theme }) => ({
-  width: `calc(100% - 200px)`,
-  padding: theme.spacing(3),
-}));
-
-// Tạo các component tương ứng với các tab
 
 
 const Classroom = () => {
   const theme = useTheme();
   const [currentTab, setCurrentTab] = React.useState('/classroom/home');
   const navigate = useNavigate();
+  const { isLoggedIn, isAdmin } = useAuthContext();
   const handleTabChange = (path) => {
     setCurrentTab(path);
     navigate(path)
@@ -54,45 +41,55 @@ const Classroom = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
-      {/* Sidebar */}
-      <SidebarContainer>
-        <Typography variant="h6" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
-          Class Room
-        </Typography>
-        {[
-          { text: 'Home', path: '/classroom/home', icon: <HomeIcon />, component: MainHomepageTab },
-          { text: 'Teaching', path: '/classroom/teaching',icon: <SupervisorAccountIcon />, component: TeachingTab },
-          { text: 'Joined Class', path: '/classroom/joined-class',icon: <SchoolIcon />, component: JoinedClassTab },
-        ].map(({ text, path, icon }, index) => (
-          
-          <SidebarItem
-            key={text}
-            onClick={() => handleTabChange(path)}
-            sx={{
-              color: currentTab === path ? theme.palette.primary.main : 'inherit',
-            }}
-          >
-           
-           {icon} {text}
-           
-          </SidebarItem>
-        ))}
-      </SidebarContainer>
+    <>
+      {!isAdmin ?
+        <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+          {/* Sidebar */}
+          <SidebarContainer>
+            <Typography variant="h6" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
+              Class Room
+            </Typography>
+            {[
+              { text: 'Home', path: '/classroom/home', icon: <HomeIcon />, component: MainHomepageTab },
+              { text: 'Teaching', path: '/classroom/teaching',icon: <SupervisorAccountIcon />, component: TeachingTab },
+              { text: 'Joined Class', path: '/classroom/joined-class',icon: <SchoolIcon />, component: JoinedClassTab },
+            ].map(({ text, path, icon }, index) => (
 
-      {/* Main Content */}
-      <MainContent>
-        <Routes>
-          <Route path="/" element={<MainHomepageTab onClassClick={handleClassClick} />} />
-          <Route path="/home" element={<MainHomepageTab onClassClick={handleClassClick} />} />
-          <Route path="/teaching" element={<TeachingTab onClassClick={handleClassClick} />} />
-          <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick} />} />
-          <Route path="/class-detail/:classId" element={<ClassDetailTab />} />
-          <Route path="/class-code/:classCode" element={<NotificationJoinClass />} />
-        </Routes>
+              <SidebarItem
+                key={text}
+                onClick={() => handleTabChange(path)}
+                sx={{
+                  color: currentTab === path ? theme.palette.primary.main : 'inherit',
+                }}
+              >
 
-      </MainContent>
-    </Box>
+               {icon} {text}
+
+              </SidebarItem>
+            ))}
+          </SidebarContainer>
+
+          {/* Main Content */}
+          <MainContent>
+            <Routes>
+              <Route path="/" element={<MainHomepageTab onClassClick={handleClassClick} />} />
+              <Route path="/home" element={<MainHomepageTab onClassClick={handleClassClick} />} />
+              <Route path="/teaching" element={<TeachingTab onClassClick={handleClassClick} />} />
+              <Route path="/joined-class" element={<JoinedClassTab onClassClick={handleClassClick}/>} />
+              <Route path="/class-detail/:classId" element={<ClassDetailTab />} />
+              <Route path="/class-code/:classCode" element={<NotificationJoinClass />} />
+              <Route path="/class-detail/:classId/assignment-detail/:assignmentId" 
+                    element={<AssignmentDetail />} />
+              <Route path="/class-detail/:classId/assignment-detail/:assignmentId/gradeReview-detail/:gradeReviewId" 
+                    element={<GradeReviewDetail />} />
+            </Routes>
+
+          </MainContent>
+        </Box>
+        :
+        <Forbidden />
+      }
+    </>
   );
 };
 

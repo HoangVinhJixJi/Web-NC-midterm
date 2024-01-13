@@ -24,6 +24,9 @@ import {
 import { Add as AddIcon, PersonAdd as PersonAddIcon } from '@mui/icons-material';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import api, {setAuthToken} from '../../api/api';
+import BannedInfoDialog from '../dialogs/BannedInfoDialog';
+import { useAuth as useAuthContext } from '../../api/AuthContext';
+import ForbiddenDialog from '../dialogs/ForbiddenDialog';
 
 
 const CustomListItemButton = styled(ListItemButton)(({ theme }) => ({
@@ -41,6 +44,10 @@ const MainHomepageTab = ({ onClassClick }) => {
   const [classList, setClassList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [isOpenBannedInfoDialog, setIsOpenBannedInfoDialog] = useState(false);
+  const [bannedInfo, setBannedInfo] = useState({});
+  const [isOpenForbiddenDialog, setIsOpenForbiddenDialog] = useState(false);
+  const { logout } = useAuthContext();
 
   const openCreateClassPopup = () => setCreateClassOpen(true);
   const closeCreateClassPopup = () => {
@@ -55,7 +62,14 @@ const MainHomepageTab = ({ onClassClick }) => {
   }
   const navigate = useNavigate();
 
-
+  function handleCloseBannedInfoDialog() {
+    setIsOpenBannedInfoDialog(false);
+    logout();
+    navigate('/home');
+  }
+  function handleCloseForbiddenDialog() {
+    setIsOpenForbiddenDialog(false);
+  }
   const fetchClassData = async () => {
     try {
       // Lấy token từ localStorage hoặc nơi lưu trữ khác
@@ -71,8 +85,15 @@ const MainHomepageTab = ({ onClassClick }) => {
       // Gọi API để lấy dữ liệu danh sách toàn bộ các lớp học của người dùng
       const response = await api.get('/classes/');
       //Lưu thông tin toàn bộ lớp học vào state
-      setClassList(response.data);
-      console.log('response.data: ', response.data);
+      const list = response.data.reduce((accumulator, obj) => {
+        if (obj !== null) {
+          accumulator.push(obj);
+        }
+        return accumulator;
+      }, []);
+
+      setClassList(list);
+      console.log('list: ', list);
       setIsLoading(false);
       
     } catch (error) {
@@ -80,8 +101,22 @@ const MainHomepageTab = ({ onClassClick }) => {
       console.error('Error fetching user data:', error);
 
       // Nếu lỗi là do xác thực (ví dụ: token hết hạn), chuyển hướng về trang đăng nhập
-      if (error.response && error.response.status === 401) {
-        navigate('/signin');
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            navigate('/signin');
+            break;
+          case 403:
+            if (error.response.data['message'] === 'Forbidden') {
+              setIsOpenForbiddenDialog(true);
+            } else {
+              console.log('Im here');
+              setBannedInfo(error.response.data);
+              setIsOpenBannedInfoDialog(true);
+            }
+            break;
+          default:
+        }
       }
     }
   };
@@ -289,6 +324,12 @@ const MainHomepageTab = ({ onClassClick }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <BannedInfoDialog
+        bannedInfo={bannedInfo}
+        isOpenDialog={isOpenBannedInfoDialog}
+        onCloseDialogClick={handleCloseBannedInfoDialog}
+      />
+      <ForbiddenDialog isOpenDialog={isOpenForbiddenDialog} onCloseDialogClick={handleCloseForbiddenDialog} />
 
     </Container>
     }</>

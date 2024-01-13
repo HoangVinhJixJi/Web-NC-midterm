@@ -5,23 +5,35 @@ import { Visibility, VisibilityOff, Facebook, Google } from '@mui/icons-material
 
 import api, { setAuthToken } from '../api/api';
 import { useAuth as useAuthContext } from '../api/AuthContext';
+import BannedInfoDialog from './dialogs/BannedInfoDialog';
 
 const SignIn = () => {
-  const { login, isLoggedIn } = useAuthContext();
+  const { login, isLoggedIn, isAdmin } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); // State for password visibility
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const [isOpenBannedInfoDialog, setIsOpenBannedInfoDialog] = useState(false);
+  const [bannedInfo, setBannedInfo] = useState({});
   
   useEffect(() => {
+    console.log('public url', process.env.REACT_APP_PUBLIC_URL);
+    console.log('client url', process.env.REACT_APP_CLIENT_URL);
     // Kiểm tra trạng thái đăng nhập
     if (isLoggedIn) {
       // Nếu đã đăng nhập, điều hướng về trang Home
-      navigate('/home');
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/home');
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, isAdmin, navigate]);
 
+  function handleCloseBannedInfoDialog() {
+    setIsOpenBannedInfoDialog(false);
+  }
   const handleSignIn = async (event) => {
     try {
       event.preventDefault();
@@ -45,30 +57,44 @@ const SignIn = () => {
       // Handle API response
       if (response.data) {
         console.log(response.data);
-        const { userData, access_token } = response.data;
+        if (response.data.status === 403) {
+          setMessage('Your account does not have this permission.');
+        } else {
+          const { userData, access_token } = response.data;
 
-        // Save user information and token to localStorage or sessionStorage
-        login(access_token, userData);
-        
-        const classId = localStorage.getItem('classId');
-        if (classId) {
-          localStorage.removeItem('classId');
-          navigate(`/classroom/class-detail/${classId}`);
+          // Save user information and token to localStorage or sessionStorage
+          login(access_token, userData);
+
+          // Redirect to the home page
+          navigate('/home');
         }
-        else {
-          const classCode = localStorage.getItem('classCode');
-          if (classCode) {
-            localStorage.removeItem('classCode');
-            navigate(`/classroom/class-code/${classCode}`);
-          }
-          else {
-            navigate('/home');
-          }
-        }        
       }
     } catch (error) {
-      setMessage('Sign in failed. Try again!');
-      console.error('Sign in failed:', error);
+      if (error.response) {
+        console.log(error.response.data);
+        switch (error.response.status) {
+          case 400:
+            setMessage('Wrong password. Try again!');
+            break;
+          case 401:
+            setMessage('Account has not been activated. Please check the email to active your account.');
+            break;
+          case 403:
+            if (error.response.data['message'] === 'Forbidden') {
+              setMessage('Your account does not have this permission.');
+            } else {
+              setBannedInfo(error.response.data);
+              setIsOpenBannedInfoDialog(true);
+            }
+            break;
+          default:
+            setMessage('Sign in failed. Try again!');
+            console.error('Sign in failed:', error);
+        }
+      } else {
+        setMessage('Sign in failed. Try again!');
+        console.error('Sign in failed:', error);
+      }
     }
   };
 
@@ -168,9 +194,17 @@ const SignIn = () => {
           {message}
         </Typography>
         <Typography variant="body2" mt={2}>
+          <Link to="/admin-signin">Login as Administrator</Link>
+        </Typography>
+        <Typography variant="body2" mt={2}>
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </Typography>
       </Paper>
+      <BannedInfoDialog
+        bannedInfo={bannedInfo}
+        isOpenDialog={isOpenBannedInfoDialog}
+        onCloseDialogClick={handleCloseBannedInfoDialog}
+      />
     </Container>
   );
 };

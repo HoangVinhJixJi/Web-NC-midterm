@@ -14,11 +14,17 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { UserDto } from './dto/user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { AccountStatusGuard } from '../../auth/account-status/account-status.guard';
+import { RolesGuard } from '../../auth/roles/roles.guard';
+import { Roles } from '../../auth/roles/roles.decorator';
+import { Role } from '../../enums/role.enum';
+import { ReportConflictStudentIdDto } from '../reports/dto/report-conflict-student-id.dto';
 
+@UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard)
+@Roles(Role.User, Role.Admin)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  @UseGuards(JwtAuthGuard)
   @Post('update')
   async updateProfile(
     @Request() req,
@@ -73,9 +79,9 @@ export class UsersController {
       gender: updatedUser.gender,
       birthday: updatedUser.birthday,
       avatar: updatedUser.avatar,
+      studentId: updatedUser.studentId,
     };
   }
-  @UseGuards(JwtAuthGuard)
   @Post('update-password')
   async updatePassword(
     @Request() req,
@@ -103,5 +109,14 @@ export class UsersController {
       }
     }
     throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+  }
+  @Post('add-studentId')
+  async addStudentId(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    userData: Record<string, any>,
+  ) {
+    const userId = req.user.sub;
+    return this.usersService.addStudentId(userId, userData['studentId']);
   }
 }
