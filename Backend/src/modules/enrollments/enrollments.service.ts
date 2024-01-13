@@ -11,13 +11,14 @@ export class EnrollmentsService {
     @InjectModel('User') private usersModel: Model<User>,
   ) {}
   async add(classId: string, userId: string, role: string, isCreator: boolean) {
+    const user = await this.usersModel.findOne({ _id: userId }).exec();
     const newEnrollment = {
       classId,
       userId,
       role,
       joinAt: new Date().toString(),
       isCreator,
-      studentId: '',
+      studentId: user.studentId,
     };
     const createEnrollment = new this.enrollmentsModel(newEnrollment);
     return createEnrollment.save();
@@ -233,9 +234,7 @@ export class EnrollmentsService {
     if (existingEnrollment) {
       if (
         existingEnrollment.role === 'student' &&
-        'studentId' in existingEnrollment &&
-        existingEnrollment.studentId &&
-        existingEnrollment.studentId.trim() !== ''
+        existingEnrollment.studentId !== null
       ) {
         return true;
       }
@@ -278,5 +277,10 @@ export class EnrollmentsService {
       .exec();
     const userIds = enrollments.map((enrollment) => enrollment.userId);
     return userIds;
+  }
+  async mapStudentIdFromUser(userId: string, studentId: any) {
+    return this.enrollmentsModel
+      .updateMany({ userId: userId }, { studentId: studentId }, { new: true })
+      .exec();
   }
 }

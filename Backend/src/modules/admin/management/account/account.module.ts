@@ -9,6 +9,7 @@ import { BannedUsersModule } from './banned-users/banned-users.module';
 import { NotificationsModule } from '../../../notifications/notifications.module';
 import { EventsModule } from '../../../../gateway/events.module';
 import { CommentsModule } from '../../../comments/comments.module';
+import { EnrollmentsModule } from '../../../enrollments/enrollments.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CommentsModule } from '../../../comments/comments.module';
     NotificationsModule,
     EventsModule,
     CommentsModule,
+    EnrollmentsModule,
   ],
   providers: [AccountService],
   controllers: [AccountController],
