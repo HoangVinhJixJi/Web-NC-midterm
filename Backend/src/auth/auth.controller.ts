@@ -233,7 +233,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard, AccountStatusGuard, RolesGuard) // Sử dụng JwtAuthGuard cho các route cần xác thực JWT
-  @Roles(Role.User)
+  @Roles(Role.User, Role.Admin)
   @Get('profile')
   async getProfile(@Request() req): Promise<UserDto> {
     const { username } = req.user;
