@@ -120,7 +120,7 @@ function Header() {
             const token = localStorage.getItem('token');
 
             // Khởi tạo socket và kết nối
-            const socket = io('http://localhost:5000', {
+            const socket = io(`${process.env.REACT_APP_PUBLIC_URL}`, {
                 auth: { token },
             });
             // const socket = io('https://ptudwnc-final-project.vercel.app', {

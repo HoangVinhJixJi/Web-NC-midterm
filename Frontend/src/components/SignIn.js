@@ -18,6 +18,8 @@ const SignIn = () => {
   const [bannedInfo, setBannedInfo] = useState({});
   
   useEffect(() => {
+    console.log('public url', process.env.REACT_APP_PUBLIC_URL);
+    console.log('client url', process.env.REACT_APP_CLIENT_URL);
     // Kiểm tra trạng thái đăng nhập
     if (isLoggedIn) {
       // Nếu đã đăng nhập, điều hướng về trang Home
