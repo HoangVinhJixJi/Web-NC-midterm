@@ -71,21 +71,17 @@ const AssignmentDetail = () => {
             // Đặt token cho mọi yêu cầu
             setAuthToken(token);
             const _assignment = await api.get(`/assignments/get/assignment/${assignmentId}`);
-            if (_assignment.data) {
-                setAssignment(_assignment.data);
-                const _gradeComposition = await api.get(`gradeStructures/detail/${_assignment.data.gradeStructureId}`);
-                setGradeComposition(_gradeComposition.data);
-            }
+            setAssignment(_assignment.data);
+            const _gradeComposition = await api.get(`gradeStructures/detail/${_assignment.data.gradeStructureId}`);
+            setGradeComposition(_gradeComposition.data);
 
             if (!isTeaching) {
                 const getStudentId = await api.get(`/classes/my-studentId/${classId}`);
-                if (getStudentId.data) {
-                    const _studentId = getStudentId.data;
-                    setStudentId(_studentId);
-                    const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
-                    if (response.data) {
-                        setGradeReviews(response.data);
-                    }
+                const _studentId = getStudentId.data;
+                setStudentId(_studentId);
+                const response = await api.get(`/gradeReviews/${classId}/${assignmentId}/${_studentId.toString()}`);
+                if (response.data) {
+                    setGradeReviews(response.data);
                 }
                 try {
                     const studentGrade = await api.get(`/grades/get/my-grade/${classId}/${assignmentId}`);
@@ -104,7 +100,7 @@ const AssignmentDetail = () => {
             setIsLoading(false);
         } catch (error) {
             console.error('Error fetching assignment data:', error);
-            navigate(`/classroom/class-detail/${classId}`, { state: { currentTab: 3 } });
+            navigate(`/classroom`);
             
         }
     };

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CommentsController } from './comments.controller';
 import { CommentSchema } from './schema/comment.schema';
@@ -16,8 +16,8 @@ import { UsersModule } from '../users/users.module';
     MongooseModule.forFeature([{ name: 'Comment', schema: CommentSchema }]),
     NotificationsModule,
     EnrollmentsModule,
-    AssignmentsModule,
-    GradeReviewsModule,
+    forwardRef(() => AssignmentsModule),
+    forwardRef(() => GradeReviewsModule),
     EventsModule,
     BannedUsersModule,
     UsersModule,

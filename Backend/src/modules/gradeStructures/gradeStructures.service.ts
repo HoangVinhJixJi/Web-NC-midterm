@@ -5,6 +5,7 @@ import { GradeStructure } from './schema/gradeStructure.schema';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AddGradeCompositionDto } from './dto/add-gradeCompostion.dto';
+import { AssignmentsService } from '../assignments/assignments.service';
 
 @Injectable()
 export class GradeStructuresService {
@@ -13,6 +14,7 @@ export class GradeStructuresService {
     private gradeStructuresModel: Model<GradeStructure>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly assignmentsService: AssignmentsService,
   ) {}
   async add(classId: string, userData: AddGradeCompositionDto) {
     const newGradeStructure = {
@@ -27,9 +29,11 @@ export class GradeStructuresService {
   }
   async delete(gradeStructureId: string): Promise<GradeStructure | null> {
     try {
-      return await this.gradeStructuresModel
+      const res = await this.gradeStructuresModel
         .findOneAndDelete({ _id: gradeStructureId })
         .exec();
+      await this.assignmentsService.deleteByGradeStructureId(gradeStructureId);
+      return res;
     } catch (error) {
       throw new Error(error);
     }

@@ -118,4 +118,14 @@ export class UsersController {
     const userId = req.user.sub;
     return this.usersService.addStudentId(userId, userData['studentId']);
   }
+  @Post('teacher-update-studentId')
+  async updateStudentId(
+    @Request() req: any,
+    @Body(new ValidationPipe({ transform: true }))
+    updateData: Record<string, any>,
+  ) {
+    console.log('teacher-update-studentid');
+    const userId = req.user.sub;
+    return this.usersService.addStudentIdRoleTeacher(userId, updateData);
+  }
 }

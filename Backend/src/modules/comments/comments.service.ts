@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Comment } from './schema/comment.schema';
@@ -20,9 +20,11 @@ export class CommentsService {
     private readonly jwtService: JwtService,
     private readonly notificationsService: NotificationsService,
     private readonly enrollmentsService: EnrollmentsService,
+    @Inject(forwardRef(() => AssignmentsService))
     private readonly assignmentsService: AssignmentsService,
-    private readonly gradeReviewsService: GradeReviewsService,
     private readonly eventsGateway: EventsGateway,
+    @Inject(forwardRef(() => GradeReviewsService))
+    private readonly gradeReviewsService: GradeReviewsService,
   ) {}
   async add(gradeReviewId: string, sendId: string, userData: PostCommentDto) {
     const newComment = {
@@ -129,5 +131,8 @@ export class CommentsService {
       .deleteMany({ sendId: userId })
       .exec();
     return deleteRes.acknowledged;
+  }
+  async deleteByGradeReviewId(gradeReviewId: string): Promise<void> {
+    await this.commentsModel.deleteMany({ gradeReviewId }).exec();
   }
 }

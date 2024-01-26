@@ -67,6 +67,9 @@ const GradeReviewDetail = () => {
             // Đặt token cho mọi yêu cầu
             setAuthToken(token);
             const response = await api.get(`/gradeReviews/gradeReviewId/${gradeReviewId}`);
+            if (!response.data) {
+                navigate(`/classroom`);
+            }
             setGradeReview(response.data);
             setFinalScore(response.data.finalGrade);
             setIsOpen(response.data.status === 'open');

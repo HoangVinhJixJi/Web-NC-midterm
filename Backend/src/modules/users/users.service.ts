@@ -263,4 +263,49 @@ export class UsersService {
   async deleteOne(filter: { _id: string }) {
     return this.usersModel.findOneAndDelete(filter).exec();
   }
+  async addStudentIdRoleTeacher(userId: any, updateData: any) {
+    const classId = updateData.classId;
+    console.log(updateData);
+    const isCreator = await this.enrollmentsModel
+      .findOne({
+        classId,
+        userId,
+        role: 'teacher',
+      })
+      .exec();
+    console.log(isCreator);
+    if (isCreator && isCreator['isCreator']) {
+      for (const row of updateData.list) {
+        // Tìm kiếm enrollment dựa trên classId và userId
+        console.log('row: update studentId: ', row);
+        const filter = {
+          $and: [
+            { studentId: row.newStudentId },
+            { _id: { $ne: row.studentUserId } },
+          ],
+        };
+        const isExist = await this.usersModel.findOne(filter);
+        console.log(isExist);
+        if (!isExist) {
+          const addedUser = await this.usersModel.findOneAndUpdate(
+            { _id: row.studentUserId },
+            { studentId: row.newStudentId },
+            { new: true },
+          );
+          console.log('addUser: ', addedUser);
+          const updatedEnroll = await this.enrollmentsModel
+            .updateMany(
+              { userId: addedUser._id.toString() },
+              { studentId: addedUser.studentId },
+            )
+            .exec();
+          console.log('updatedEnroll: ', updatedEnroll);
+        } else {
+          throw new HttpException('Conflict Student ID', HttpStatus.CONFLICT);
+        }
+      }
+    } else {
+      throw new HttpException('Teacher is not a Creator', 403);
+    }
+  }
 }

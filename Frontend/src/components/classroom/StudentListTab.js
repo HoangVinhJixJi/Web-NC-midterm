@@ -226,11 +226,11 @@ const StudentListTab = ({classId, isTeaching}) => {
   const handleSaveUploadFile = () => {
     const sendStudentIdChangeEnrollment = async (studentData) => {
       try {
-        const response = await api.post(`/enrollments/update/list`, studentData);
+        const response = await api.post(`/users/teacher-update-studentId`, studentData);
         return response.data;
       } catch (error) {
         // Xử lý lỗi
-        console.error('Error fetching update data `/enrollments/update/list :', error);
+        console.error('Error fetching update data /users/teacher-update-studentId :', error);
       }
     };
     const sendStudentIdChangeGrade = async (studentData) => {
@@ -251,11 +251,16 @@ const StudentListTab = ({classId, isTeaching}) => {
           studentId: s.studentId,
         })),
     };
-    console.log('sendObj: ', sendObj);
-    const updatedEnroll = sendStudentIdChangeEnrollment(sendObj);
+    const sendObjToUser = {
+      classId,
+      list: students.filter((s) => s.oldStudentId).map((s) => (
+        {
+          studentUserId: s._id,
+          newStudentId: s.studentId,
+        })),
+    };
+    const updatedEnroll = sendStudentIdChangeEnrollment(sendObjToUser);
     const updatedGrade = sendStudentIdChangeGrade(sendObj);
-    console.log('=> updated list sutdent ID updatedEnroll : ', updatedEnroll);
-    console.log('=> updated list sutdent ID updatedGrade: ', updatedGrade);
     setIsUploadFile(false);
   }
    //Hủy thao tác update student 

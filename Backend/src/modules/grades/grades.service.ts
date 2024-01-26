@@ -307,4 +307,10 @@ export class GradesService {
   async adminClearGradeByClass(classId: any) {
     return this.gradesModel.deleteMany({ classId: classId }).exec();
   }
+  async deleteByAssignmentId(
+    classId: string,
+    assignmentId: string,
+  ): Promise<void> {
+    await this.gradesModel.deleteMany({ classId, assignmentId }).exec();
+  }
 }

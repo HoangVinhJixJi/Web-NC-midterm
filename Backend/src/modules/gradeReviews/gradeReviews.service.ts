@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { GradeReview } from './schema/gradeReview.schema';
@@ -9,6 +9,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
 import { AssignmentsService } from '../assignments/assignments.service';
 import { EventsGateway } from 'src/gateway/events.gateway';
+import { CommentsService } from '../comments/comments.service';
 
 @Injectable()
 export class GradeReviewsService {
@@ -19,8 +20,10 @@ export class GradeReviewsService {
     private readonly jwtService: JwtService,
     private readonly notificationsService: NotificationsService,
     private readonly enrollmentsService: EnrollmentsService,
+    @Inject(forwardRef(() => AssignmentsService))
     private readonly assignmentsService: AssignmentsService,
     private readonly eventsGateway: EventsGateway,
+    private readonly commentsService: CommentsService,
   ) {}
   async add(
     userId: string,
@@ -68,9 +71,11 @@ export class GradeReviewsService {
   }
   async delete(gradeReviewId: string): Promise<GradeReview | null> {
     try {
-      return await this.gradeReviewsModel
+      const res = await this.gradeReviewsModel
         .findOneAndDelete({ _id: gradeReviewId })
         .exec();
+      await this.commentsService.deleteByGradeReviewId(gradeReviewId);
+      return res;
     } catch (error) {
       throw new Error(error);
     }
@@ -174,5 +179,15 @@ export class GradeReviewsService {
   }
   async adminClearGradeReviewByClass(classId: any) {
     return this.gradeReviewsModel.deleteMany({ classId: classId }).exec();
+  }
+  async deleteByAssignmentId(assignmentId: string): Promise<void> {
+    try {
+      const gradeReviews = await this.findAllByAssignmentId(assignmentId);
+      for (const gradeReview of gradeReviews) {
+        await this.delete(gradeReview._id);
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }
