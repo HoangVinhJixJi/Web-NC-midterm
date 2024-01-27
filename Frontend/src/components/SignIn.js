@@ -17,6 +17,9 @@ const SignIn = () => {
   const [isOpenBannedInfoDialog, setIsOpenBannedInfoDialog] = useState(false);
   const [bannedInfo, setBannedInfo] = useState({});
   
+  const googleURL = `${process.env.REACT_APP_PUBLIC_URL}/auth/google`;
+  const facebookURL = `${process.env.REACT_APP_PUBLIC_URL}/auth/facebook`;
+  
   useEffect(() => {
     console.log('public url', process.env.REACT_APP_PUBLIC_URL);
     console.log('client url', process.env.REACT_APP_CLIENT_URL);
@@ -175,14 +178,14 @@ const SignIn = () => {
           </Button>
           <Grid container spacing={1} style={{ marginTop: '10px' }}>
             <Grid item xs={6}>
-              <Link to="https://ptudwnc-final-project.vercel.app/auth/google">
+              <Link to={googleURL}>
                 <Button variant="outlined" fullWidth sx={{ color: '#DB4437' }}>
                   <Google /> Google
                 </Button>
               </Link>
             </Grid>
             <Grid item xs={6}>
-              <Link to="https://ptudwnc-final-project.vercel.app/auth/facebook">
+              <Link to={facebookURL}>
                 <Button variant="outlined" fullWidth sx={{ color: '#3B5998' }}>
                   <Facebook /> Facebook
                 </Button>
